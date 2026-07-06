@@ -362,6 +362,11 @@ function openRoleModal(player, cardElement) {
   document.getElementById('role-modal').classList.add('active');
 }
 
+function closeRoleModal() {
+  const modal = document.getElementById('role-modal');
+  if (modal) modal.classList.remove('active');
+}
+
 function selectPlayerRole(player, newRole) {
   player.role = newRole;
   closeRoleModal();
