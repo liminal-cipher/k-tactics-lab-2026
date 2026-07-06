@@ -96,13 +96,13 @@ k-tactics-lab/
 ### 💻 Local Run (로컬 실행)
 1. 본 저장소를 다운로드(ZIP) 혹은 `git clone` 한다.
 ```bash
-git clone https://github.com/your-username/k-tactics-lab.git
-cd k-tactics-lab
+git clone https://github.com/liminal-cipher/k-tactics-lab-2026.git
+cd k-tactics-lab-2026
 ```
 2. 폴더 내의 **`index.html`** 파일을 더블 클릭하여 웹 브라우저(Chrome, Safari, Edge 등)로 열면 즉시 실행된다.
 
 ### 🌐 Live Demo URL (온라인 배포)
-* **Live Demo:** (배포 시 Vercel 또는 GitHub Pages 링크가 여기에 삽입된다.)
+* **Live Demo:** [https://liminal-cipher.github.io/k-tactics-lab-2026/](https://liminal-cipher.github.io/k-tactics-lab-2026/)
 
 ---
 📄 **License:** This project is developed for the DAKER Hackathon 2026. All rights reserved.
