@@ -104,15 +104,23 @@
     <!-- RIGHT/MAIN PANEL: Interactive Football Pitch & Squad Sandbox -->
     <section class="center-panel" id="panel-center">
       
-      <!-- Formation Bar -->
+      <!-- Formation Bar & Integrated Compact Simulation Button -->
       <div class="formation-bar" id="formation-bar">
-        <span style="font-weight: 700; font-size: 0.95rem;">⚽ 전술 포메이션 (드래그/클릭 교체 가능)</span>
-        <div class="formation-selector" id="formation-selector">
-          <button class="btn-formation active" id="btn-form-433" onclick="setFormation('4-3-3')">4-3-3 (밸런스)</button>
-          <button class="btn-formation" id="btn-form-352" onclick="setFormation('3-5-2')">3-5-2 (쓰리백 수비)</button>
-          <button class="btn-formation" id="btn-form-4231" onclick="setFormation('4-2-3-1')">4-2-3-1 (코어 극대화)</button>
-          <button class="btn-formation" id="btn-form-442" onclick="setFormation('4-4-2')">4-4-2 (클래식 닥공)</button>
+        <div style="display: flex; align-items: center; gap: 0.8rem; flex-wrap: wrap;">
+          <span style="font-weight: 800; font-size: 0.9rem; color: #fff; display: flex; align-items: center; gap: 0.3rem;">
+            <span>⚽ 포메이션</span>
+          </span>
+          <div class="formation-selector" id="formation-selector">
+            <button class="btn-formation active" id="btn-form-433" onclick="setFormation('4-3-3')">4-3-3 (밸런스)</button>
+            <button class="btn-formation" id="btn-form-352" onclick="setFormation('3-5-2')">3-5-2 (쓰리백)</button>
+            <button class="btn-formation" id="btn-form-4231" onclick="setFormation('4-2-3-1')">4-2-3-1 (코어 집중)</button>
+            <button class="btn-formation" id="btn-form-442" onclick="setFormation('4-4-2')">4-4-2 (클래식)</button>
+          </div>
         </div>
+        
+        <button class="btn-simulate-compact" id="btn-run-simulation" onclick="runSimulation()">
+          <span>🚀 실전 매치 시뮬레이션 가동</span>
+        </button>
       </div>
 
       <!-- Football Pitch -->
@@ -131,19 +139,14 @@
 
       <!-- Bench Squad Container for Substitution Sandbox -->
       <div class="bench-container" id="bench-container">
-        <div class="widget-header-box">
-          <span class="widget-title">🔄 교체 대기 벤치 멤버 (클릭/드래그 교체)</span>
-          <span class="widget-badge" style="background: rgba(16, 185, 129, 0.15); color: var(--accent-emerald); border-color: rgba(16, 185, 129, 0.4);">Hybrid Active</span>
+        <div class="widget-header-box" style="margin-bottom: 0.35rem; padding-bottom: 0.35rem;">
+          <span class="widget-title" style="font-size: 0.85rem;">🔄 교체 대기 벤치 멤버 (클릭/드래그 교체)</span>
+          <span class="widget-badge" style="background: rgba(16, 185, 129, 0.15); color: var(--accent-emerald); border-color: rgba(16, 185, 129, 0.4); font-size: 0.65rem;">Hybrid Active</span>
         </div>
         <div class="bench-grid" id="bench-grid">
           <!-- Populated by app.js -->
         </div>
       </div>
-
-      <!-- Action Button -->
-      <button class="btn-simulate" id="btn-run-simulation" onclick="runSimulation()" style="margin-top: 0.2rem; flex-shrink: 0;">
-        <span>🚀 2026 월드컵 실전 매치 시뮬레이션 가동!</span>
-      </button>
 
     </section>
 
