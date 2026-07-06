@@ -23,6 +23,7 @@ const state = {
     name: '오현규 (피지컬/뚝배기)'
   },
   activePlayerForRole: null,
+  selectedPlayerForSwap: null,
   draggedPlayer: null,
   draggedSource: null // 'pitch' | 'bench'
 };
@@ -174,7 +175,7 @@ function renderBench() {
 // --- Create Player Card Element with HTML5 Drag & Drop ---
 function createPlayerCardElement(p, source) {
   const card = document.createElement('div');
-  card.className = 'player-card';
+  card.className = 'player-card card-' + (p.type || 'mid');
   card.draggable = true;
   card.dataset.id = p.id;
   card.dataset.source = source;
@@ -186,10 +187,35 @@ function createPlayerCardElement(p, source) {
     <div class="player-role-tag">${p.role}</div>
   `;
   
-  // Click event for Role Popup
+  // Click-to-Swap OR Role Popup (Hybrid Interaction)
   card.onclick = (e) => {
     if (card.classList.contains('dragging')) return;
-    openRoleModal(p, card);
+    
+    // If we already selected THIS exact player, click again -> Open Role Modal!
+    if (state.selectedPlayerForSwap && state.selectedPlayerForSwap.player.id === p.id) {
+      card.classList.remove('click-selected');
+      state.selectedPlayerForSwap = null;
+      openRoleModal(p, card);
+      return;
+    }
+    
+    // If another player was previously selected -> Swap them!
+    if (state.selectedPlayerForSwap) {
+      const sourceObj = state.selectedPlayerForSwap;
+      state.selectedPlayerForSwap = null;
+      
+      document.querySelectorAll('.player-card').forEach(el => el.classList.remove('click-selected'));
+      handlePlayerSwap(sourceObj.player, p, sourceObj.source, source);
+      return;
+    }
+    
+    // Otherwise, select THIS player for Click-to-Swap!
+    document.querySelectorAll('.player-card').forEach(el => el.classList.remove('click-selected'));
+    card.classList.add('click-selected');
+    state.selectedPlayerForSwap = { player: p, source };
+    
+    const bubble = document.getElementById('coach-bubble-text');
+    bubble.innerHTML = `👆 <strong>[클릭 맞교환 모드] ${p.name} (${p.pos})</strong> 선택됨!<br>교체할 다른 선수나 벤치 선수를 터치/클릭하세요. (세부 임무 변경을 원하시면 <strong>한 번 더 클릭</strong>하세요!)`;
   };
   
   // Drag Events
@@ -226,6 +252,7 @@ function createPlayerCardElement(p, source) {
 
 // --- Handle Drag and Drop Player Swapping & Witty AI Coach Warning ---
 function handlePlayerSwap(sourcePlayer, targetPlayer, sourceOrigin, targetOrigin) {
+  state.selectedPlayerForSwap = null;
   // If swapping between bench and pitch
   if (sourceOrigin === 'bench' && targetOrigin === 'pitch') {
     const pitchList = squadData[state.currentFormation];
