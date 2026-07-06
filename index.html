@@ -18,10 +18,9 @@
     <div class="logo-container">
       <div class="logo-icon" id="logo-icon">⚽</div>
       <h1 class="logo-text">K-Tactics Lab <span style="color: var(--accent-emerald);">2026</span></h1>
-      <span class="logo-badge" id="hackathon-badge">DAKER 해커톤</span>
     </div>
     
-    <!-- Top Navigation Tabs (Moved inside Header for Zero Vertical Waste!) -->
+    <!-- Top Navigation Tabs -->
     <nav class="main-tab-nav" style="display: flex; gap: 0.6rem; align-items: center;">
       <button class="tab-btn active" id="tab-btn-tactics" onclick="switchTab('tactics')" style="padding: 0.5rem 1.3rem; font-size: 0.88rem; font-weight: 800; border-radius: var(--radius-full); background: var(--accent-emerald); color: #000; border: 2px solid var(--accent-emerald); cursor: pointer; transition: all 0.3s; display: flex; align-items: center; gap: 0.4rem; box-shadow: 0 0 12px var(--accent-emerald-glow);">
         ⚽ 전술 지휘 보드
@@ -31,14 +30,18 @@
       </button>
     </nav>
 
-    <div class="header-status">
+    <!-- Industry Convention: Action Button & Status in Top Right Header! -->
+    <div class="header-status" style="display: flex; align-items: center; gap: 0.8rem; flex-wrap: wrap;">
       <div class="status-pill" id="status-vibe-pill">
         <span class="status-dot"></span>
-        <span>팬 여론: <strong id="header-vibe-val" style="color: var(--accent-emerald);">50%</strong></span>
+        <span>여론: <strong id="header-vibe-val" style="color: var(--accent-emerald);">50%</strong></span>
       </div>
-      <div class="status-pill" id="status-formation-pill">
+      <div class="status-pill" id="status-formation-pill" style="display: none;">
         <span>포메이션: <strong id="header-formation-val" style="color: var(--accent-cyan);">4-3-3 (밸런스)</strong></span>
       </div>
+      <button class="btn-simulate-compact" id="btn-run-simulation" onclick="runSimulation()" style="padding: 0.5rem 1.3rem; font-size: 0.88rem; box-shadow: 0 0 18px var(--accent-emerald-glow);">
+        <span>🚀 실전 매치 시뮬레이션 가동</span>
+      </button>
     </div>
   </header>
 
@@ -104,23 +107,17 @@
     <!-- RIGHT/MAIN PANEL: Interactive Football Pitch & Squad Sandbox -->
     <section class="center-panel" id="panel-center">
       
-      <!-- Formation Bar & Integrated Compact Simulation Button -->
+      <!-- Formation Bar (Ultra slim, single line!) -->
       <div class="formation-bar" id="formation-bar">
-        <div style="display: flex; align-items: center; gap: 0.8rem; flex-wrap: wrap;">
-          <span style="font-weight: 800; font-size: 0.9rem; color: #fff; display: flex; align-items: center; gap: 0.3rem;">
-            <span>⚽ 포메이션</span>
-          </span>
-          <div class="formation-selector" id="formation-selector">
-            <button class="btn-formation active" id="btn-form-433" onclick="setFormation('4-3-3')">4-3-3 (밸런스)</button>
-            <button class="btn-formation" id="btn-form-352" onclick="setFormation('3-5-2')">3-5-2 (쓰리백)</button>
-            <button class="btn-formation" id="btn-form-4231" onclick="setFormation('4-2-3-1')">4-2-3-1 (코어 집중)</button>
-            <button class="btn-formation" id="btn-form-442" onclick="setFormation('4-4-2')">4-4-2 (클래식)</button>
-          </div>
+        <span style="font-weight: 800; font-size: 0.9rem; color: #fff; display: flex; align-items: center; gap: 0.4rem;">
+          <span>⚽ 포메이션</span>
+        </span>
+        <div class="formation-selector" id="formation-selector">
+          <button class="btn-formation active" id="btn-form-433" onclick="setFormation('4-3-3')">4-3-3 (밸런스)</button>
+          <button class="btn-formation" id="btn-form-352" onclick="setFormation('3-5-2')">3-5-2 (쓰리백)</button>
+          <button class="btn-formation" id="btn-form-4231" onclick="setFormation('4-2-3-1')">4-2-3-1 (코어 집중)</button>
+          <button class="btn-formation" id="btn-form-442" onclick="setFormation('4-4-2')">4-4-2 (클래식)</button>
         </div>
-        
-        <button class="btn-simulate-compact" id="btn-run-simulation" onclick="runSimulation()">
-          <span>🚀 실전 매치 시뮬레이션 가동</span>
-        </button>
       </div>
 
       <!-- Football Pitch -->
