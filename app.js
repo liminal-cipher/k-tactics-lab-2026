@@ -214,8 +214,7 @@ function createPlayerCardElement(p, source) {
     card.classList.add('click-selected');
     state.selectedPlayerForSwap = { player: p, source };
     
-    const bubble = document.getElementById('coach-bubble-text');
-    bubble.innerHTML = `👆 <strong>[클릭 맞교환 모드] ${p.name} (${p.pos})</strong> 선택됨!<br>교체할 다른 선수나 벤치 선수를 터치/클릭하세요. (세부 임무 변경을 원하시면 <strong>한 번 더 클릭</strong>하세요!)`;
+    pushCoachMessage(`👆 <strong>[클릭 맞교환 모드] ${p.name} (${p.pos})</strong> 선택됨!<br>교체할 다른 선수나 벤치 선수를 터치/클릭하세요. (세부 임무 변경을 원하시면 <strong>한 번 더 클릭</strong>하세요!)`, false);
   };
   
   // Drag Events
@@ -302,25 +301,22 @@ function handlePlayerSwap(sourcePlayer, targetPlayer, sourceOrigin, targetOrigin
 
 // --- Witty AI Coach Warning Logic ---
 function checkBizarrePositioning(p1, p2) {
-  const bubble = document.getElementById('coach-bubble-text');
-  
-  // Example 1: Son Heung-min placed in defense or GK
   const pitchList = squadData[state.currentFormation];
   const son = pitchList.find(x => x.name === '손흥민');
   const hyunwoo = pitchList.find(x => x.name === '조현우');
   
   if (son && ['CB', 'LB', 'RB', 'LCB', 'RCB', 'GK'].includes(son.pos)) {
-    bubble.innerHTML = `🚨 <strong>[AI 코치 비상 경보] 감독님 제정신이십니까?!</strong><br>월드클래스 공격수 <strong>손흥민 선수를 최후방 수비/골키퍼에 박아두다니...</strong> 축구 역사상 전례가 없는 역대급 기행입니다! 팬들이 복장 터져서 쓰러집니다!!`;
+    pushCoachMessage(`🚨 <strong>[AI 코치 비상 경보] 감독님 제정신이십니까?!</strong><br>월드클래스 공격수 <strong>손흥민 선수를 최후방 수비/골키퍼에 박아두다니...</strong> 축구 역사상 전례가 없는 역대급 기행입니다! 팬들이 복장 터져서 쓰러집니다!!`, true);
     state.vibeScore = Math.max(15, state.vibeScore - 25);
     triggerScreenShake();
     pushChatComment('손흥민을 왜 수비에 둬?! 감독 제정신이냐 당장 경질해라!!', 'hater');
   } else if (hyunwoo && ['ST', 'LW', 'RW', 'LS', 'RS', 'CAM'].includes(hyunwoo.pos)) {
-    bubble.innerHTML = `🚨 <strong>[AI 코치 파멸 경보] 빛현우 골키퍼가 최전방 스트라이커?!</strong><br>골문은 누가 지키나요?! 이건 예능 축구도 아니고 파멸 그 자체입니다!! 매 경기 10실점 확정입니다!!`;
+    pushCoachMessage(`🚨 <strong>[AI 코치 파멸 경보] 빛현우 골키퍼가 최전방 스트라이커?!</strong><br>골문은 누가 지키나요?! 이건 예능 축구도 아니고 파멸 그 자체입니다!! 매 경기 10실점 확정입니다!!`, true);
     state.vibeScore = Math.max(10, state.vibeScore - 30);
     triggerScreenShake();
     pushChatComment('골키퍼를 공격수로 쓰네 ㅋㅋㅋ 골문 텅텅 비었다 패망각 ㅋㅋㅋ', 'hater');
   } else {
-    bubble.innerHTML = `🔄 <strong>선수 교체/배치 완료!</strong><br><strong>${p1.name}</strong> ↔ <strong>${p2.name}</strong> 위치가 변경되었습니다. 선수들의 조직력이 새롭게 가동됩니다!`;
+    pushCoachMessage(`🔄 <strong>선수 교체/배치 완료!</strong><br><strong>${p1.name}</strong> ↔ <strong>${p2.name}</strong> 위치가 변경되었습니다. 선수들의 조직력이 새롭게 가동됩니다!`, false);
     state.vibeScore = Math.min(100, state.vibeScore + 4);
     pushChatComment(`오 ${p1.name} 투입했네? 이번 교체 카드는 잘 통할 것 같음!`, 'vip');
   }
@@ -360,8 +356,7 @@ function selectPlayerRole(player, newRole) {
   renderPitch(state.currentFormation);
   renderBench();
   
-  const bubble = document.getElementById('coach-bubble-text');
-  bubble.innerHTML = `⚙️ <strong>${player.name}</strong> 전술 임무 변경:<br>"<strong>${newRole}</strong>" 임무를 부여받았습니다! 선수가 경기장에서 더 적극적인 롤을 수행합니다.`;
+  pushCoachMessage(`⚙️ <strong>${player.name}</strong> 전술 임무 변경:<br>"<strong>${newRole}</strong>" 임무를 부여받았습니다! 선수가 경기장에서 더 적극적인 롤을 수행합니다!`, false);
   
   state.vibeScore = Math.min(100, state.vibeScore + 3);
   updateVibeMeter();
@@ -379,10 +374,9 @@ function setFormation(formation) {
   
   document.getElementById('header-formation-val').textContent = formation + (formation === '4-3-3' ? ' (밸런스)' : (formation === '3-5-2' ? ' (쓰리백)' : ' (코어 집중)'));
   
-  const bubble = document.getElementById('coach-bubble-text');
-  if (formation === '3-5-2') bubble.innerHTML = coachQuotes.form352;
-  else if (formation === '4-2-3-1') bubble.innerHTML = coachQuotes.form4231;
-  else bubble.innerHTML = `⚽ <strong>${formation}</strong> 포메이션 전환!<br>선수들의 간격이 재조정되었습니다. 한국 축구의 강점을 극대화할 세부 지침을 선택해 주세요!`;
+  if (formation === '3-5-2') pushCoachMessage(coachQuotes.form352);
+  else if (formation === '4-2-3-1') pushCoachMessage(coachQuotes.form4231);
+  else pushCoachMessage(`⚽ <strong>${formation}</strong> 포메이션 전환!<br>선수들의 간격이 재조정되었습니다. 한국 축구의 강점을 극대화할 세부 지침을 선택해 주세요!`);
   
   if (formation === '3-5-2') {
     state.stats.defense = 85; state.stats.midfield = 88; state.stats.attack = 72;
@@ -397,78 +391,53 @@ function setFormation(formation) {
   updateStats();
 }
 
-// --- Phase ①: Attacking & Buildup Tactics ---
-function toggleTactic(type) {
-  state.tactics[type] = !state.tactics[type];
-  const el = document.getElementById('toggle-tactic-' + type);
-  if (state.tactics[type]) el.classList.add('active');
-  else el.classList.remove('active');
-  
-  const bubble = document.getElementById('coach-bubble-text');
-  if (state.tactics[type] && coachQuotes[type]) {
-    bubble.innerHTML = coachQuotes[type];
-    if (type === 'nopassback') pushChatComment('크~~ 드디어 백패스 금지 선언!! 이게 축구다!!', 'vip');
-  } else {
-    bubble.innerHTML = `⚠️ 전술 지침 해제:<br>다시 단조로운 공격 패턴으로 돌아갈 위험이 있습니다. 코칭스태프가 우려를 표합니다.`;
+// --- Floating AI Coach Chatbot Logic ---
+function toggleCoachChat() {
+  const win = document.getElementById('coach-chat-window');
+  win.classList.toggle('active');
+  const badge = document.getElementById('coach-badge-cnt');
+  if (win && win.classList.contains('active') && badge) {
+    badge.style.display = 'none';
   }
-  
-  recalculateVibe();
-  updateStats();
 }
 
-// --- Phase ②: Defensive Shape & Fullback Role ---
-function toggleFullbackRole(role) {
-  state.fullbackRole = role;
-  document.querySelectorAll('#section-problem-2 .tactic-toggle-item').forEach(el => el.classList.remove('active'));
-  document.getElementById('toggle-role-' + role).classList.add('active');
+function pushCoachMessage(html, isWarning = false) {
+  const container = document.getElementById('coach-messages');
+  if (!container) return;
   
-  const bubble = document.getElementById('coach-bubble-text');
-  if (coachQuotes[role]) bubble.innerHTML = coachQuotes[role];
+  const bubble = document.createElement('div');
+  bubble.className = `coach-msg-bubble ${isWarning ? 'warning' : ''}`;
+  bubble.innerHTML = `<strong>🤖 차비브 수석 코치:</strong><br>${html}`;
   
-  if (role === 'defensive') {
-    state.stats.defense = Math.min(100, state.stats.defense + 15);
-    state.stats.attack = Math.max(40, state.stats.attack - 10);
-    pushChatComment('풀백 스토퍼로 측면 자동문 잠갔네! 실리적인 선택 칭찬함', 'normal');
-  } else if (role === 'overlap') {
-    state.stats.attack = Math.min(100, state.stats.attack + 15);
-    state.stats.defense = Math.max(40, state.stats.defense - 15);
-    state.stats.stamina = Math.max(30, state.stats.stamina - 20);
-    pushChatComment('풀백 오버래핑 올인?! 체력 다 갈아 넣고 닥공 가자!!', 'vip');
-  } else {
-    state.stats.midfield = Math.min(100, state.stats.midfield + 15);
-    state.stats.defense = 75; state.stats.stamina = 75;
+  container.appendChild(bubble);
+  container.scrollTop = container.scrollHeight;
+  
+  const win = document.getElementById('coach-chat-window');
+  const badge = document.getElementById('coach-badge-cnt');
+  if (isWarning && win && !win.classList.contains('active')) {
+    win.classList.add('active');
+  } else if (win && !win.classList.contains('active') && badge) {
+    badge.style.display = 'inline-block';
+    let cnt = parseInt(badge.textContent || '0', 10) + 1;
+    badge.textContent = cnt;
   }
-  
-  recalculateVibe();
-  updateStats();
 }
 
-// --- Phase ③: Match Management & Plan B Joker ---
-function selectJoker(id, name) {
-  state.selectedJoker = { id, name };
-  document.querySelectorAll('.joker-item').forEach(el => el.classList.remove('selected'));
-  document.getElementById('joker-' + id).classList.add('selected');
-  
-  const bubble = document.getElementById('coach-bubble-text');
-  bubble.innerHTML = `🔄 <strong>플랜 B 조커 확정: ${name}</strong><br>후반 60분, 상대 수비 체력이 떨어졌을 때 투입하여 승부를 가르는 결정적 카드입니다!`;
-  
-  state.vibeScore = Math.min(100, state.vibeScore + 5);
+function requestAiTacticalAdvice(type) {
+  if (type === 'mexico') {
+    pushCoachMessage(`⚡ <strong>[상대 국가팀 맞춤 전술 분석: 멕시코/남아공]</strong><br>상대는 측면 역습 속도가 빠르고 수비 라인이 높습니다. <strong>4-2-3-1 포메이션</strong>으로 전환하고, 이강인의 킬패스와 손흥민·양민혁의 초광속 침투를 극대화하는 것을 추천합니다! (스쿼드 밸런스 최적화)`, false);
+    state.vibeScore = Math.min(100, state.vibeScore + 5);
+  } else {
+    pushCoachMessage(`🛡️ <strong>[현재 스쿼드 밸런스 진단]</strong><br>현재 공격 파괴력 <strong>${state.stats.attack}</strong>, 중원 장악 <strong>${state.stats.midfield}</strong>, 수비 안정 <strong>${state.stats.defense}</strong>입니다. 후반전 60분이 넘어가면 체력 저하를 대비해 벤치의 오현규나 배준호를 교체 투입하세요!`, false);
+  }
   updateVibeMeter();
-  pushChatComment(`후반 조커로 ${name} 대기 좋았다! 극장골 가자!!`, 'normal');
 }
 
 // --- Recalculate Vibe Score ---
 function recalculateVibe() {
   let score = 50;
-  if (state.tactics.halfspace) score += 12;
-  if (state.tactics.nopassback) score += 18;
-  if (state.tactics.kangin) score += 10;
-  
-  if (state.fullbackRole === 'inverted') score += 10;
-  if (state.fullbackRole === 'defensive') score += 8;
-  if (state.fullbackRole === 'overlap') score -= 5;
-  
-  if (state.currentFormation === '4-2-3-1' || state.currentFormation === '3-5-2') score += 5;
+  if (state.currentFormation === '4-2-3-1' || state.currentFormation === '3-5-2') score += 8;
+  if (state.currentFormation === '4-3-3') score += 5;
   
   state.vibeScore = Math.min(100, Math.max(10, score));
   updateVibeMeter();

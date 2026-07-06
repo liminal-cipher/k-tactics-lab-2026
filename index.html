@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>K-Tactics Lab 2026 - 대한민국 대표팀 전술 솔루션 & 감독 시뮬레이터</title>
-  <meta name="description" content="2026 월드컵 한국 축구의 3대 핵심 과제(U자형 빌드업, 풀백 밸런스, 해줘 축구)를 직접 해결하는 대중 참여형 인터랙티브 전술 시뮬레이션 웹서비스">
+  <meta name="description" content="2026 월드컵 한국 축구의 3대 핵심 쟁점(U자형 빌드업, 풀백 밸런스, 해줘 축구)을 해결하는 대중 참여형 인터랙티브 전술 샌드박스 웹서비스">
   <meta name="keywords" content="DAKER, 바이브코딩, 월드컵, 대한민국 대표팀, 국가대표팀, 축구 전술, 전술 시뮬레이터, AI 코치, 팬 여론 지지도">
   <meta name="author" content="Antigravity x User">
   <link rel="stylesheet" href="index.css">
@@ -31,11 +31,10 @@
       </div>
     </div>
   </header>
-
-  <!-- ================= Main Application Grid ================= -->
+  <!-- ================= Main Application Grid (Clean 2-Column Layout) ================= -->
   <main class="main-container" id="main-content">
     
-    <!-- LEFT PANEL: Vibe Meter, AI Coach & Live Chat & Problem ① -->
+    <!-- LEFT PANEL: Vibe Meter, Stats Radar & Live Chat (No Clutter!) -->
     <aside class="glass-panel panel-left" id="panel-left">
       
       <!-- Fan Vibe Meter Box -->
@@ -50,112 +49,7 @@
         <p class="vibe-status-text" id="vibe-status-text">"기대 반, 걱정 반... 감독님의 첫 전술 지시를 기다립니다."</p>
       </section>
 
-      <!-- AI Assistant Coach Card -->
-      <section class="coach-card" id="section-ai-coach">
-        <div class="coach-header">
-          <div class="coach-avatar">🤖</div>
-          <div class="coach-info">
-            <h4>AI 수석 코치 '차비브(Cha-Vibe)'</h4>
-            <p>전술 분석 및 실시간 팩트폭력 담당</p>
-          </div>
-        </div>
-        <div class="coach-bubble" id="coach-bubble-text">
-          "감독님! 선수를 <strong>마우스로 끌어(Drag & Drop)</strong> 원하는 위치나 벤치 선수와 교체해보세요. 클릭하면 세부 전술 역할(Role)도 바꿀 수 있습니다!"
-        </div>
-      </section>
-
-      <!-- Live Fan Chat Stream Box -->
-      <section class="live-chat-box" id="section-live-chat">
-        <div class="live-chat-title">
-          <span>💬 실시간 팬 네티즌 중계창</span>
-          <span class="live-chat-badge">LIVE 2,841명</span>
-        </div>
-        <div class="chat-messages" id="chat-messages">
-          <!-- Dynamically streaming comments -->
-          <div class="chat-item"><span class="chat-user">축잘알123:</span> 오 감독 새로 왔네? 이번엔 좀 다르려나</div>
-          <div class="chat-item"><span class="chat-user vip">낭만축구단:</span> 제발 U자형 백패스만 하지 말아다오 ㅠㅠ</div>
-          <div class="chat-item"><span class="chat-user">답답축구는이제그만:</span> 풀백 또 자동문이면 바로 트럭 보냅니다 ^^</div>
-        </div>
-      </section>
-
-      <!-- Tactic Problem Solver ①: U자형 빌드업 해결 -->
-      <section class="problem-section" id="section-problem-1">
-        <div class="panel-title">
-          <span>🚀 ① 공격 전개 및 빌드업 지침</span>
-        </div>
-        <div class="problem-card">
-          <div class="problem-header">
-            <span class="problem-title">⚠️ U자형 백패스 극복 지침</span>
-            <span class="badge-issue">핵심 논란 해결</span>
-          </div>
-          <p class="problem-desc">상대 밀집 수비 시 공을 뒤로만 돌리던 답답한 전술을 해제하고 구체적인 패스 줄기를 설정합니다.</p>
-          
-          <div class="tactic-toggle-group">
-            <div class="tactic-toggle-item active" id="toggle-tactic-halfspace" onclick="toggleTactic('halfspace')">
-              <span class="tactic-toggle-label">⚡ 중앙 하프스페이스 강제 침투</span>
-              <span class="tactic-toggle-effect">+15% 지지도</span>
-            </div>
-            <div class="tactic-toggle-item" id="toggle-tactic-nopassback" onclick="toggleTactic('nopassback')">
-              <span class="tactic-toggle-label">🚫 무의미한 U자형 백패스 금지</span>
-              <span class="tactic-toggle-effect">+20% 지지도</span>
-            </div>
-            <div class="tactic-toggle-item" id="toggle-tactic-kangin" onclick="toggleTactic('kangin')">
-              <span class="tactic-toggle-label">🎯 이강인 프리롤 (1:1 아이솔레이션)</span>
-              <span class="tactic-toggle-effect">+10% 공격력</span>
-            </div>
-          </div>
-        </div>
-      </section>
-
-    </aside>
-
-
-    <!-- CENTER PANEL: Interactive Football Pitch & Drag-and-Drop Squad -->
-    <section class="center-panel" id="panel-center">
-      
-      <!-- Formation Bar -->
-      <div class="formation-bar" id="formation-bar">
-        <span style="font-weight: 700; font-size: 0.95rem;">⚽ 전술 포메이션 (드래그 교체 가능)</span>
-        <div class="formation-selector" id="formation-selector">
-          <button class="btn-formation active" id="btn-form-433" onclick="setFormation('4-3-3')">4-3-3 (밸런스)</button>
-          <button class="btn-formation" id="btn-form-352" onclick="setFormation('3-5-2')">3-5-2 (쓰리백 수비)</button>
-          <button class="btn-formation" id="btn-form-4231" onclick="setFormation('4-2-3-1')">4-2-3-1 (코어 극대화)</button>
-          <button class="btn-formation" id="btn-form-442" onclick="setFormation('4-4-2')">4-4-2 (클래식 닥공)</button>
-        </div>
-      </div>
-
-      <!-- Football Pitch -->
-      <div class="pitch-container" id="pitch-container">
-        <!-- Pitch markings -->
-        <div class="pitch-line-center"></div>
-        <div class="pitch-circle-center"></div>
-        <div class="pitch-box-top"></div>
-        <div class="pitch-box-bottom"></div>
-
-        <!-- Players Grid (Drag & Drop zones) -->
-        <div class="pitch-players-grid" id="pitch-players-grid">
-          <!-- Dynamically populated by app.js -->
-        </div>
-      </div>
-
-      <!-- Bench Squad Container for Drag & Drop Substitutions -->
-      <div class="bench-container" id="bench-container">
-        <div class="bench-title">
-          <span>🔄 교체 대기 벤치 멤버 (드래그하여 구장 선수와 교체하세요!)</span>
-          <span style="font-size: 0.7rem; color: var(--accent-cyan);">Drag & Drop Active</span>
-        </div>
-        <div class="bench-grid" id="bench-grid">
-          <!-- Populated by app.js -->
-        </div>
-      </div>
-
-    </section>
-
-
-    <!-- RIGHT PANEL: Stats Radar, Problem ②/③ & Simulation -->
-    <aside class="glass-panel panel-right" id="panel-right">
-      
-      <!-- Tactic Balance Stats -->
+      <!-- Team Balance Stats Box (Moved from Right Panel for Clean Layout) -->
       <section class="stats-box" id="section-stats">
         <div class="panel-title" style="margin-bottom: 0.25rem;">
           <span>📊 실시간 팀 밸런스 진단</span>
@@ -166,7 +60,7 @@
           <div class="stat-bar-bg"><div class="stat-bar-fill fill-attack" id="stat-bar-attack" style="width: 75%;"></div></div>
         </div>
         <div class="stat-row">
-          <div class="stat-header"><span>측면 수비 안정도 (풀백 자동문 방어)</span> <span id="stat-val-defense" style="color: var(--accent-cyan);">60</span></div>
+          <div class="stat-header"><span>측면 수비 안정도 (풀백 방어)</span> <span id="stat-val-defense" style="color: var(--accent-cyan);">60</span></div>
           <div class="stat-bar-bg"><div class="stat-bar-fill fill-defense" id="stat-bar-defense" style="width: 60%;"></div></div>
         </div>
         <div class="stat-row">
@@ -179,81 +73,112 @@
         </div>
       </section>
 
-      <!-- Problem ②: 풀백 자동문 해결 -->
-      <section class="problem-section" id="section-problem-2">
-        <div class="panel-title">
-          <span>🛡️ ② 측면 수비 및 풀백 운용</span>
+      <!-- Live Fan Chat Stream Box -->
+      <section class="live-chat-box" id="section-live-chat" style="flex: 1;">
+        <div class="live-chat-title">
+          <span>💬 실시간 팬 네티즌 중계창</span>
+          <span class="live-chat-badge">LIVE 2,841명</span>
         </div>
-        <div class="problem-card">
-          <div class="problem-header">
-            <span class="problem-title">⚠️ 측면 자동문 수비 해결</span>
-            <span class="badge-issue">논란의 포지션</span>
-          </div>
-          <p class="problem-desc">월드컵에서 가장 흔들렸던 풀백의 전술적 임무(Role)를 명확히 부여하여 측면 붕괴를 막습니다.</p>
-          
-          <div class="tactic-toggle-group">
-            <div class="tactic-toggle-item active" id="toggle-role-inverted" onclick="toggleFullbackRole('inverted')">
-              <span class="tactic-toggle-label">🔄 인버티드 풀백 (중앙 빌드업 가담)</span>
-              <span class="tactic-toggle-effect">중원 장악 +15</span>
-            </div>
-            <div class="tactic-toggle-item" id="toggle-role-defensive" onclick="toggleFullbackRole('defensive')">
-              <span class="tactic-toggle-label">🔒 쓰리백 스토퍼 (측면 수비 잠그기)</span>
-              <span class="tactic-toggle-effect">수비 안정도 +25</span>
-            </div>
-            <div class="tactic-toggle-item" id="toggle-role-overlap" onclick="toggleFullbackRole('overlap')">
-              <span class="tactic-toggle-label">⚡ 오버래핑 윙백 (크로스 공격 올인)</span>
-              <span class="tactic-toggle-effect">⚠️ 체력 소모 극심</span>
-            </div>
-          </div>
+        <div class="chat-messages" id="chat-messages" style="max-height: 280px;">
+          <!-- Dynamically streaming comments -->
+          <div class="chat-item"><span class="chat-user">축잘알123:</span> 오 감독 새로 왔네? 이번엔 좀 다르려나</div>
+          <div class="chat-item"><span class="chat-user vip">낭만축구단:</span> 제발 U자형 백패스만 하지 말아다오 ㅠㅠ</div>
+          <div class="chat-item"><span class="chat-user">답답축구는이제그만:</span> 풀백 또 자동문이면 바로 트럭 보냅니다 ^^</div>
         </div>
       </section>
-
-      <!-- Problem ③: 체력 분배 & 조커 투입 -->
-      <section class="joker-section" id="section-problem-3">
-        <div class="joker-title">
-          <span>🔄 ③ 후반 경기 운영 및 플랜 B</span>
-        </div>
-        <p style="font-size: 0.75rem; color: var(--text-secondary); margin-bottom: 0.75rem;">
-          스타 선수에만 의존하는 '해줘 축구'를 막기 위해, 후반전 승부를 띄울 비밀 교체 선수를 선택하세요!
-        </p>
-        <div class="joker-list" id="joker-list">
-          <div class="joker-item selected" id="joker-oh" onclick="selectJoker('oh', '오현규 (피지컬/뚝배기)')">
-            <span style="font-size: 1.25rem;">🦁</span>
-            <span style="font-size: 0.75rem; font-weight: 700; margin-top: 0.2rem;">오현규</span>
-            <span style="font-size: 0.65rem; color: var(--accent-amber);">피지컬 투박</span>
-          </div>
-          <div class="joker-item" id="joker-bae" onclick="selectJoker('bae', '배준호 (크랙/드리블)')">
-            <span style="font-size: 1.25rem;">⚡</span>
-            <span style="font-size: 0.75rem; font-weight: 700; margin-top: 0.2rem;">배준호</span>
-            <span style="font-size: 0.65rem; color: var(--accent-amber);">크랙 돌파</span>
-          </div>
-          <div class="joker-item" id="joker-yang" onclick="selectJoker('yang', '양민혁 (스피드/역습)')">
-            <span style="font-size: 1.25rem;">🔥</span>
-            <span style="font-size: 0.75rem; font-weight: 700; margin-top: 0.2rem;">양민혁</span>
-            <span style="font-size: 0.65rem; color: var(--accent-amber);">초광속 스피드</span>
-          </div>
-          <div class="joker-item" id="joker-ju" onclick="selectJoker('ju', '주민규 (클래식 타겟맨)')">
-            <span style="font-size: 1.25rem;">🎯</span>
-            <span style="font-size: 0.75rem; font-weight: 700; margin-top: 0.2rem;">주민규</span>
-            <span style="font-size: 0.65rem; color: var(--accent-amber);">박스 안 해결사</span>
-          </div>
-        </div>
-      </section>
-
-      <!-- Action Button -->
-      <button class="btn-simulate" id="btn-run-simulation" onclick="runSimulation()">
-        <span>🚀 2026 월드컵 시뮬레이션 가동!</span>
-      </button>
 
     </aside>
 
+    <!-- RIGHT/MAIN PANEL: Interactive Football Pitch & Squad Sandbox -->
+    <section class="center-panel" id="panel-center">
+      
+      <!-- Formation Bar -->
+      <div class="formation-bar" id="formation-bar">
+        <span style="font-weight: 700; font-size: 0.95rem;">⚽ 전술 포메이션 (드래그/클릭 교체 가능)</span>
+        <div class="formation-selector" id="formation-selector">
+          <button class="btn-formation active" id="btn-form-433" onclick="setFormation('4-3-3')">4-3-3 (밸런스)</button>
+          <button class="btn-formation" id="btn-form-352" onclick="setFormation('3-5-2')">3-5-2 (쓰리백 수비)</button>
+          <button class="btn-formation" id="btn-form-4231" onclick="setFormation('4-2-3-1')">4-2-3-1 (코어 극대화)</button>
+          <button class="btn-formation" id="btn-form-442" onclick="setFormation('4-4-2')">4-4-2 (클래식 닥공)</button>
+        </div>
+      </div>
+
+      <!-- Football Pitch -->
+      <div class="pitch-container" id="pitch-container" style="min-height: 620px;">
+        <!-- Pitch markings -->
+        <div class="pitch-line-center"></div>
+        <div class="pitch-circle-center"></div>
+        <div class="pitch-box-top"></div>
+        <div class="pitch-box-bottom"></div>
+
+        <!-- Players Grid (Drag & Drop / Click-to-Swap zones) -->
+        <div class="pitch-players-grid" id="pitch-players-grid">
+          <!-- Dynamically populated by app.js -->
+        </div>
+      </div>
+
+      <!-- Bench Squad Container for Substitution Sandbox -->
+      <div class="bench-container" id="bench-container">
+        <div class="bench-title">
+          <span>🔄 교체 대기 벤치 멤버 (클릭하거나 드래그하여 구장 선수와 교체하세요!)</span>
+          <span style="font-size: 0.7rem; color: var(--accent-cyan);">Hybrid Drag & Click Active</span>
+        </div>
+        <div class="bench-grid" id="bench-grid">
+          <!-- Populated by app.js -->
+        </div>
+      </div>
+
+      <!-- Action Button (Moved under Pitch for Clean Flow) -->
+      <button class="btn-simulate" id="btn-run-simulation" onclick="runSimulation()" style="margin-top: 0.5rem;">
+        <span>🚀 2026 월드컵 실전 매치 시뮬레이션 가동!</span>
+      </button>
+
+    </section>
+
   </main>
+
+  <!-- ================= Floating AI Coach Chatbot Widget (Like Website Assistant) ================= -->
+  <div class="floating-coach-container" id="floating-coach-container">
+    <!-- Chat Window Popup -->
+    <div class="floating-coach-window" id="coach-chat-window">
+      <div class="coach-win-header">
+        <div class="coach-win-title">
+          <span style="font-size: 1.3rem;">🤖</span>
+          <div>
+            <div style="font-size: 0.9rem; font-weight: 700;">AI 수석 코치 '차비브(Cha-Vibe)'</div>
+            <div style="font-size: 0.65rem; color: var(--accent-cyan);">Gemini 1.5 Flash 전술 분석 엔진</div>
+          </div>
+        </div>
+        <button class="btn-close-modal" onclick="toggleCoachChat()" style="font-size: 1.1rem; padding: 0.2rem 0.5rem;">✕</button>
+      </div>
+      
+      <div class="coach-win-body" id="coach-messages">
+        <!-- Default initial greeting -->
+        <div class="coach-msg-bubble">
+          <strong>🤖 차비브 수석 코치:</strong><br>
+          "감독님! 복잡한 과제들은 싹 치우고 오직 스쿼드와 전술판에만 집중할 수 있도록 UI를 깔끔하게 개편했습니다! 선수를 클릭하거나 드래그하여 배치를 바꿔보세요. 포지션 기행 시 제가 즉각 경고를 드립니다!"
+        </div>
+      </div>
+
+      <div class="coach-win-actions">
+        <button class="btn-coach-action" onclick="requestAiTacticalAdvice('mexico')">⚡ 멕시코/남아공 공략 전술 추천</button>
+        <button class="btn-coach-action" onclick="requestAiTacticalAdvice('balance')">🛡️ 현재 스쿼드 밸런스 진단</button>
+      </div>
+    </div>
+
+    <!-- Floating Chatbot Toggle Button -->
+    <button class="floating-coach-btn" id="floating-coach-btn" onclick="toggleCoachChat()">
+      <span style="font-size: 1.3rem;">🤖</span>
+      <span>AI 코치 차비브</span>
+      <span class="coach-badge" id="coach-badge-cnt">1</span>
+    </button>
+  </div>
 
   <!-- ================= Player Role & Detail Modal (Click Popup) ================= -->
   <div class="modal-overlay" id="role-modal">
     <div class="modal-content" style="max-width: 480px;">
       <div class="modal-header">
-        <h3 class="modal-title" id="role-modal-name">⚙️ 선수 전술 임무 설정</h3>
+        <h3 class="modal-title" id="role-modal-name">⚙️ 선수 전술 임무 및 스탯 설정</h3>
         <button class="btn-close-modal" onclick="closeRoleModal()">✕</button>
       </div>
       <p style="font-size: 0.85rem; color: var(--text-secondary);" id="role-modal-desc">
@@ -297,8 +222,8 @@
             <span class="result-stat-value" id="res-val-vibe" style="color: var(--accent-cyan);">92%</span>
           </div>
           <div class="result-stat-item">
-            <span class="result-stat-label">플랜 B 조커 성공률</span>
-            <span class="result-stat-value" id="res-val-joker" style="color: var(--accent-amber);">88%</span>
+            <span class="result-stat-label">스쿼드 밸런스 지수</span>
+            <span class="result-stat-value" id="res-val-joker" style="color: var(--accent-amber);">88점</span>
           </div>
         </div>
       </div>
