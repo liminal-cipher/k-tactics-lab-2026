@@ -370,7 +370,7 @@ function setFormation(formation) {
   updateStats();
 }
 
-// --- Tactic Toggles (Problem ①) ---
+// --- Phase ①: Attacking & Buildup Tactics ---
 function toggleTactic(type) {
   state.tactics[type] = !state.tactics[type];
   const el = document.getElementById('toggle-tactic-' + type);
@@ -389,7 +389,7 @@ function toggleTactic(type) {
   updateStats();
 }
 
-// --- Fullback Role Switching (Problem ②) ---
+// --- Phase ②: Defensive Shape & Fullback Role ---
 function toggleFullbackRole(role) {
   state.fullbackRole = role;
   document.querySelectorAll('#section-problem-2 .tactic-toggle-item').forEach(el => el.classList.remove('active'));
@@ -416,7 +416,7 @@ function toggleFullbackRole(role) {
   updateStats();
 }
 
-// --- Plan B Joker Selection (Problem ③) ---
+// --- Phase ③: Match Management & Plan B Joker ---
 function selectJoker(id, name) {
   state.selectedJoker = { id, name };
   document.querySelectorAll('.joker-item').forEach(el => el.classList.remove('selected'));
