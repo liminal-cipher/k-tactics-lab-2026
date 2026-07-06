@@ -65,7 +65,7 @@ const SQUAD_STATS_2026 = {
     rating: 81, statStr: 'FBref 공인: 2경기(52분) 출전',
     attack: 74, defense: 72, midfield: 83, stamina: 85
   },
-  '예נס 카스트로프': {
+  '옌스 카스트로프': {
     pos: 'MF', age: '22-342', mp: 1, starts: 0, min: 45, gls: 0, ast: 0,
     rating: 81, statStr: 'FBref 공인: 1경기(45분) 출전',
     attack: 72, defense: 76, midfield: 82, stamina: 88

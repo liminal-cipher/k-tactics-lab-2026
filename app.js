@@ -90,7 +90,7 @@ const benchPlayers = [
   { id: 'b3', name: '양현준', pos: 'SUB', avatar: '⚡', role: '고속 스프린트', type: 'att' },
   { id: 'b4', name: '엄지성', pos: 'SUB', avatar: '🌪️', role: '저돌적 윙어', type: 'att' },
   { id: 'b5', name: '김진규', pos: 'SUB', avatar: '🧭', role: '중원 전진 패스', type: 'mid' },
-  { id: 'b6', name: '예נס 카스트로프', pos: 'SUB', avatar: '🔥', role: '다이내믹 압박', type: 'mid' },
+  { id: 'b6', name: '옌스 카스트로프', pos: 'SUB', avatar: '🔥', role: '다이내믹 압박', type: 'mid' },
   { id: 'b7', name: '김문환', pos: 'SUB', avatar: '🏃', role: '우측 오버래핑', type: 'def' },
   { id: 'b8', name: '이기혁', pos: 'SUB', avatar: '🛡️', role: '멀티 수비수', type: 'def' },
   { id: 'b9', name: '박진섭', pos: 'SUB', avatar: '🧱', role: '수비 스크린', type: 'def' }
