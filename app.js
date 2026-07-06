@@ -402,7 +402,7 @@ function setFormation(formation) {
 // --- Floating AI Coach Chatbot Logic ---
 function toggleCoachChat() {
   const win = document.getElementById('coach-chat-window');
-  win.classList.toggle('active');
+  if (win) win.classList.toggle('active');
   const badge = document.getElementById('coach-badge-cnt');
   if (win && win.classList.contains('active') && badge) {
     badge.style.display = 'none';
