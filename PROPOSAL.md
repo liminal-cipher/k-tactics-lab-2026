@@ -1,6 +1,7 @@
 # [DAKER World Cup Manager Tactics Web Challenge] 기획서
 **서비스명: K-Tactics Lab 2026**
 **부제: 2026 월드컵 대한민국 국가대표팀 전술 솔루션 및 인터랙티브 감독 시뮬레이터**
+**공식 라이브 데모 URL (Live Demo):** https://liminal-cipher.github.io/k-tactics-lab-2026/
 
 ---
 
