@@ -329,8 +329,16 @@ function checkBizarrePositioning(p1, p2) {
 function openRoleModal(player, cardElement) {
   state.activePlayerForRole = player;
   
-  document.getElementById('role-modal-name').textContent = `⚙️ ${player.name} (${player.pos}) 임무 설정`;
-  document.getElementById('role-modal-desc').textContent = `현재 수행 중인 임무: "${player.role}". 아래에서 세부 전술 성향을 변경하세요.`;
+  const statObj = (typeof SQUAD_STATS_2026 !== 'undefined' && SQUAD_STATS_2026[player.name]) ? SQUAD_STATS_2026[player.name] : { rating: 80, statStr: '공인 스탯 분석 중...' };
+  
+  document.getElementById('role-modal-name').innerHTML = `⚙️ ${player.name} (${player.pos}) <span style="font-size:0.8rem; color:var(--accent-cyan); font-weight:800; margin-left:0.5rem;">종합 능력치: ${statObj.rating}점</span>`;
+  document.getElementById('role-modal-desc').innerHTML = `
+    <div style="background:rgba(0,0,0,0.4); padding:0.7rem; border-radius:6px; border:1px solid rgba(6, 182, 212, 0.4); margin-bottom:0.8rem;">
+      <div style="color:var(--accent-emerald); font-weight:700; font-size:0.75rem; margin-bottom:0.25rem;">📊 FBref / SofaScore 공인 벤치마크 스탯</div>
+      <div style="font-size:0.85rem; color:var(--text-primary); font-weight:700;">공인 분석 통계: <span style="color:var(--accent-amber);">${statObj.statStr}</span></div>
+      <div style="font-size:0.75rem; color:var(--text-secondary); margin-top:0.3rem;">현재 수행 임무: "<strong>${player.role}</strong>" (아래 목록에서 세부 지침 변경)</div>
+    </div>
+  `;
   
   const list = document.getElementById('role-option-list');
   list.innerHTML = '';
@@ -485,12 +493,40 @@ function triggerScreenShake() {
   body.classList.add('shake-danger');
 }
 
-// --- Update Stats UI ---
+// --- Update Stats UI based on Real Benchmark Data ---
 function updateStats() {
+  const pitchList = squadData[state.currentFormation] || [];
+  if (typeof SQUAD_STATS_2026 !== 'undefined' && pitchList.length > 0) {
+    let totalAtt = 0, totalDef = 0, totalMid = 0, totalStam = 0;
+    pitchList.forEach(p => {
+      const s = SQUAD_STATS_2026[p.name] || { attack: 75, defense: 75, midfield: 75, stamina: 80 };
+      totalAtt += s.attack;
+      totalDef += s.defense;
+      totalMid += s.midfield;
+      totalStam += s.stamina;
+    });
+    
+    let avgAtt = Math.round(totalAtt / pitchList.length);
+    let avgDef = Math.round(totalDef / pitchList.length);
+    let avgMid = Math.round(totalMid / pitchList.length);
+    let avgStam = Math.round(totalStam / pitchList.length);
+    
+    if (state.currentFormation === '3-5-2') { avgDef += 8; avgMid += 5; avgAtt -= 4; }
+    else if (state.currentFormation === '4-2-3-1') { avgAtt += 8; avgMid += 4; avgDef -= 4; }
+    else if (state.currentFormation === '4-3-3') { avgAtt += 5; avgMid += 3; avgDef += 2; }
+    
+    state.stats.attack = Math.min(100, Math.max(30, avgAtt));
+    state.stats.defense = Math.min(100, Math.max(30, avgDef));
+    state.stats.midfield = Math.min(100, Math.max(30, avgMid));
+    state.stats.stamina = Math.min(100, Math.max(30, avgStam));
+  }
+
   ['attack', 'defense', 'midfield', 'stamina'].forEach(stat => {
     const val = state.stats[stat];
-    document.getElementById(`stat-val-${stat}`).textContent = val;
-    document.getElementById(`stat-bar-${stat}`).style.width = `${val}%`;
+    const el = document.getElementById(`stat-val-${stat}`);
+    const bar = document.getElementById(`stat-bar-${stat}`);
+    if (el) el.textContent = val;
+    if (bar) bar.style.width = `${val}%`;
   });
 }
 
