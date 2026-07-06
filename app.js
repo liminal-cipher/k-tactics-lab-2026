@@ -28,68 +28,72 @@ const state = {
   draggedSource: null // 'pitch' | 'bench'
 };
 
-// --- Player Squad & Bench Data ---
+// --- Player Squad & Bench Data (Strictly 20 Official Played Members) ---
 const squadData = {
   '4-3-3': [
     { id: 'p1', name: '손흥민', pos: 'LW', avatar: '⚡', role: '인사이드 포워드', type: 'att' },
-    { id: 'p2', name: '주민규', pos: 'ST', avatar: '🎯', role: '컴플리트 포워드', type: 'att' },
+    { id: 'p2', name: '오현규', pos: 'ST', avatar: '🎯', role: '컴플리트 포워드', type: 'att' },
     { id: 'p3', name: '이강인', pos: 'RW', avatar: '🎨', role: '전천후 플레이메이커', type: 'att' },
     { id: 'p4', name: '이재성', pos: 'LCM', avatar: '🏃', role: '박스 투 박스', type: 'mid' },
     { id: 'p5', name: '황인범', pos: 'RCM', avatar: '🧭', role: '딥라잉 플레이메이커', type: 'mid' },
-    { id: 'p6', name: '박용우', pos: 'CDM', avatar: '🛡️', role: '홀딩 미드필더', type: 'mid' },
+    { id: 'p6', name: '백승호', pos: 'CDM', avatar: '🛡️', role: '홀딩 미드필더', type: 'mid' },
     { id: 'p7', name: '이태석', pos: 'LB', avatar: '🔄', role: '인버티드 풀백', type: 'def' },
     { id: 'p8', name: '김민재', pos: 'CB', avatar: '🧱', role: '파괴자 스토퍼', type: 'def' },
-    { id: 'p9', name: '조유민', pos: 'CB', avatar: '⚓', role: '커버링 센터백', type: 'def' },
+    { id: 'p9', name: '이한범', pos: 'CB', avatar: '⚓', role: '커버링 센터백', type: 'def' },
     { id: 'p10', name: '설영우', pos: 'RB', avatar: '🛡️', role: '밸런스형 풀백', type: 'def' },
-    { id: 'p11', name: '조현우', pos: 'GK', avatar: '🧤', role: '빛현우 슈퍼세이브', type: 'gk' }
+    { id: 'p11', name: '김승규', pos: 'GK', avatar: '🧤', role: '안정형 수문장', type: 'gk' }
   ],
   '3-5-2': [
     { id: 'p1', name: '손흥민', pos: 'LS', avatar: '⚡', role: '라인 브레이커', type: 'att' },
-    { id: 'p12', name: '오현규', pos: 'RS', avatar: '🦁', role: '피지컬 타겟맨', type: 'att' },
+    { id: 'p2', name: '오현규', pos: 'RS', avatar: '🎯', role: '피지컬 타겟맨', type: 'att' },
     { id: 'p7', name: '이태석', pos: 'LWB', avatar: '🏃', role: '왕성한 활동량', type: 'def' },
     { id: 'p3', name: '이강인', pos: 'CAM', avatar: '🎨', role: '프리롤 마법사', type: 'att' },
     { id: 'p5', name: '황인범', pos: 'CM', avatar: '🧭', role: '템포 조율사', type: 'mid' },
-    { id: 'p13', name: '백승호', pos: 'CDM', avatar: '⚙️', role: '중원 진공청소기', type: 'mid' },
+    { id: 'p6', name: '백승호', pos: 'CDM', avatar: '⚙️', role: '중원 진공청소기', type: 'mid' },
     { id: 'p10', name: '설영우', pos: 'RWB', avatar: '🛡️', role: '클래식 윙백', type: 'def' },
-    { id: 'p14', name: '정승현', pos: 'LCB', avatar: '🔒', role: '좌측 스토퍼', type: 'def' },
+    { id: 'p12', name: '이기혁', pos: 'LCB', avatar: '🔒', role: '좌측 스토퍼', type: 'def' },
     { id: 'p8', name: '김민재', pos: 'CB', avatar: '🧱', role: '수비 사령관', type: 'def' },
-    { id: 'p9', name: '조유민', pos: 'RCB', avatar: '⚓', role: '우측 스토퍼', type: 'def' },
-    { id: 'p11', name: '조현우', pos: 'GK', avatar: '🧤', role: '빛현우 슈퍼세이브', type: 'gk' }
+    { id: 'p9', name: '이한범', pos: 'RCB', avatar: '⚓', role: '우측 스토퍼', type: 'def' },
+    { id: 'p11', name: '김승규', pos: 'GK', avatar: '🧤', role: '안정형 수문장', type: 'gk' }
   ],
   '4-2-3-1': [
     { id: 'p1', name: '손흥민', pos: 'ST', avatar: '⚡', role: '원톱 해결사', type: 'att' },
-    { id: 'p15', name: '배준호', pos: 'LAM', avatar: '🌪️', role: '크랙 드리블러', type: 'att' },
+    { id: 'p13', name: '황희찬', pos: 'LAM', avatar: '🌪️', role: '크랙 드리블러', type: 'att' },
     { id: 'p3', name: '이강인', pos: 'CAM', avatar: '🎨', role: '공격 전권 지휘', type: 'att' },
-    { id: 'p16', name: '양민혁', pos: 'RAM', avatar: '🔥', role: '초광속 침투', type: 'att' },
+    { id: 'p14', name: '엄지성', pos: 'RAM', avatar: '🔥', role: '초광속 침투', type: 'att' },
     { id: 'p5', name: '황인범', pos: 'LDM', avatar: '🧭', role: '빌드업 시가', type: 'mid' },
-    { id: 'p13', name: '백승호', pos: 'RDM', avatar: '⚙️', role: '수비 스크린', type: 'mid' },
-    { id: 'p17', name: '김진수', pos: 'LB', avatar: '🔄', role: '베테랑 풀백', type: 'def' },
+    { id: 'p6', name: '백승호', pos: 'RDM', avatar: '⚙️', role: '수비 스크린', type: 'mid' },
+    { id: 'p7', name: '이태석', pos: 'LB', avatar: '🔄', role: '오버래핑 가담', type: 'def' },
     { id: 'p8', name: '김민재', pos: 'CB', avatar: '🧱', role: '괴물 수비수', type: 'def' },
-    { id: 'p18', name: '이한범', pos: 'CB', avatar: '⚓', role: '차세대 센터백', type: 'def' },
+    { id: 'p9', name: '이한범', pos: 'CB', avatar: '⚓', role: '차세대 센터백', type: 'def' },
     { id: 'p10', name: '설영우', pos: 'RB', avatar: '🛡️', role: '스마트 풀백', type: 'def' },
-    { id: 'p11', name: '조현우', pos: 'GK', avatar: '🧤', role: '빛현우 슈퍼세이브', type: 'gk' }
+    { id: 'p11', name: '김승규', pos: 'GK', avatar: '🧤', role: '안정형 수문장', type: 'gk' }
   ],
   '4-4-2': [
     { id: 'p1', name: '손흥민', pos: 'LS', avatar: '⚡', role: '침투 포워드', type: 'att' },
-    { id: 'p2', name: '주민규', pos: 'RS', avatar: '🎯', role: '포스트 플레이', type: 'att' },
-    { id: 'p15', name: '배준호', pos: 'LM', avatar: '🌪️', role: '측면 플레이메이커', type: 'mid' },
+    { id: 'p15', name: '조규성', pos: 'RS', avatar: '🎯', role: '포스트 플레이', type: 'att' },
+    { id: 'p13', name: '황희찬', pos: 'LM', avatar: '🌪️', role: '측면 플레이메이커', type: 'att' },
     { id: 'p4', name: '이재성', pos: 'LCM', avatar: '🏃', role: '언성 히어로', type: 'mid' },
     { id: 'p5', name: '황인범', pos: 'RCM', avatar: '🧭', role: '중원 컨트롤러', type: 'mid' },
-    { id: 'p3', name: '이강인', pos: 'RM', avatar: '🎨', role: '인버티드 윙어', type: 'mid' },
+    { id: 'p3', name: '이강인', pos: 'RM', avatar: '🎨', role: '인버티드 윙어', type: 'att' },
     { id: 'p7', name: '이태석', pos: 'LB', avatar: '🔄', role: '오버래핑 가담', type: 'def' },
     { id: 'p8', name: '김민재', pos: 'CB', avatar: '🧱', role: '통곡의 벽', type: 'def' },
-    { id: 'p9', name: '조유민', pos: 'CB', avatar: '⚓', role: '안정적인 빌드업', type: 'def' },
+    { id: 'p12', name: '이기혁', pos: 'CB', avatar: '⚓', role: '안정적인 빌드업', type: 'def' },
     { id: 'p10', name: '설영우', pos: 'RB', avatar: '🛡️', role: '밸런스 풀백', type: 'def' },
-    { id: 'p11', name: '조현우', pos: 'GK', avatar: '🧤', role: '빛현우 슈퍼세이브', type: 'gk' }
+    { id: 'p11', name: '김승규', pos: 'GK', avatar: '🧤', role: '안정형 수문장', type: 'gk' }
   ]
 };
 
 const benchPlayers = [
-  { id: 'b1', name: '이동경', pos: 'SUB', avatar: '🚀', role: '왼발 중거리 포에트', type: 'mid' },
-  { id: 'b2', name: '김문환', pos: 'SUB', avatar: '🏃‍♂️', role: '지치지 않는 체력', type: 'def' },
-  { id: 'b3', name: '송범근', pos: 'SUB', avatar: '🧤', role: '차기 수문장', type: 'gk' },
-  { id: 'b4', name: '엄지성', pos: 'SUB', avatar: '🌪️', role: '저돌적 돌파', type: 'att' },
-  { id: 'b5', name: '권경원', pos: 'SUB', avatar: '🔒', role: '베테랑 센터백', type: 'def' }
+  { id: 'b1', name: '황희찬', pos: 'SUB', avatar: '🐂', role: '황소 돌파', type: 'att' },
+  { id: 'b2', name: '조규성', pos: 'SUB', avatar: '🎯', role: '타겟 헤더', type: 'att' },
+  { id: 'b3', name: '양현준', pos: 'SUB', avatar: '⚡', role: '고속 스프린트', type: 'att' },
+  { id: 'b4', name: '엄지성', pos: 'SUB', avatar: '🌪️', role: '저돌적 윙어', type: 'att' },
+  { id: 'b5', name: '김진규', pos: 'SUB', avatar: '🧭', role: '중원 전진 패스', type: 'mid' },
+  { id: 'b6', name: '예נס 카스트로프', pos: 'SUB', avatar: '🔥', role: '다이내믹 압박', type: 'mid' },
+  { id: 'b7', name: '김문환', pos: 'SUB', avatar: '🏃', role: '우측 오버래핑', type: 'def' },
+  { id: 'b8', name: '이기혁', pos: 'SUB', avatar: '🛡️', role: '멀티 수비수', type: 'def' },
+  { id: 'b9', name: '박진섭', pos: 'SUB', avatar: '🧱', role: '수비 스크린', type: 'def' }
 ];
 
 const roleOptions = {
@@ -645,4 +649,119 @@ function downloadCardPNG() {
   }).catch(err => {
     alert('이미지 생성 중 오류가 발생했습니다. 다시 시도해 주세요!');
   });
+}
+
+// ==========================================================================
+// Locker Room Tab & Scouting Report Modal Logic
+// ==========================================================================
+function switchTab(tabName) {
+  const tacticsView = document.getElementById('view-tactics');
+  const lockerView = document.getElementById('view-locker-room');
+  const btnTactics = document.getElementById('tab-btn-tactics');
+  const btnLocker = document.getElementById('tab-btn-locker');
+  
+  if (tabName === 'locker') {
+    if (tacticsView) tacticsView.style.display = 'none';
+    if (lockerView) lockerView.style.display = 'block';
+    if (btnTactics) { btnTactics.classList.remove('active'); btnTactics.style.background = 'rgba(30, 41, 59, 0.8)'; btnTactics.style.color = '#fff'; btnTactics.style.boxShadow = 'none'; }
+    if (btnLocker) { btnLocker.classList.add('active'); btnLocker.style.background = 'var(--accent-cyan)'; btnLocker.style.color = '#000'; btnLocker.style.boxShadow = '0 0 15px var(--accent-cyan-glow)'; }
+    renderLockerRoom('ALL');
+  } else {
+    if (tacticsView) tacticsView.style.display = 'grid';
+    if (lockerView) lockerView.style.display = 'none';
+    if (btnTactics) { btnTactics.classList.add('active'); btnTactics.style.background = 'var(--accent-emerald)'; btnTactics.style.color = '#000'; btnTactics.style.boxShadow = '0 0 15px var(--accent-emerald-glow)'; }
+    if (btnLocker) { btnLocker.classList.remove('active'); btnLocker.style.background = 'rgba(30, 41, 59, 0.8)'; btnLocker.style.color = '#fff'; btnLocker.style.boxShadow = 'none'; }
+  }
+}
+
+function renderLockerRoom(filterPos = 'ALL') {
+  const grid = document.getElementById('locker-grid');
+  if (!grid || typeof SQUAD_STATS_2026 === 'undefined') return;
+  grid.innerHTML = '';
+  
+  Object.keys(SQUAD_STATS_2026).forEach(name => {
+    const data = SQUAD_STATS_2026[name];
+    if (filterPos !== 'ALL' && !data.pos.includes(filterPos)) return;
+    
+    const card = document.createElement('div');
+    card.className = 'locker-card glass-panel';
+    card.style.padding = '1.25rem';
+    card.style.cursor = 'pointer';
+    card.style.transition = 'all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1)';
+    card.style.display = 'flex';
+    card.style.flexDirection = 'column';
+    card.style.gap = '0.8rem';
+    
+    let posColor = 'var(--accent-emerald)';
+    if (data.pos.includes('FW')) posColor = 'var(--accent-rose)';
+    else if (data.pos.includes('DF')) posColor = 'var(--accent-cyan)';
+    else if (data.pos.includes('GK')) posColor = 'var(--accent-amber)';
+    
+    card.innerHTML = `
+      <div style="display: flex; justify-content: space-between; align-items: center;">
+        <span style="background: rgba(255,255,255,0.08); color: ${posColor}; border: 1px solid ${posColor}; padding: 0.2rem 0.6rem; border-radius: 4px; font-weight: 800; font-size: 0.75rem;">${data.pos}</span>
+        <span style="font-size: 0.75rem; color: var(--text-secondary);">나이: ${data.age}</span>
+      </div>
+      
+      <div style="display: flex; align-items: center; gap: 0.8rem; margin: 0.4rem 0;">
+        <div style="width: 52px; height: 52px; border-radius: 50%; background: linear-gradient(135deg, #1e293b, #334155); border: 2px solid ${posColor}; display: flex; align-items: center; justify-content: center; font-size: 1.6rem; box-shadow: 0 4px 12px rgba(0,0,0,0.4);">
+          ${data.pos.includes('GK') ? '🧤' : (data.pos.includes('FW') ? '⚡' : (data.pos.includes('DF') ? '🛡️' : '🧭'))}
+        </div>
+        <div>
+          <div style="font-size: 1.15rem; font-weight: 800; color: #fff;">${name}</div>
+          <div style="font-size: 0.72rem; color: var(--accent-cyan);">2026 월드컵 공식 출전 멤버</div>
+        </div>
+      </div>
+      
+      <div style="background: rgba(0,0,0,0.4); padding: 0.7rem; border-radius: 6px; font-size: 0.8rem; color: var(--text-primary); display: flex; flex-direction: column; gap: 0.3rem;">
+        <div style="display: flex; justify-content: space-between;"><span>공식 출전:</span> <strong>${data.mp}경기 (${data.min}분)</strong></div>
+        <div style="display: flex; justify-content: space-between;"><span>선발 횟수:</span> <strong>${data.starts}회</strong></div>
+        <div style="display: flex; justify-content: space-between;"><span>공격포인트:</span> <strong style="color: var(--accent-rose);">${data.gls}골 ${data.ast}도움</strong></div>
+      </div>
+      
+      <button style="margin-top: auto; width: 100%; padding: 0.6rem; background: rgba(255,255,255,0.05); border: 1px solid var(--glass-border); border-radius: 6px; color: #fff; font-weight: 700; font-size: 0.8rem; cursor: pointer; transition: background 0.2s;">
+        📊 심층 스카우팅 리포트 열기
+      </button>
+    `;
+    
+    card.onclick = () => openScoutingModal(name, data, posColor);
+    grid.appendChild(card);
+  });
+}
+
+function filterLocker(pos, btnEl) {
+  document.querySelectorAll('.locker-filter-btn').forEach(b => {
+    b.style.background = 'rgba(255,255,255,0.05)';
+    b.style.color = 'var(--text-secondary)';
+    b.style.borderColor = 'var(--glass-border)';
+  });
+  if (btnEl) {
+    btnEl.style.background = 'var(--accent-cyan)';
+    btnEl.style.color = '#000';
+    btnEl.style.borderColor = 'var(--accent-cyan)';
+  }
+  renderLockerRoom(pos);
+}
+
+function openScoutingModal(name, data, posColor) {
+  const modal = document.getElementById('scout-modal');
+  if (!modal) return;
+  
+  document.getElementById('scout-name').textContent = name;
+  document.getElementById('scout-pos-badge').textContent = data.pos;
+  document.getElementById('scout-pos-badge').style.borderColor = posColor;
+  document.getElementById('scout-pos-badge').style.color = posColor;
+  document.getElementById('scout-age').textContent = `나이: ${data.age}`;
+  
+  document.getElementById('scout-val-mp').textContent = `${data.mp}경기`;
+  document.getElementById('scout-val-min').textContent = `${data.min}분`;
+  document.getElementById('scout-val-starts').textContent = `${data.starts}회`;
+  document.getElementById('scout-val-ga').textContent = `${data.gls}골 ${data.ast}도움`;
+  
+  modal.classList.add('active');
+}
+
+function closeScoutingModal() {
+  const modal = document.getElementById('scout-modal');
+  if (modal) modal.classList.remove('active');
 }
