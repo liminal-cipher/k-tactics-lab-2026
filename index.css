@@ -655,6 +655,52 @@ body.glow-success {
   animation: pulse 1s infinite;
 }
 
+/* Position-specific color coding for Player Cards */
+.player-card.card-att {
+  border-color: rgba(244, 63, 94, 0.45);
+}
+.player-card.card-att .player-pos-badge {
+  background: rgba(244, 63, 94, 0.2);
+  color: var(--accent-rose);
+  border-color: var(--accent-rose);
+}
+
+.player-card.card-mid {
+  border-color: rgba(16, 185, 129, 0.45);
+}
+.player-card.card-mid .player-pos-badge {
+  background: rgba(16, 185, 129, 0.2);
+  color: var(--accent-emerald);
+  border-color: var(--accent-emerald);
+}
+
+.player-card.card-def {
+  border-color: rgba(6, 182, 212, 0.45);
+}
+.player-card.card-def .player-pos-badge {
+  background: rgba(6, 182, 212, 0.2);
+  color: var(--accent-cyan);
+  border-color: var(--accent-cyan);
+}
+
+.player-card.card-gk {
+  border-color: rgba(245, 158, 11, 0.45);
+}
+.player-card.card-gk .player-pos-badge {
+  background: rgba(245, 158, 11, 0.2);
+  color: var(--accent-amber);
+  border-color: var(--accent-amber);
+}
+
+/* Mobile Click-to-Swap Active Selection state */
+.player-card.click-selected {
+  border-color: var(--accent-amber) !important;
+  box-shadow: 0 0 25px rgba(245, 158, 11, 0.9), inset 0 0 10px rgba(245, 158, 11, 0.3) !important;
+  transform: scale(1.15) !important;
+  z-index: 30 !important;
+  animation: pulse 1s infinite;
+}
+
 .player-pos-badge {
   position: absolute;
   top: -8px;
