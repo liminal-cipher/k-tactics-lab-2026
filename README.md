@@ -39,9 +39,12 @@
 | Component | Choice | Why (선택 이유) |
 | :--- | :--- | :--- |
 | **Core Framework** | `Vanilla HTML5 / CSS3 / JS (ES6+)` | 무거운 프레임워크나 빌드(`npm install`) 종속성 없이, 모바일/PC 브라우저에서 **1초 즉각 로딩** 및 심사위원 접근성 극대화 |
-| **UI / Styling** | `Vanilla CSS Glassmorphism` | 스포츠 전술판 특유의 고급스러운 글래스모피즘 및 화면 진동(`Shake`), 테두리 발광(`Glow`) 등 동적 60fps 애니메이션 구현 |
+| **UI & Styling** | `Vanilla CSS Glassmorphism` | 스포츠 전술판 특유의 고급스러운 글래스모피즘 및 화면 진동(`Shake`), 테두리 발광(`Glow`) 등 동적 60fps 애니메이션 구현 |
+| **Typography** | `Google Fonts API` | `Outfit`, `Plus Jakarta Sans`, `Noto Sans KR` 3종 폰트를 CDN으로 로딩하여, 영문·숫자 스탯의 가독성과 한글 렌더링 최적화 |
+| **State & Interaction** | `Native JS State & HTML5 Drag/Touch APIs` | 외부 상태 관리 라이브러리 없이 전역 반응형 State 객체와 HTML5 `dataTransfer` 드래그 앤 드롭 + 모바일 클릭 맞교환(Click-to-Swap) 이원화 구현 |
+| **Simulation Engine** | `Client-Side Monte Carlo Engine & FBref Data` | 공신력 있는 공식 20인 FBref 스탯(`data/squad_stats_2026.js`)을 기반으로, 브라우저 단에서 **1,000회 몬테카를로 확률 연산 및 2-Phase 턴 루프** 실시간 가동 |
 | **Image Export** | `html2canvas v1.4.1` | 최종 시뮬레이션 명함 카드를 클라이언트 단에서 2배수 고화질 PNG 이미지로 캡처하여 소셜 미디어 바이럴 유도 |
-| **Hosting / Deploy** | `Vercel / GitHub Pages` | 백엔드 서버 인프라 관리 없이 CDN을 통한 전 세계 무료 정적 웹 배포 및 **월 운영 비용 $0** 달성 |
+| **Hosting & Deploy** | `Vercel / GitHub Pages` | 백엔드 서버 인프라 관리 없이 CDN을 통한 전 세계 무료 정적 웹 배포 및 **월 운영 비용 $0** 달성 |
 
 ---
 
