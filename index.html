@@ -107,39 +107,32 @@
     <!-- RIGHT/MAIN PANEL: Interactive Football Pitch & Squad Sandbox -->
     <section class="center-panel" id="panel-center">
       
-      <!-- Formation Bar (Ultra slim, single line!) -->
-      <div class="formation-bar" id="formation-bar">
-        <span style="font-weight: 800; font-size: 0.9rem; color: #fff; display: flex; align-items: center; gap: 0.4rem;">
-          <span>⚽ 포메이션</span>
-        </span>
-        <div class="formation-selector" id="formation-selector">
-          <button class="btn-formation active" id="btn-form-433" onclick="setFormation('4-3-3')">4-3-3 (밸런스)</button>
-          <button class="btn-formation" id="btn-form-352" onclick="setFormation('3-5-2')">3-5-2 (쓰리백)</button>
-          <button class="btn-formation" id="btn-form-4231" onclick="setFormation('4-2-3-1')">4-2-3-1 (코어 집중)</button>
-          <button class="btn-formation" id="btn-form-442" onclick="setFormation('4-4-2')">4-4-2 (클래식)</button>
+      <!-- Consolidated Match Control Header (Ultra-slim 2-layer compact bar) -->
+      <div class="match-control-header" id="match-control-header">
+        <div class="mch-row-top">
+          <div style="display: flex; align-items: center; gap: 0.4rem; flex-wrap: wrap;">
+            <span class="mch-label">⚽ 포메이션:</span>
+            <div class="formation-selector" id="formation-selector">
+              <button class="btn-formation active" id="btn-form-433" onclick="setFormation('4-3-3')">4-3-3</button>
+              <button class="btn-formation" id="btn-form-352" onclick="setFormation('3-5-2')">3-5-2</button>
+              <button class="btn-formation" id="btn-form-4231" onclick="setFormation('4-2-3-1')">4-2-3-1</button>
+              <button class="btn-formation" id="btn-form-442" onclick="setFormation('4-4-2')">4-4-2</button>
+            </div>
+          </div>
+          <div style="display: flex; align-items: center; gap: 0.4rem; flex-wrap: wrap;">
+            <span class="mch-label">⚔️ 상대국:</span>
+            <button class="btn-opponent active" id="btn-opp-MEX" onclick="selectOpponent('MEX')">🇲🇽 멕시코</button>
+            <button class="btn-opponent" id="btn-opp-ESP" onclick="selectOpponent('ESP')">🇪🇸 스페인</button>
+            <button class="btn-opponent" id="btn-opp-RSA" onclick="selectOpponent('RSA')">🇿🇦 남아공</button>
+          </div>
         </div>
-      </div>
-
-      <!-- Opponent Selection & Tactical Counter Briefing Bar -->
-      <div class="opponent-bar" id="opponent-bar">
-        <div style="display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap;">
-          <span style="font-size: 0.82rem; font-weight: 800; color: #fff;">⚔️ 실전 상대팀:</span>
-          <button class="btn-opponent active" id="btn-opp-MEX" onclick="selectOpponent('MEX')">🇲🇽 멕시코</button>
-          <button class="btn-opponent" id="btn-opp-ESP" onclick="selectOpponent('ESP')">🇪🇸 스페인</button>
-          <button class="btn-opponent" id="btn-opp-RSA" onclick="selectOpponent('RSA')">🇿🇦 남아공</button>
-        </div>
-        <div class="opponent-briefing" id="opponent-briefing-text">
-          💡 카운터 전략: 상대 양측면이 올라올 때 발생하는 넓은 뒷공간을 하프스페이스 침투와 다이렉트 롱볼 템포로 타격하세요!
-        </div>
-      </div>
-
-      <!-- Match Phase & 2-Phase Turn Status Bar -->
-      <div class="match-phase-bar" id="match-phase-bar">
-        <div class="match-phase-status" id="match-phase-status">
-          <span>⚽ <strong style="color: var(--accent-cyan);">0' 경기 전 셋업</strong> (포메이션, 교체 및 전술 지침 설정 완료 후 전반 가동)</span>
-        </div>
-        <div id="match-phase-actions">
-          <!-- Will update when half-time arrives -->
+        <div class="mch-row-bottom">
+          <div class="match-phase-status" id="match-phase-status" style="flex: 1; font-size: 0.8rem;">
+            <span>⚽ <strong style="color: var(--accent-cyan);">0' 셋업 완료</strong> | <span id="opponent-briefing-text" style="color: var(--accent-amber);">💡 멕시코 맞춤: 뒷공간 하프스페이스와 다이렉트 템포 공략</span></span>
+          </div>
+          <div id="match-phase-actions">
+            <!-- Will update when half-time arrives -->
+          </div>
         </div>
       </div>
 
