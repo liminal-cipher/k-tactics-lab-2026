@@ -51,19 +51,7 @@
     <!-- LEFT PANEL: Vibe Meter, Stats Radar & Live Chat (No Clutter!) -->
     <aside class="glass-panel panel-left" id="panel-left">
       
-      <!-- Fan Vibe Meter Box -->
-      <section class="vibe-meter-box" id="section-vibe-meter">
-        <div class="widget-header-box">
-          <span class="widget-title">🔥 실시간 팬 여론 지지도</span>
-          <span class="widget-badge" id="vibe-score-val" style="font-size: 0.95rem; background: rgba(16,185,129,0.2); color: var(--accent-emerald); border-color: var(--accent-emerald);">50%</span>
-        </div>
-        <div class="vibe-progress-bg">
-          <div class="vibe-progress-bar" id="vibe-progress-bar" style="width: 50%;"></div>
-        </div>
-        <p class="vibe-status-text" id="vibe-status-text">"기대 반, 걱정 반... 감독님의 첫 전술 지시를 기다립니다."</p>
-      </section>
-
-      <!-- Team Balance Stats Box -->
+      <!-- Team Balance Stats Box (Primary Tactical Core!) -->
       <section class="stats-box" id="section-stats">
         <div class="widget-header-box">
           <span class="widget-title">📊 실시간 팀 밸런스 진단</span>
@@ -88,12 +76,21 @@
         </div>
       </section>
 
-      <!-- Live Fan Chat Stream Box -->
-      <section class="live-chat-box" id="section-live-chat" style="flex: 1; min-height: 0;">
-        <div class="widget-header-box">
+      <!-- Live Fan Chat Stream & Minimalist Vibe Bar Box -->
+      <section class="live-chat-box" id="section-live-chat" style="flex: 1; min-height: 0; display: flex; flex-direction: column;">
+        <div class="widget-header-box" style="margin-bottom: 0.3rem;">
           <span class="widget-title">💬 실시간 팬 네티즌 중계창</span>
-          <span class="live-chat-badge">LIVE 2,026명</span>
+          <div style="display: flex; align-items: center; gap: 0.5rem;">
+            <span class="widget-badge" id="vibe-score-val" style="font-size: 0.78rem; padding: 0.15rem 0.5rem; background: rgba(16,185,129,0.2); color: var(--accent-emerald); border-color: var(--accent-emerald);">지지율 50%</span>
+            <span class="live-chat-badge" style="font-size: 0.72rem;">LIVE 2,026명</span>
+          </div>
         </div>
+        
+        <!-- Ultra-slim minimalistic 3px progress bar -->
+        <div class="vibe-progress-bg" style="height: 3px; margin-bottom: 0.6rem; background: rgba(255,255,255,0.06);">
+          <div class="vibe-progress-bar" id="vibe-progress-bar" style="width: 50%; height: 100%; transition: width 0.4s ease, background 0.4s ease;"></div>
+        </div>
+
         <div class="chat-messages" id="chat-messages" style="flex: 1; overflow-y: auto;">
           <!-- Dynamically streaming comments -->
           <div class="chat-item"><span class="chat-user">축잘알123:</span> 오 감독 새로 왔네? 이번엔 좀 다르려나</div>

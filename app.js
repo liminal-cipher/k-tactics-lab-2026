@@ -603,30 +603,34 @@ function updateVibeMeter() {
   const headerVal = document.getElementById('header-vibe-val');
   const body = document.getElementById('body-tag');
   
-  scoreVal.textContent = `${state.vibeScore}%`;
-  headerVal.textContent = `${state.vibeScore}%`;
-  bar.style.width = `${state.vibeScore}%`;
+  if (scoreVal) scoreVal.textContent = `지지율 ${state.vibeScore}%`;
+  if (headerVal) headerVal.textContent = `${state.vibeScore}%`;
+  if (bar) bar.style.width = `${state.vibeScore}%`;
   
-  body.classList.remove('shake-danger', 'glow-success');
+  if (body) body.classList.remove('shake-danger', 'glow-success');
   
   if (state.vibeScore >= 80) {
-    scoreVal.style.color = 'var(--accent-emerald)';
-    headerVal.style.color = 'var(--accent-emerald)';
-    statusText.textContent = `🎉 "역대급 사이다 명장 등장!" 한국 축구 팬들의 절대적인 지지를 받고 있습니다!`;
-    body.classList.add('glow-success');
+    if (scoreVal) scoreVal.style.color = 'var(--accent-emerald)';
+    if (headerVal) headerVal.style.color = 'var(--accent-emerald)';
+    if (bar) bar.style.backgroundColor = 'var(--accent-emerald)';
+    if (statusText) statusText.textContent = `🎉 "역대급 사이다 명장 등장!" 한국 축구 팬들의 절대적인 지지를 받고 있습니다!`;
+    if (body) body.classList.add('glow-success');
   } else if (state.vibeScore >= 60) {
-    scoreVal.style.color = 'var(--accent-cyan)';
-    headerVal.style.color = 'var(--accent-cyan)';
-    statusText.textContent = `👍 "납득이 가는 전술 변화!" 팬들이 기대감을 가지고 지켜보고 있습니다.`;
+    if (scoreVal) scoreVal.style.color = 'var(--accent-cyan)';
+    if (headerVal) headerVal.style.color = 'var(--accent-cyan)';
+    if (bar) bar.style.backgroundColor = 'var(--accent-cyan)';
+    if (statusText) statusText.textContent = `👍 "납득이 가는 전술 변화!" 팬들이 기대감을 가지고 지켜보고 있습니다.`;
   } else if (state.vibeScore >= 40) {
-    scoreVal.style.color = 'var(--accent-amber)';
-    headerVal.style.color = 'var(--accent-amber)';
-    statusText.textContent = `😐 "아직은 지켜보자..." 월드컵의 트라우마가 남아있어 증명이 필요합니다.`;
+    if (scoreVal) scoreVal.style.color = 'var(--accent-amber)';
+    if (headerVal) headerVal.style.color = 'var(--accent-amber)';
+    if (bar) bar.style.backgroundColor = 'var(--accent-amber)';
+    if (statusText) statusText.textContent = `😐 "아직은 지켜보자..." 월드컵의 트라우마가 남아있어 증명이 필요합니다.`;
   } else {
-    scoreVal.style.color = 'var(--accent-rose)';
-    headerVal.style.color = 'var(--accent-rose)';
-    statusText.textContent = `🚨 "이럴 거면 왜 감독했나?!" U자형 백패스와 자동문 수비에 팬들이 분노하고 있습니다!`;
-    body.classList.add('shake-danger');
+    if (scoreVal) scoreVal.style.color = 'var(--accent-rose)';
+    if (headerVal) headerVal.style.color = 'var(--accent-rose)';
+    if (bar) bar.style.backgroundColor = 'var(--accent-rose)';
+    if (statusText) statusText.textContent = `🚨 "이럴 거면 왜 감독했나?!" U자형 백패스와 자동문 수비에 팬들이 분노하고 있습니다!`;
+    if (body) body.classList.add('shake-danger');
   }
 }
 
