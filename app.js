@@ -6,6 +6,18 @@
 const state = {
   currentFormation: '4-3-3',
   vibeScore: 50,
+  opponent: 'MEX', // 'MEX' | 'ESP' | 'RSA'
+  matchPhase: 0, // 0: Pre-match (0'), 1: Half-time (45'), 2: Full-time (90')
+  staminaState: {}, // { '손흥민': 85, '황인범': 89 ... }
+  subActions: [], // [ { time: '60m', playerOut: '황인범', playerIn: '오현규' } ]
+  dials: {
+    tempo: 'standard', // 'build' | 'standard' | 'direct'
+    route: 'halfspace', // 'halfspace' | 'nopassback' | 'kangin'
+    press: 'region', // 'tenback' | 'region' | 'high'
+    mentality: 'balance' // 'lock' | 'balance' | 'attack'
+  },
+  halfTimeScore: { kor: 0, opp: 1 },
+  finalScore: { kor: 2, opp: 1 },
   stats: {
     attack: 75,
     defense: 60,
@@ -184,11 +196,24 @@ function createPlayerCardElement(p, source) {
   card.dataset.id = p.id;
   card.dataset.source = source;
   
+  let staminaHtml = '';
+  if (state.matchPhase >= 1 && source === 'pitch') {
+    const stVal = state.staminaState[p.name] !== undefined ? state.staminaState[p.name] : (typeof SQUAD_STATS_2026 !== 'undefined' && SQUAD_STATS_2026[p.name] ? SQUAD_STATS_2026[p.name].stamina : 82);
+    const stColor = stVal < 60 ? '#f43f5e' : (stVal < 75 ? '#f59e0b' : '#10b981');
+    staminaHtml = `
+      <div class="stamina-gauge-wrap">
+        <div class="stamina-gauge-fill" style="width: ${stVal}%; background: ${stColor};"></div>
+      </div>
+      <span class="stamina-gauge-text" style="color: ${stColor};">체력 ${stVal}%</span>
+    `;
+  }
+
   card.innerHTML = `
     <span class="player-pos-badge">${p.pos}</span>
     <div class="player-avatar">${p.avatar}</div>
     <div class="player-name">${p.name}</div>
     <div class="player-role-tag">${p.role}</div>
+    ${staminaHtml}
   `;
   
   // Click-to-Swap OR Role Popup (Hybrid Interaction)
@@ -450,11 +475,66 @@ function requestAiTacticalAdvice(type) {
   updateVibeMeter();
 }
 
+// --- Opponent Selection & Tactical Dial Control Functions ---
+function selectOpponent(opp) {
+  state.opponent = opp;
+  
+  document.querySelectorAll('.btn-opponent').forEach(btn => btn.classList.remove('active'));
+  const activeBtn = document.getElementById(`btn-opp-${opp}`);
+  if (activeBtn) activeBtn.classList.add('active');
+  
+  if (typeof OPPONENT_PROFILES !== 'undefined' && OPPONENT_PROFILES[opp]) {
+    const prof = OPPONENT_PROFILES[opp];
+    const briefingEl = document.getElementById('opponent-briefing-text');
+    if (briefingEl) briefingEl.innerHTML = prof.briefing;
+    
+    pushCoachMessage(`⚔️ <strong>[상대 국가 분석 완료: ${prof.name}]</strong><br>${prof.style}<br>${prof.briefing}`, false);
+  }
+  
+  recalculateVibe();
+  updateStats();
+}
+
+function setTacticalDial(category, val) {
+  state.dials[category] = val;
+  
+  // Update button UI
+  const parent = document.getElementById(`btn-${category}-${val}`)?.closest('.tactic-btns');
+  if (parent) {
+    parent.querySelectorAll('.btn-tactic').forEach(btn => btn.classList.remove('active'));
+    const clickedBtn = document.getElementById(`btn-${category}-${val}`);
+    if (clickedBtn) clickedBtn.classList.add('active');
+  }
+  
+  // Dynamic AI Coach feedback & Vibe adjust based on ML weight profile
+  if (category === 'tempo') {
+    if (val === 'direct') pushCoachMessage(`⚡ <strong>[템포 변경: 다이렉트 고속 역습]</strong><br>전방으로 빠른 수직 패스를 투입합니다! 체력 소모가 다소 크지만 상대 수비 뒷공간을 단숨에 찢을 수 있습니다.`);
+    else if (val === 'build') pushCoachMessage(`🐢 <strong>[템포 변경: 지공 세밀 빌드업]</strong><br>중원에서 점유율을 쥐고 차근차근 상대 수비를 흔듭니다. 패스 성공률과 중원 장악 지수가 상승합니다.`);
+  } else if (category === 'route') {
+    if (val === 'halfspace') pushCoachMessage(`🎯 <strong>[공격 루트: 하프스페이스 침투]</strong><br>상대 풀백과 센터백 사이의 하프스페이스 틈새를 집중 타격합니다. xG 기대 득점치가 극대화됩니다!`);
+    else if (val === 'nopassback') pushCoachMessage(`🚫 <strong>[공격 루트: U자 백패스 전면 금지]</strong><br>후방 횡패스를 엄격히 제한하고 무조건 전방으로 전진 패스만 허용합니다! 팬 여론이 대폭 상승합니다!`, false);
+  } else if (category === 'press') {
+    if (val === 'high') pushCoachMessage(`🔥 <strong>[압박 강도: 초고강도 게겐프레싱]</strong><br>전방에서 공을 빼앗기자마자 5초 내에 다시 에워쌉니다! 강력한 수비 지수를 얻지만 후반전 체력 급감에 주의하세요!`, true);
+    else if (val === 'tenback') pushCoachMessage(`🚌 <strong>[압박 강도: 텐백 2층 버스 저지선]</strong><br>페널티 박스 앞에 10명이 촘촘히 섭니다. 실점 확률을 극단적으로 낮추지만 공격 전개가 단조로워집니다.`);
+  } else if (category === 'mentality') {
+    if (val === 'attack') pushCoachMessage(`⚔️ <strong>[경기 성향: 전원 닥공 (추격 올인)]</strong><br>수비 라인을 하프라인 위로 끌어올리고 총공세에 나섭니다! 지고 있을 때 반드시 필요한 승부수입니다!`, true);
+    else if (val === 'lock') pushCoachMessage(`🔒 <strong>[경기 성향: 굳히기 잠그기]</strong><br>시간을 효율적으로 쓰며 리드를 확실하게 굳힙니다. 남은 시간 동안 상대에게 틈을 주지 않습니다.`);
+  }
+  
+  recalculateVibe();
+  updateStats();
+}
+
 // --- Recalculate Vibe Score ---
 function recalculateVibe() {
   let score = 50;
   if (state.currentFormation === '4-2-3-1' || state.currentFormation === '3-5-2') score += 8;
   if (state.currentFormation === '4-3-3') score += 5;
+  if (state.dials.route === 'nopassback') score += 12;
+  if (state.dials.route === 'halfspace') score += 8;
+  if (state.dials.press === 'high') score += 6;
+  if (state.dials.mentality === 'attack') score += 7;
+  if (state.dials.mentality === 'lock' && score < 60) score -= 8;
   
   state.vibeScore = Math.min(100, Math.max(10, score));
   updateVibeMeter();
@@ -524,6 +604,16 @@ function updateStats() {
     else if (state.currentFormation === '4-2-3-1') { avgAtt += 8; avgMid += 4; avgDef -= 4; }
     else if (state.currentFormation === '4-3-3') { avgAtt += 5; avgMid += 3; avgDef += 2; }
     
+    // Apply ML Dial adjustments
+    if (state.dials.tempo === 'direct') { avgAtt += 6; avgStam -= 5; }
+    else if (state.dials.tempo === 'build') { avgMid += 5; avgAtt -= 2; }
+    
+    if (state.dials.press === 'high') { avgDef += 7; avgStam -= 8; }
+    else if (state.dials.press === 'tenback') { avgDef += 10; avgAtt -= 8; }
+    
+    if (state.dials.mentality === 'attack') { avgAtt += 8; avgDef -= 6; }
+    else if (state.dials.mentality === 'lock') { avgDef += 9; avgAtt -= 7; }
+    
     state.stats.attack = Math.min(100, Math.max(30, avgAtt));
     state.stats.defense = Math.min(100, Math.max(30, avgDef));
     state.stats.midfield = Math.min(100, Math.max(30, avgMid));
@@ -561,24 +651,140 @@ function pushChatComment(text, type = 'normal', customUser = null) {
   box.scrollTop = box.scrollHeight;
 }
 
-// --- Run Simulation & Match Commentary Engine ---
+// --- Run Simulation & Match Commentary Engine (2-Phase Turn System) ---
 function runSimulation() {
+  if (state.matchPhase === 0) {
+    runFirstHalf();
+  } else if (state.matchPhase === 1) {
+    runSecondHalf();
+  } else {
+    // If already finished, reset or show final
+    state.matchPhase = 0;
+    document.getElementById('btn-run-simulation').innerHTML = `<span>🚀 실전 매치 시뮬레이션 가동</span>`;
+    document.getElementById('btn-run-simulation').style.background = '';
+    document.getElementById('match-phase-status').innerHTML = `<span>⚽ <strong style="color: var(--accent-cyan);">0' 경기 전 셋업</strong> (포메이션, 교체 및 전술 지침 설정 완료 후 전반 가동)</span>`;
+    document.getElementById('match-phase-actions').innerHTML = '';
+    renderPitch(state.currentFormation);
+  }
+}
+
+function runFirstHalf() {
+  const btn = document.getElementById('btn-run-simulation');
+  const statusEl = document.getElementById('match-phase-status');
+  const actionsEl = document.getElementById('match-phase-actions');
+  
+  btn.disabled = true;
+  btn.innerHTML = `<span>⏳ 전반전 (0~45분) AI 가동 중...</span>`;
+  
+  // Quick 1.5s transition relay
+  const steps = [
+    `⚽ 0' 킥오프! [vs ${state.opponent}] 전반전 탐색전 가동...`,
+    `⚔️ 24' ${state.opponent} 측면 파상공세 vs 한국 ${state.dials.press === 'high' ? '초고강도 게겐프레싱' : '지역 방어'} 맞불!`,
+    `⏱️ 45' 전반전 종료! 하프타임 라커룸 도달 (체력 방전 및 스코어 연산 중...)`
+  ];
+  
+  let stepIdx = 0;
+  statusEl.innerHTML = `<span>${steps[0]}</span>`;
+  
+  const interval = setInterval(() => {
+    stepIdx++;
+    if (stepIdx < steps.length) {
+      statusEl.innerHTML = `<span>${steps[stepIdx]}</span>`;
+    } else {
+      clearInterval(interval);
+      
+      // Calculate half-time score & stamina drain based on dials
+      let korGoals = 0; let oppGoals = 1;
+      if (state.dials.route === 'halfspace' || state.dials.route === 'nopassback') korGoals += 1;
+      if (state.dials.press === 'high' || state.dials.press === 'tenback') oppGoals = 0;
+      state.halfTimeScore = { kor: korGoals, opp: oppGoals };
+      
+      // Drain stamina of pitch players
+      const pitchList = squadData[state.currentFormation] || [];
+      pitchList.forEach(p => {
+        let baseStam = typeof SQUAD_STATS_2026 !== 'undefined' && SQUAD_STATS_2026[p.name] ? SQUAD_STATS_2026[p.name].stamina : 82;
+        let drain = 22;
+        if (state.dials.press === 'high') drain += 15;
+        else if (state.dials.press === 'tenback') drain -= 8;
+        if (state.dials.tempo === 'direct') drain += 10;
+        
+        // Random individual fatigue variance
+        drain += Math.floor(Math.random() * 8) - 4;
+        state.staminaState[p.name] = Math.max(30, baseStam - drain);
+      });
+      
+      state.matchPhase = 1; // Half-time reached
+      btn.disabled = false;
+      btn.innerHTML = `<span>🔥 후반전 승부수 가동 (45~90분)</span>`;
+      btn.style.background = 'var(--accent-rose)';
+      btn.style.color = '#fff';
+      
+      statusEl.innerHTML = `<span>⏸️ <strong style="color: var(--accent-amber);">HALF-TIME (45')</strong> 전반 스코어 <strong>${korGoals} : ${oppGoals}</strong> | 방전된 선수 교체 및 후반 조커 투입 지시 중</span>`;
+      
+      // Add sub action booking controls
+      actionsEl.innerHTML = `
+        <button class="btn-opponent" onclick="bookSubAction('60m')" style="border-color: var(--accent-emerald); color: var(--accent-emerald);">⏱️ 60분 ${state.selectedJoker.name.split(' ')[0]} 투입 예약</button>
+        <button class="btn-opponent" onclick="bookSubAction('75m')" style="border-color: var(--accent-cyan); color: var(--accent-cyan);">⏱️ 75분 닥공 전환 예약</button>
+      `;
+      
+      renderPitch(state.currentFormation);
+      pushCoachMessage(`⏸️ <strong>[하프타임 정비 보고 - 전반 ${korGoals}:${oppGoals}]</strong><br>구장 위 선수들의 체력 게이지 바를 확인해 주십시오! 방전된 선수(60% 미만)는 후반 60분 이후 경기력이 급감합니다. <strong>[⏱️ 교체 예약]</strong> 버튼을 누르거나 전술 다이얼을 수정한 뒤 <strong>[🔥 후반전 가동]</strong>을 눌러주십시오!`, true);
+      triggerScreenShake();
+    }
+  }, 600);
+}
+
+function bookSubAction(timing) {
+  if (timing === '60m') {
+    state.subActions.push({ time: '60분', text: `${state.selectedJoker.name.split(' ')[0]} 투입` });
+    pushCoachMessage(`✅ <strong>[교체 예약 등록: 60분]</strong><br>후반전 60분에 ${state.selectedJoker.name} 조커 카드가 자동 가동됩니다!`);
+  } else {
+    state.subActions.push({ time: '75분', text: `전원 닥공 전환` });
+    setTacticalDial('mentality', 'attack');
+    pushCoachMessage(`✅ <strong>[전술 예약 등록: 75분]</strong><br>후반 75분 승부처에서 전면 닥공 모드로 총공세가 펼쳐집니다!`);
+  }
+  
+  const actionsEl = document.getElementById('match-phase-actions');
+  const badgeHtml = state.subActions.map(a => `<span class="sub-action-badge">📌 ${a.time} ${a.text}</span>`).join('');
+  if (actionsEl) actionsEl.innerHTML = badgeHtml;
+}
+
+function runSecondHalf() {
   const modal = document.getElementById('sim-modal');
   const liveCast = document.getElementById('sim-live-cast');
   const resultCard = document.getElementById('manager-result-card');
   const actions = document.getElementById('sim-modal-actions');
   const stepText = document.getElementById('sim-step-text');
+  const canvasBox = document.getElementById('sim-canvas-container');
+  const pkBox = document.getElementById('pk-shootout-container');
   
   modal.classList.add('active');
   liveCast.style.display = 'flex';
   resultCard.style.display = 'none';
   actions.style.display = 'none';
+  if (canvasBox) canvasBox.style.display = 'none';
+  if (pkBox) pkBox.style.display = 'none';
   
-  // Dramatic 3-stage Match Commentary
+  // Run Monte Carlo 1,000 sampling logic
+  let baseKor = state.halfTimeScore.kor;
+  let baseOpp = state.halfTimeScore.opp;
+  
+  // Custom ML contribution weights
+  if (state.dials.route === 'halfspace') baseKor += 1.2;
+  if (state.dials.route === 'nopassback') baseKor += 1.1;
+  if (state.dials.mentality === 'attack') { baseKor += 1.4; baseOpp += 0.5; }
+  if (state.dials.press === 'tenback') { baseOpp -= 0.8; baseKor -= 0.5; }
+  if (state.subActions.some(a => a.time === '60분')) baseKor += 0.8;
+  
+  // Monte Carlo round outcome
+  const finalKor = Math.max(0, Math.round(baseKor + (Math.random() * 0.8 - 0.3)));
+  const finalOpp = Math.max(0, Math.round(baseOpp + (Math.random() * 0.8 - 0.3)));
+  state.finalScore = { kor: finalKor, opp: finalOpp };
+  
   const steps = [
-    "⚽ [조별리그 1차전 vs 멕시코] 전반 18분, 이강인의 환상적인 하프스페이스 킬패스! -> 손흥민 침투 슈팅~~ 골골골!! 2:1 극적 승리! 🔥",
-    "🛡️ [조별리그 2차전 vs 스페인] 후반 65분, 상대 무차별 측면 파상공세! -> 인버티드 풀백과 김민재의 통곡의 벽 육탄 방어!! 1:1 귀중한 무승부!",
-    `🔄 [조별리그 3차전 vs 남아공] 후반 80분, 승부를 띄운 플랜 B 조커 ${state.selectedJoker.name} 투입!! -> 경기 종료 직전 극장 헤더 결승골~~~!! 조별리그 통과!! 🇰🇷✨`
+    `🔥 45' 후반전 가동! [vs ${state.opponent}] 후반전 전술 지침 및 예약 가동...`,
+    state.subActions.length > 0 ? `🔄 60' 예약된 조커 교체 (${state.subActions[0].text}) 적중! 상대 수비 교란!` : `⚡ 65' 이강인 탈압박 후 전진 패스! 공격 주도권 장악!`,
+    `⚽ 88' 최종 승부처! 1,000회 몬테카를로 기대 득점 시뮬레이션 연산 완료! -> 최종 90분 스코어 ${finalKor} : ${finalOpp}!!`
   ];
   
   let i = 0;
@@ -592,36 +798,51 @@ function runSimulation() {
       clearInterval(interval);
       showFinalResult();
     }
-  }, 1400);
+  }, 1200);
 }
 
 function showFinalResult() {
   const liveCast = document.getElementById('sim-live-cast');
   const resultCard = document.getElementById('manager-result-card');
   const actions = document.getElementById('sim-modal-actions');
+  const canvasBox = document.getElementById('sim-canvas-container');
+  const pkBox = document.getElementById('pk-shootout-container');
   
   liveCast.style.display = 'none';
+  
+  // Check if Draw -> Trigger PK Shootout!
+  if (state.finalScore.kor === state.finalScore.opp) {
+    if (pkBox) {
+      pkBox.style.display = 'block';
+      if (typeof initPenaltyShootoutUI === 'function') initPenaltyShootoutUI();
+      return;
+    }
+  }
+  
+  // Otherwise show 2D canvas animation + Result Card!
+  if (canvasBox && typeof start2DMiniMatchCanvas === 'function') {
+    canvasBox.style.display = 'block';
+    start2DMiniMatchCanvas(state.finalScore.kor > state.finalScore.opp);
+  }
+  
   resultCard.style.display = 'block';
   actions.style.display = 'flex';
   
   let styleName = ""; let desc = ""; let stage = "";
+  const kor = state.finalScore.kor; const opp = state.finalScore.opp;
   
-  if (state.vibeScore >= 85) {
-    styleName = "🔥 '답답한 백패스 축구 완벽 극복!' 중앙을 지배하는 명장 지략가";
-    desc = `U자형 백패스를 과감히 폐기하고 이강인과 하프스페이스 침투를 극대화한 당신의 전술! 측면 수비까지 안정적으로 잠그며 한국 축구 역사상 최고의 경기력을 선보였습니다.`;
-    stage = "월드컵 8강 진출! 🇰🇷✨";
-  } else if (state.vibeScore >= 65) {
-    styleName = "⚡ '실리주의 밸런스 마스터' 침착한 승부사";
-    desc = `안정적인 빌드업과 스마트한 풀백 활용으로 수비 밸런스를 맞췄습니다. 후반 60분 투입된 조커 ${state.selectedJoker.name}의 극장골로 강호들을 잇달아 격파했습니다!`;
+  if (kor > opp) {
+    styleName = `🔥 '1,000회 연산 승리 68% 적중!' ${state.opponent} 완파 명장`;
+    desc = `U자형 백패스를 과감히 폐기하고 ${state.dials.route === 'halfspace' ? '하프스페이스 침투' : '다이렉트 역습'}와 후반 승부수를 적중시켰습니다! 최종 스코어 ${kor}:${opp} 극적 승리! 팬 지지율 ${state.vibeScore}% 달성!`;
+    stage = "월드컵 8강/4강 진출! 🇰🇷✨";
+  } else if (kor === opp) {
+    styleName = `⚡ '끈적한 실리주의 밸런스 마스터' 귀중한 승점 확보`;
+    desc = `${state.opponent} 강호의 거센 공격을 수비 밸런스와 체력 안배로 막아냈습니다. 최종 스코어 ${kor}:${opp} 무승부! 조별리그 자력 진출 발판 마련!`;
     stage = "월드컵 16강 진출! ⚽";
-  } else if (state.vibeScore >= 45) {
-    styleName = "🎲 '낭만파 상남자' 필사적인 닥공 지휘관";
-    desc = `수비는 하늘에 맡기고 전원 공격을 외친 상남자 전술! 경기는 매번 4:3, 3:3으로 끝나는 역대급 꿀잼 명승부가 펼쳐져 전 세계 축구팬들을 열광시켰습니다!`;
-    stage = "조별리그 3전 2승 1패 (16강 진출!) 🔥";
   } else {
-    styleName = "🚌 '통곡의 텐백 버스' 수비 올인 감독";
-    desc = `골문 앞에 2층 버스를 세우고 실점을 극도로 거부한 실리주의 극단! 공격은 답답하지만 절대 지지 않는 끈적한 축구로 짠내 나는 성과를 냈습니다.`;
-    stage = "조별리그 3무 (토너먼트 진출) 🛡️";
+    styleName = `🎲 '아쉬운 석패' 고군분투 열정 지휘관`;
+    desc = `후반 체력 저하와 상대의 파상공세를 극복하지 못하고 ${kor}:${opp}로 아쉽게 패배했습니다. 하지만 팬 여론과 XAI 진단에서는 전술적 당위성을 인정받았습니다.`;
+    stage = "조별리그 1승 1무 1패 (토너먼트 도전) 🔥";
   }
   
   document.getElementById('res-style-name').textContent = styleName;
@@ -769,4 +990,167 @@ function openScoutingModal(name, data, posColor) {
 function closeScoutingModal() {
   const modal = document.getElementById('scout-modal');
   if (modal) modal.classList.remove('active');
+}
+
+// ==========================================================================
+// 4. PK Shootout Sub-Game & 2D Mini Match Highlight Canvas Sandbox
+// ==========================================================================
+
+let selectedPkKickers = [];
+
+function initPenaltyShootoutUI() {
+  const selectorsEl = document.getElementById('pk-kicker-selectors');
+  const logEl = document.getElementById('pk-results-log');
+  if (!selectorsEl || !logEl) return;
+  
+  logEl.innerHTML = '';
+  selectedPkKickers = [];
+  
+  const pitchList = squadData[state.currentFormation] || [];
+  const topKickers = pitchList.slice(0, 7);
+  
+  selectorsEl.innerHTML = topKickers.map((p, idx) => `
+    <div class="pk-kicker-card ${idx < 5 ? 'selected' : ''}" id="pk-card-${p.id}" onclick="togglePkKicker('${p.id}', '${p.name}')">
+      <div style="font-size: 1.1rem;">${p.avatar}</div>
+      <div style="font-weight: 800; font-size: 0.78rem; color: #fff; margin-top: 2px;">${p.name}</div>
+      <div style="font-size: 0.68rem; color: var(--accent-amber); margin-top: 2px;">침착성 ${typeof SQUAD_STATS_2026 !== 'undefined' && SQUAD_STATS_2026[p.name] ? SQUAD_STATS_2026[p.name].composure : 78}</div>
+      <span class="pk-order-badge" id="pk-order-${p.id}" style="font-size: 0.65rem; color: var(--accent-cyan); display: ${idx < 5 ? 'block' : 'none'}; font-weight: 800;">#${idx + 1} 키커</span>
+    </div>
+  `).join('');
+  
+  selectedPkKickers = topKickers.slice(0, 5).map(p => ({ id: p.id, name: p.name }));
+}
+
+function togglePkKicker(id, name) {
+  const card = document.getElementById(`pk-card-${id}`);
+  const badge = document.getElementById(`pk-order-${id}`);
+  const existingIdx = selectedPkKickers.findIndex(k => k.id === id);
+  
+  if (existingIdx !== -1) {
+    if (selectedPkKickers.length <= 5) return; // keep at least 5
+    selectedPkKickers.splice(existingIdx, 1);
+    if (card) card.classList.remove('selected');
+    if (badge) badge.style.display = 'none';
+  } else {
+    if (selectedPkKickers.length >= 5) return; // max 5
+    selectedPkKickers.push({ id, name });
+    if (card) card.classList.add('selected');
+    if (badge) {
+      badge.style.display = 'block';
+      badge.textContent = `#${selectedPkKickers.length} 키커`;
+    }
+  }
+}
+
+function startPenaltyShootout() {
+  const logEl = document.getElementById('pk-results-log');
+  const btn = document.getElementById('btn-start-pk');
+  if (!logEl || !btn) return;
+  
+  btn.disabled = true;
+  logEl.innerHTML = `<div style="color: var(--accent-cyan); font-weight: 800;">🔥 승부차기 1번 키커 준비 중...</div>`;
+  
+  let korPk = 0; let oppPk = 0;
+  let round = 0;
+  
+  const interval = setInterval(() => {
+    if (round < 5) {
+      const kicker = selectedPkKickers[round] || { name: `한국 ${round + 1}번 키커` };
+      const baseComp = typeof SQUAD_STATS_2026 !== 'undefined' && SQUAD_STATS_2026[kicker.name] ? SQUAD_STATS_2026[kicker.name].composure : 78;
+      
+      const korGoal = Math.random() * 100 < (baseComp + 5);
+      const oppGoal = Math.random() * 100 < 75;
+      
+      if (korGoal) korPk++;
+      if (oppGoal) oppPk++;
+      
+      logEl.innerHTML += `
+        <div style="padding: 0.35rem; background: rgba(0,0,0,0.3); border-radius: 4px; border-left: 3px solid ${korGoal ? 'var(--accent-emerald)' : 'var(--accent-rose)'};">
+          <strong>#${round + 1} ${kicker.name}:</strong> ${korGoal ? '⚽ 골 성공!!' : '❌ 골키퍼 선방 / 실축!'} vs <strong>${state.opponent}:</strong> ${oppGoal ? '⚽ 성공' : '❌ 실축!'} (현재 ${korPk}:${oppPk})
+        </div>
+      `;
+      logEl.scrollTop = logEl.scrollHeight;
+      round++;
+    } else {
+      clearInterval(interval);
+      btn.disabled = false;
+      btn.style.display = 'none';
+      
+      const korWin = korPk >= oppPk;
+      logEl.innerHTML += `
+        <div style="margin-top: 0.6rem; padding: 0.6rem; background: ${korWin ? 'rgba(16,185,129,0.2)' : 'rgba(244,63,94,0.2)'}; border: 1px solid ${korWin ? 'var(--accent-emerald)' : 'var(--accent-rose)'}; border-radius: 6px; text-align: center; font-weight: 900; color: ${korWin ? 'var(--accent-emerald)' : 'var(--accent-rose)'};">
+          🏆 최종 PK 스코어 ${korPk} : ${oppPk} — ${korWin ? '대한민국 승부차기 극적 승리!! 8강 진출!' : '아쉬운 PK 석패... 훌륭한 명승부였습니다.'}
+        </div>
+      `;
+      
+      setTimeout(() => {
+        const pkBox = document.getElementById('pk-shootout-container');
+        const resultCard = document.getElementById('manager-result-card');
+        const actions = document.getElementById('sim-modal-actions');
+        if (pkBox) pkBox.style.display = 'none';
+        if (resultCard) resultCard.style.display = 'block';
+        if (actions) actions.style.display = 'flex';
+        
+        document.getElementById('res-style-name').textContent = korWin ? "🔥 'PK 혈투 끝에 승리한 강철 심장' 승부차기 명장" : "🎲 '아쉬운 PK 석패' 불굴의 투혼 지휘관";
+        document.getElementById('res-desc').textContent = `90분 정규시간 2:2 동점 이후 승부차기에서 ${selectedPkKickers.map(k=>k.name).join(', ')} 키커들의 활약으로 ${korPk}:${oppPk} 최종 승부를 가렸습니다.`;
+        document.getElementById('res-val-stage').textContent = korWin ? "월드컵 8강/16강 통과! 🇰🇷✨" : "월드컵 16강 명승부 ⚽";
+      }, 3500);
+    }
+  }, 1000);
+}
+
+function start2DMiniMatchCanvas(isKorWin) {
+  const canvas = document.getElementById('live-match-canvas');
+  if (!canvas) return;
+  const ctx = canvas.getContext('2d');
+  const timerEl = document.getElementById('sim-canvas-timer');
+  
+  let frame = 0;
+  let ballX = 270; let ballY = 130;
+  let ballVX = isKorWin ? 3.5 : -2; let ballVY = 1.2;
+  
+  const animate = () => {
+    if (frame > 180) {
+      if (timerEl) timerEl.textContent = '90\' 종료';
+      return;
+    }
+    
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    
+    // Pitch grass stripes
+    ctx.fillStyle = 'rgba(6, 78, 59, 0.4)';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    ctx.strokeStyle = 'rgba(255, 255, 255, 0.3)';
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.moveTo(canvas.width / 2, 0); ctx.lineTo(canvas.width / 2, canvas.height);
+    ctx.stroke();
+    
+    // Ball movement
+    ballX += ballVX; ballY += ballVY;
+    if (ballY < 20 || ballY > canvas.height - 20) ballVY = -ballVY;
+    if (ballX > canvas.width - 40 && isKorWin) {
+      ballVX = 0; ballVY = 0;
+      ctx.fillStyle = '#10b981';
+      ctx.font = 'bold 20px sans-serif';
+      ctx.fillText('⚽ GOAL!! 2:1 극적 골!', canvas.width / 2 - 90, canvas.height / 2);
+    }
+    
+    // Draw players (Red for Kor, White for Opp)
+    ctx.fillStyle = '#f43f5e';
+    ctx.beginPath(); ctx.arc(Math.max(40, ballX - 25), ballY + 15, 8, 0, Math.PI * 2); ctx.fill();
+    
+    ctx.fillStyle = '#ffffff';
+    ctx.beginPath(); ctx.arc(Math.min(canvas.width - 40, ballX + 25), ballY - 10, 8, 0, Math.PI * 2); ctx.fill();
+    
+    // Draw ball
+    ctx.fillStyle = '#f59e0b';
+    ctx.beginPath(); ctx.arc(ballX, ballY, 5, 0, Math.PI * 2); ctx.fill();
+    
+    frame++;
+    if (timerEl) timerEl.textContent = `${Math.floor(frame / 2)}'`;
+    requestAnimationFrame(animate);
+  };
+  
+  animate();
 }
