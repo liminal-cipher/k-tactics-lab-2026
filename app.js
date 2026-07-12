@@ -469,11 +469,9 @@ function pushCoachMessage(html, isWarning = false) {
 function requestAiTacticalAdvice(type) {
   if (type === 'mexico') {
     pushCoachMessage(`⚡ <strong>[상대 국가팀 맞춤 전술 분석: 멕시코/남아공]</strong><br>상대는 측면 역습 속도가 빠르고 수비 라인이 높습니다. <strong>4-2-3-1 포메이션</strong>으로 전환하고, 이강인의 킬패스와 손흥민·양민혁의 초광속 침투를 극대화하는 것을 추천합니다! (스쿼드 밸런스 최적화)`, false);
-    state.aiAdviceApplied = true;
   } else {
     pushCoachMessage(`🛡️ <strong>[현재 스쿼드 밸런스 진단]</strong><br>현재 공격 파괴력 <strong>${state.stats.attack}</strong>, 중원 장악 <strong>${state.stats.midfield}</strong>, 수비 안정 <strong>${state.stats.defense}</strong>입니다. 후반전 60분이 넘어가면 체력 저하를 대비해 벤치의 오현규나 배준호를 교체 투입하세요!`, false);
   }
-  recalculateVibe();
 }
 
 // --- Opponent Selection & Tactical Dial Control Functions ---
@@ -586,12 +584,11 @@ function recalculateVibe() {
     if (state.currentFormation === '3-5-2' || state.dials.press === 'region') matchupDelta += 5;
   }
   
-  // 4. Squad Synergy & AI Advice Bonus
+  // 4. Squad Synergy Bonus
   const synergy = (state.squadSynergyBonus || 0);
-  const adviceBonus = state.aiAdviceApplied ? 4 : 0;
   
   // Final calculation
-  let finalScore = baseScore + matchupDelta + synergy + adviceBonus;
+  let finalScore = baseScore + matchupDelta + synergy;
   
   // Clamp between 15 and 98
   state.vibeScore = Math.min(98, Math.max(15, Math.round(finalScore)));
