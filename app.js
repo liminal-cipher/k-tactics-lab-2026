@@ -450,7 +450,7 @@ function pushCoachMessage(html, isWarning = false) {
   
   const bubble = document.createElement('div');
   bubble.className = `coach-msg-bubble ${isWarning ? 'warning' : ''}`;
-  bubble.innerHTML = `<strong>🤖 차비브 수석 코치:</strong><br>${html}`;
+  bubble.innerHTML = `<strong>🤖 Coach V:</strong><br>${html}`;
   
   container.appendChild(bubble);
   container.scrollTop = container.scrollHeight;
