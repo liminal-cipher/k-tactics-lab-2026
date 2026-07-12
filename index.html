@@ -120,6 +120,29 @@
         </div>
       </div>
 
+      <!-- Opponent Selection & Tactical Counter Briefing Bar -->
+      <div class="opponent-bar" id="opponent-bar">
+        <div style="display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap;">
+          <span style="font-size: 0.82rem; font-weight: 800; color: #fff;">⚔️ 실전 상대팀:</span>
+          <button class="btn-opponent active" id="btn-opp-MEX" onclick="selectOpponent('MEX')">🇲🇽 멕시코</button>
+          <button class="btn-opponent" id="btn-opp-ESP" onclick="selectOpponent('ESP')">🇪🇸 스페인</button>
+          <button class="btn-opponent" id="btn-opp-RSA" onclick="selectOpponent('RSA')">🇿🇦 남아공</button>
+        </div>
+        <div class="opponent-briefing" id="opponent-briefing-text">
+          💡 카운터 전략: 상대 양측면이 올라올 때 발생하는 넓은 뒷공간을 하프스페이스 침투와 다이렉트 롱볼 템포로 타격하세요!
+        </div>
+      </div>
+
+      <!-- Match Phase & 2-Phase Turn Status Bar -->
+      <div class="match-phase-bar" id="match-phase-bar">
+        <div class="match-phase-status" id="match-phase-status">
+          <span>⚽ <strong style="color: var(--accent-cyan);">0' 경기 전 셋업</strong> (포메이션, 교체 및 전술 지침 설정 완료 후 전반 가동)</span>
+        </div>
+        <div id="match-phase-actions">
+          <!-- Will update when half-time arrives -->
+        </div>
+      </div>
+
       <!-- Football Pitch -->
       <div class="pitch-container" id="pitch-container" style="flex: 1; min-height: 0;">
         <!-- Pitch markings -->
@@ -142,6 +165,48 @@
         </div>
         <div class="bench-grid" id="bench-grid">
           <!-- Populated by app.js -->
+        </div>
+      </div>
+
+      <!-- Comprehensive 4 Tactical Controls Console -->
+      <div class="tactical-controls-console" id="tactical-controls-console">
+        <div class="widget-header-box" style="margin-bottom: 0.6rem; padding-bottom: 0.4rem;">
+          <span class="widget-title" style="font-size: 0.88rem;">🕹️ 감독 4대 핵심 전술 지침 콘솔 (Custom ML 가중치 입력)</span>
+          <span class="widget-badge" style="background: rgba(6, 182, 212, 0.15); color: var(--accent-cyan); border-color: rgba(6, 182, 212, 0.4); font-size: 0.7rem;">실시간 반응형</span>
+        </div>
+        <div class="tactical-grid-4">
+          <div class="tactic-box">
+            <span class="tactic-label">⚡ 전개 템포 (Tempo)</span>
+            <div class="tactic-btns">
+              <button class="btn-tactic" id="btn-tempo-build" onclick="setTacticalDial('tempo', 'build')">지공 빌드업</button>
+              <button class="btn-tactic active" id="btn-tempo-standard" onclick="setTacticalDial('tempo', 'standard')">표준 템포</button>
+              <button class="btn-tactic" id="btn-tempo-direct" onclick="setTacticalDial('tempo', 'direct')">다이렉트 역습</button>
+            </div>
+          </div>
+          <div class="tactic-box">
+            <span class="tactic-label">⚽ 공격 루트 (Route)</span>
+            <div class="tactic-btns">
+              <button class="btn-tactic active" id="btn-route-halfspace" onclick="setTacticalDial('route', 'halfspace')">하프스페이스</button>
+              <button class="btn-tactic" id="btn-route-nopassback" onclick="setTacticalDial('route', 'nopassback')">U자 백패스 금지</button>
+              <button class="btn-tactic" id="btn-route-kangin" onclick="setTacticalDial('route', 'kangin')">이강인 프리롤</button>
+            </div>
+          </div>
+          <div class="tactic-box">
+            <span class="tactic-label">🔥 압박 강도 (Pressing)</span>
+            <div class="tactic-btns">
+              <button class="btn-tactic" id="btn-press-tenback" onclick="setTacticalDial('press', 'tenback')">텐백 저지선</button>
+              <button class="btn-tactic active" id="btn-press-region" onclick="setTacticalDial('press', 'region')">중원 지역방어</button>
+              <button class="btn-tactic" id="btn-press-high" onclick="setTacticalDial('press', 'high')">게겐프레싱</button>
+            </div>
+          </div>
+          <div class="tactic-box">
+            <span class="tactic-label">🛡️ 경기 성향 (Mentality)</span>
+            <div class="tactic-btns">
+              <button class="btn-tactic" id="btn-mentality-lock" onclick="setTacticalDial('mentality', 'lock')">잠그기 (굳히기)</button>
+              <button class="btn-tactic active" id="btn-mentality-balance" onclick="setTacticalDial('mentality', 'balance')">균형 (밸런스)</button>
+              <button class="btn-tactic" id="btn-mentality-attack" onclick="setTacticalDial('mentality', 'attack')">닥공 (추격 올인)</button>
+            </div>
+          </div>
         </div>
       </div>
 
@@ -325,6 +390,34 @@
       <div class="sim-live-cast" id="sim-live-cast">
         <div style="font-size: 0.8rem; color: var(--accent-cyan); font-weight: 700;">📡 AI 실시간 매치 시뮬레이션 가동 중...</div>
         <div class="sim-step-text" id="sim-step-text">⚽ 조별리그 1차전 준비 중...</div>
+      </div>
+
+      <!-- 2D Live Match Canvas Animation Sandbox -->
+      <div class="sim-canvas-container" id="sim-canvas-container" style="display: none; margin-bottom: 1.2rem;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+          <span style="font-size: 0.85rem; font-weight: 800; color: var(--accent-cyan); display: flex; align-items: center; gap: 0.4rem;">
+            <span>⚽ 2D 라이브 매치 하이라이트 애니메이션 (60fps)</span>
+          </span>
+          <span id="sim-canvas-timer" style="font-size: 0.8rem; font-family: monospace; background: rgba(0,0,0,0.5); padding: 0.15rem 0.5rem; border-radius: 4px; color: #fff;">00'</span>
+        </div>
+        <canvas id="live-match-canvas" width="540" height="260" style="width: 100%; max-height: 260px; background: rgba(6, 78, 59, 0.6); border: 2px solid var(--glass-border); border-radius: 8px; box-shadow: inset 0 0 20px rgba(0,0,0,0.5);"></canvas>
+      </div>
+
+      <!-- Penalty Shootout Trigger / Interactive Box (When Match Ends in Draw) -->
+      <div class="pk-shootout-container" id="pk-shootout-container" style="display: none; margin-bottom: 1.2rem; background: rgba(15, 23, 42, 0.85); border: 2px solid var(--accent-amber); border-radius: 10px; padding: 1.2rem;">
+        <div style="text-align: center; margin-bottom: 1rem;">
+          <h4 style="font-size: 1.2rem; font-weight: 900; color: var(--accent-amber); margin-bottom: 0.3rem;">⚽ 90분 정규시간 2:2 동점 종료! 승부차기(PK) 돌입!</h4>
+          <p style="font-size: 0.82rem; color: var(--text-secondary);">1번부터 5번까지 PK 키커를 지정하고 최종 승부를 가리십시오.</p>
+        </div>
+        <div id="pk-kicker-selectors" style="display: grid; grid-template-columns: repeat(5, 1fr); gap: 0.5rem; margin-bottom: 1rem;">
+          <!-- Populated by app.js -->
+        </div>
+        <div style="text-align: center;">
+          <button class="btn-simulate-compact" id="btn-start-pk" onclick="startPenaltyShootout()" style="padding: 0.6rem 1.5rem; background: var(--accent-amber); color: #000; font-weight: 900; font-size: 0.95rem;">
+            🔥 승부차기 시작!
+          </button>
+        </div>
+        <div id="pk-results-log" style="margin-top: 1rem; display: flex; flex-direction: column; gap: 0.4rem; font-size: 0.85rem;"></div>
       </div>
 
       <!-- Final Manager Result Card (Viral Shareable Card) -->
