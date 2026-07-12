@@ -525,6 +525,27 @@ function setTacticalDial(category, val) {
   updateStats();
 }
 
+function switchBottomTab(tabName) {
+  const benchBox = document.getElementById('bench-container');
+  const tacticsBox = document.getElementById('tactical-controls-console');
+  const btnBench = document.getElementById('tab-btn-bench');
+  const btnTactics = document.getElementById('tab-btn-tactics');
+  
+  if (!benchBox || !tacticsBox) return;
+  
+  if (tabName === 'bench') {
+    benchBox.style.display = 'block';
+    tacticsBox.style.display = 'none';
+    if (btnBench) btnBench.classList.add('active');
+    if (btnTactics) btnTactics.classList.remove('active');
+  } else if (tabName === 'tactics') {
+    benchBox.style.display = 'none';
+    tacticsBox.style.display = 'block';
+    if (btnBench) btnBench.classList.remove('active');
+    if (btnTactics) btnTactics.classList.add('active');
+  }
+}
+
 // --- Recalculate Vibe Score ---
 function recalculateVibe() {
   let score = 50;

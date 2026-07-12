@@ -150,54 +150,54 @@
         </div>
       </div>
 
-      <!-- Bench Squad Container for Substitution Sandbox -->
-      <div class="bench-container" id="bench-container">
-        <div class="widget-header-box" style="margin-bottom: 0.35rem; padding-bottom: 0.35rem;">
-          <span class="widget-title" style="font-size: 0.85rem;">🔄 교체 대기 벤치 멤버 (클릭/드래그 교체)</span>
-          <span class="widget-badge" style="background: rgba(16, 185, 129, 0.15); color: var(--accent-emerald); border-color: rgba(16, 185, 129, 0.4); font-size: 0.65rem;">Hybrid Active</span>
+      <!-- Bottom Control Sandbox (Tabbed Toggle: Bench Squad vs 4 Tactical Dials) -->
+      <div class="bottom-tab-container" id="bottom-tab-container">
+        <div class="bottom-tab-header">
+          <button class="btn-bottom-tab active" id="tab-btn-bench" onclick="switchBottomTab('bench')">🔄 교체 대기 벤치 멤버 (선수 클릭/드래그 교체)</button>
+          <button class="btn-bottom-tab" id="tab-btn-tactics" onclick="switchBottomTab('tactics')">🕹️ 감독 4대 핵심 전술 지침 콘솔 (Custom ML 입력)</button>
         </div>
-        <div class="bench-grid" id="bench-grid">
-          <!-- Populated by app.js -->
-        </div>
-      </div>
 
-      <!-- Comprehensive 4 Tactical Controls Console -->
-      <div class="tactical-controls-console" id="tactical-controls-console">
-        <div class="widget-header-box" style="margin-bottom: 0.6rem; padding-bottom: 0.4rem;">
-          <span class="widget-title" style="font-size: 0.88rem;">🕹️ 감독 4대 핵심 전술 지침 콘솔 (Custom ML 가중치 입력)</span>
-          <span class="widget-badge" style="background: rgba(6, 182, 212, 0.15); color: var(--accent-cyan); border-color: rgba(6, 182, 212, 0.4); font-size: 0.7rem;">실시간 반응형</span>
+        <!-- Bench Squad Container (Tab 1) -->
+        <div class="bench-container tab-pane active" id="bench-container">
+          <div class="bench-grid" id="bench-grid">
+            <!-- Populated by app.js -->
+          </div>
         </div>
-        <div class="tactical-grid-4">
-          <div class="tactic-box">
-            <span class="tactic-label">⚡ 전개 템포 (Tempo)</span>
-            <div class="tactic-btns">
-              <button class="btn-tactic" id="btn-tempo-build" onclick="setTacticalDial('tempo', 'build')">지공 빌드업</button>
-              <button class="btn-tactic active" id="btn-tempo-standard" onclick="setTacticalDial('tempo', 'standard')">표준 템포</button>
-              <button class="btn-tactic" id="btn-tempo-direct" onclick="setTacticalDial('tempo', 'direct')">다이렉트 역습</button>
+
+        <!-- Tactical Controls Console (Tab 2) -->
+        <div class="tactical-controls-console tab-pane" id="tactical-controls-console" style="display: none;">
+          <div class="tactical-grid-4">
+            <div class="tactic-box">
+              <span class="tactic-label">⚡ 전개 템포 (Tempo)</span>
+              <div class="tactic-btns">
+                <button class="btn-tactic" id="btn-tempo-build" onclick="setTacticalDial('tempo', 'build')">지공 빌드업</button>
+                <button class="btn-tactic active" id="btn-tempo-standard" onclick="setTacticalDial('tempo', 'standard')">표준 템포</button>
+                <button class="btn-tactic" id="btn-tempo-direct" onclick="setTacticalDial('tempo', 'direct')">다이렉트 역습</button>
+              </div>
             </div>
-          </div>
-          <div class="tactic-box">
-            <span class="tactic-label">⚽ 공격 루트 (Route)</span>
-            <div class="tactic-btns">
-              <button class="btn-tactic active" id="btn-route-halfspace" onclick="setTacticalDial('route', 'halfspace')">하프스페이스</button>
-              <button class="btn-tactic" id="btn-route-nopassback" onclick="setTacticalDial('route', 'nopassback')">U자 백패스 금지</button>
-              <button class="btn-tactic" id="btn-route-kangin" onclick="setTacticalDial('route', 'kangin')">이강인 프리롤</button>
+            <div class="tactic-box">
+              <span class="tactic-label">⚽ 공격 루트 (Route)</span>
+              <div class="tactic-btns">
+                <button class="btn-tactic active" id="btn-route-halfspace" onclick="setTacticalDial('route', 'halfspace')">하프스페이스</button>
+                <button class="btn-tactic" id="btn-route-nopassback" onclick="setTacticalDial('route', 'nopassback')">U자 백패스 금지</button>
+                <button class="btn-tactic" id="btn-route-kangin" onclick="setTacticalDial('route', 'kangin')">이강인 프리롤</button>
+              </div>
             </div>
-          </div>
-          <div class="tactic-box">
-            <span class="tactic-label">🔥 압박 강도 (Pressing)</span>
-            <div class="tactic-btns">
-              <button class="btn-tactic" id="btn-press-tenback" onclick="setTacticalDial('press', 'tenback')">텐백 저지선</button>
-              <button class="btn-tactic active" id="btn-press-region" onclick="setTacticalDial('press', 'region')">중원 지역방어</button>
-              <button class="btn-tactic" id="btn-press-high" onclick="setTacticalDial('press', 'high')">게겐프레싱</button>
+            <div class="tactic-box">
+              <span class="tactic-label">🔥 압박 강도 (Pressing)</span>
+              <div class="tactic-btns">
+                <button class="btn-tactic" id="btn-press-tenback" onclick="setTacticalDial('press', 'tenback')">텐백 저지선</button>
+                <button class="btn-tactic active" id="btn-press-region" onclick="setTacticalDial('press', 'region')">중원 지역방어</button>
+                <button class="btn-tactic" id="btn-press-high" onclick="setTacticalDial('press', 'high')">게겐프레싱</button>
+              </div>
             </div>
-          </div>
-          <div class="tactic-box">
-            <span class="tactic-label">🛡️ 경기 성향 (Mentality)</span>
-            <div class="tactic-btns">
-              <button class="btn-tactic" id="btn-mentality-lock" onclick="setTacticalDial('mentality', 'lock')">잠그기 (굳히기)</button>
-              <button class="btn-tactic active" id="btn-mentality-balance" onclick="setTacticalDial('mentality', 'balance')">균형 (밸런스)</button>
-              <button class="btn-tactic" id="btn-mentality-attack" onclick="setTacticalDial('mentality', 'attack')">닥공 (추격 올인)</button>
+            <div class="tactic-box">
+              <span class="tactic-label">🛡️ 경기 성향 (Mentality)</span>
+              <div class="tactic-btns">
+                <button class="btn-tactic" id="btn-mentality-lock" onclick="setTacticalDial('mentality', 'lock')">잠그기 (굳히기)</button>
+                <button class="btn-tactic active" id="btn-mentality-balance" onclick="setTacticalDial('mentality', 'balance')">균형 (밸런스)</button>
+                <button class="btn-tactic" id="btn-mentality-attack" onclick="setTacticalDial('mentality', 'attack')">닥공 (추격 올인)</button>
+              </div>
             </div>
           </div>
         </div>
