@@ -19,17 +19,12 @@
 ## 🚨 2. Problem (문제 정의 및 언론 출처 근거)
 **"기존 축구 콘텐츠는 일방적 비평만 있고, 전문 게임은 대중이 접근하기에 너무 무겁다."**
 
-2026 북중미 월드컵 본선 실전 무대를 치르며, 국내외 주요 축구 매체(동아일보, 조선일보, 연합뉴스, 경기일보 등)와 전문가들은 한국 축구를 향해 다음과 같은 **3대 고질적 전술 쟁점 (Tactical Dilemmas)** 을 집중적으로 보도했다.
+2026 북중미 월드컵 본선 실전 무대를 치르며, 국내외 주요 축구 매체와 전문가들은 한국 축구를 향해 다음과 같은 **3대 고질적 전술 쟁점 (Tactical Dilemmas)** 을 집중적으로 보도했다.
 
-* **▲ U자형 빌드업 논란:** 중앙 침투 실종 및 의미 없는 횡·백패스 반복
-  * Dong-A Ilbo. (2026, June 18). *2026 북중미 월드컵 홍명보호, '가변 스리백' 고집과 단조로운 빌드업 전술의 한계*. 동아일보 (Dong-A Ilbo). [https://www.donga.com/news/Sports/article/all/20260618/125890214/1](https://www.donga.com/news/Sports/article/all/20260618/125890214/1)
-  * Kyeonggi Ilbo. (2026, June 20). *홍명보호 조별리그 2연패… 중원 삭제된 U자형 패스와 공격 전술 부재에 쏟아지는 팬 여론 비판*. 경기일보 (Kyeonggi Ilbo). [https://www.kyeonggi.com/article/20260620580031](https://www.kyeonggi.com/article/20260620580031)
-* **▲ 풀백 수비 자동문:** 오버래핑 시 뒷공간 노출 및 수비 조직력 붕괴
-  * Chosun Ilbo. (2026, June 21). *전술적 유연성 잃은 스리백… 멕시코·남아공 공세에 속수무책 뚫린 풀백 수비 조직력*. 조선일보 (Chosun Ilbo). [https://www.chosun.com/sports/football/2026/06/21/W6TKP9L8H2X9M0L/](https://www.chosun.com/sports/football/2026/06/21/W6TKP9L8H2X9M0L/)
-  * Yonhap News Agency. (2026, June 14). *체코전 승리 이끈 가변형 스리백, 과연 남은 경기에서도 수비 뒷공간 노출 없이 통할까*. 연합뉴스 (Yonhap News Agency). [https://www.yna.co.kr/view/AKR20260614102900007](https://www.yna.co.kr/view/AKR20260614102900007)
-* **▲ 해줘 축구(스타 의존):** 체계적 팀 전술 부재와 손흥민·이강인 개인 역량 의존 및 플랜 B 조커 부재
-  * Yonhap News Agency. (2026, June 25). *손흥민·이강인 개인 기량에 의존한 '해줘 축구'의 결말… 플랜 B 조커 부재와 전술 경직성이 부른 참사*. 연합뉴스 (Yonhap News Agency). [https://www.yna.co.kr/view/AKR20260625089100007](https://www.yna.co.kr/view/AKR20260625089100007)
-  * Dong-A Ilbo. (2026, June 26). *남아공전 0-1 충격패 탈락… 세밀한 전술 지휘 없는 스타 의존 축구와 감독 선택의 Trade-off*. 동아일보 (Dong-A Ilbo). [https://www.donga.com/news/Sports/article/all/20260626/125910488/1](https://www.donga.com/news/Sports/article/all/20260626/125910488/1)
+* **▲ U자형 빌드업 논란:** 중앙 침투 실종 및 의미 없는 횡·백패스 반복 ([Dong-A Ilbo, 2026a](https://www.donga.com/news/Sports/article/all/20260618/125890214/1); [Kyeonggi Ilbo, 2026](https://www.kyeonggi.com/article/20260620580031))
+* **▲ 풀백 수비 자동문:** 오버래핑 시 뒷공간 노출 및 수비 조직력 붕괴 ([Chosun Ilbo, 2026](https://www.chosun.com/sports/football/2026/06/21/W6TKP9L8H2X9M0L/); [Yonhap News Agency, 2026a](https://www.yna.co.kr/view/AKR20260614102900007))
+* **▲ 해줘 축구(스타 의존):** 체계적 팀 전술 부재와 손흥민·이강인 개인 역량 의존 및 플랜 B 조커 부재 ([Yonhap News Agency, 2026b](https://www.yna.co.kr/view/AKR20260625089100007); [Dong-A Ilbo, 2026b](https://www.donga.com/news/Sports/article/all/20260626/125910488/1))
+
 
 그러나 이를 소비하는 미디어 생태계에는 명확한 공백이 존재한다.
 * **기존 커뮤니티/댓글:** 언론이 지적한 문제를 일방적으로 성토할 뿐, 대중이 대안을 직접 설계하고 검증해 볼 맞춤형 도구가 없다.
