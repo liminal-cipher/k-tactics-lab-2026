@@ -65,7 +65,7 @@ SECTION_LABELS = {
 def build_js(players):
     out = [
         '// ==========================================================================',
-        '// K-Tactics Lab 2026 - Official World Cup Benchmark Dataset',
+        '// K-Tactics Lab 2026 - World Cup Benchmark Dataset (FBref-based, curated)',
         '// Source: FBref Korea Republic — World Cup 2026 (Standard/Shooting/Misc)',
         '// Formula: 4-dimensional rating derived from per-90 stats (scripts/parse_stats.py)',
         '// Last Updated: 2026-07-14 (KST)',
@@ -89,9 +89,9 @@ def build_js(players):
             note = p['note']
             out.append(f"  '{n}': {{")
             out.append(f"    pos: '{p['p']}', age: '{p['a']}', mp: {p['mp']}, starts: {p['st']}, min: {p['min']}, gls: {p['g']}, ast: {p['as']},")
-            out.append(f"    rating: {p['rtg']}, statStr: 'FBref 공인: {note}',")
+            out.append(f"    rating: {p['rtg']}, statStr: 'FBref 기반: {note}',")
             out.append(f"    attack: {atk}, defense: {def_}, midfield: {mid}, stamina: {stm},")
-            out.append(f"    npxG: '─', progPasses: '─', aerialWon: '─', shooting: {p['sh2']}, composure: {p['cmp']}")
+            out.append(f"    shooting: {p['sh2']}, composure: {p['cmp']}")
             out.append(f"  }},")
     out.append('};')
     out.append('')
