@@ -142,7 +142,10 @@ async function callLLM({ system, user, maxTokens, temperature, schema }) {
       headers: { 'content-type': 'application/json' },
       body: JSON.stringify(body),
     });
-    if (!r.ok) return { ok: false, status: r.status };
+    if (!r.ok) {
+      const detail = await r.text().catch(() => '');
+      return { ok: false, status: r.status, detail: detail.slice(0, 400) };
+    }
     const data = await r.json();
     const text = (data.candidates?.[0]?.content?.parts || [])
       .map((p) => p.text)
@@ -201,7 +204,7 @@ module.exports = async function handler(req, res) {
   });
 
   if (!out.ok) {
-    res.status(502).json({ error: out.status || 'upstream', fallback: true });
+    res.status(502).json({ error: out.status || 'upstream', detail: out.detail, fallback: true });
     return;
   }
 
