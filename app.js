@@ -142,12 +142,33 @@ const fanComments = [
 
 // --- Initialize App ---
 document.addEventListener('DOMContentLoaded', () => {
+  const challenge = applyChallengeFromURL(); // decode a shared "beat my tactic" link, if any
   renderPitch(state.currentFormation);
   renderBench();
   updateStats();
   updateVibeMeter();
   startLiveChatStream();
+  if (challenge) {
+    dismissHeroIntro();       // a shared challenge link skips the hero onboarding
+    announceChallenge(challenge);
+  }
 });
+
+// --- Hero onboarding: re-coach the real 2026 RSA(남아공) match ---
+function dismissHeroIntro() {
+  const m = document.getElementById('hero-intro-modal');
+  if (m) m.style.display = 'none';
+}
+
+function startHeroScenario() {
+  dismissHeroIntro();
+  if (typeof selectOpponent === 'function') selectOpponent('RSA');
+  pushCoachMessage(
+    `🔥 <strong>[남아공전 재도전]</strong><br>비기기만 하면 32강입니다. 손흥민을 선발로 되돌리고, U자 백패스를 폐기하고, 당신만의 전술로 그날의 결과를 바꾸세요. ` +
+    `단, 손흥민을 벤치에 두면 팬 여론이 폭락합니다.`,
+    true
+  );
+}
 
 // --- Render Pitch & Players (with Drag & Drop) ---
 function renderPitch(formation) {
@@ -358,13 +379,13 @@ function checkBizarrePositioning(p1, p2) {
 function openRoleModal(player, cardElement) {
   state.activePlayerForRole = player;
   
-  const statObj = (typeof SQUAD_STATS_2026 !== 'undefined' && SQUAD_STATS_2026[player.name]) ? SQUAD_STATS_2026[player.name] : { rating: 80, statStr: '공인 스탯 분석 중...' };
+  const statObj = (typeof SQUAD_STATS_2026 !== 'undefined' && SQUAD_STATS_2026[player.name]) ? SQUAD_STATS_2026[player.name] : { rating: 80, statStr: '스탯 분석 중...' };
   
   document.getElementById('role-modal-name').innerHTML = `⚙️ ${player.name} (${player.pos}) <span style="font-size:0.8rem; color:var(--accent-cyan); font-weight:800; margin-left:0.5rem;">종합 능력치: ${statObj.rating}점</span>`;
   document.getElementById('role-modal-desc').innerHTML = `
     <div style="background:rgba(0,0,0,0.4); padding:0.7rem; border-radius:6px; border:1px solid rgba(6, 182, 212, 0.4); margin-bottom:0.8rem;">
-      <div style="color:var(--accent-emerald); font-weight:700; font-size:0.75rem; margin-bottom:0.25rem;">📊 FBref / SofaScore 공인 벤치마크 스탯</div>
-      <div style="font-size:0.85rem; color:var(--text-primary); font-weight:700;">공인 분석 통계: <span style="color:var(--accent-amber);">${statObj.statStr}</span></div>
+      <div style="color:var(--accent-emerald); font-weight:700; font-size:0.75rem; margin-bottom:0.25rem;">📊 FBref / SofaScore 기반 벤치마크 스탯</div>
+      <div style="font-size:0.85rem; color:var(--text-primary); font-weight:700;">기반 분석 통계: <span style="color:var(--accent-amber);">${statObj.statStr}</span></div>
       <div style="font-size:0.75rem; color:var(--text-secondary); margin-top:0.3rem;">현재 수행 임무: "<strong>${player.role}</strong>" (아래 목록에서 세부 지침 변경)</div>
     </div>
   `;
@@ -466,7 +487,113 @@ function pushCoachMessage(html, isWarning = false) {
   }
 }
 
-function requestAiTacticalAdvice(type) {
+// ==========================================================================
+// Coach V — real AI via serverless proxy (/api/coach) with scripted fallback.
+// On file:// (offline judging) or any network error, we silently fall back to
+// the hand-authored responses so the coach never appears broken.
+// ==========================================================================
+const COACH_API = (location.protocol === 'file:') ? null : '/api/coach';
+
+// Assemble the live board into the payload the serverless function grounds on.
+function buildCoachState() {
+  const xi = (squadData[state.currentFormation] || []).map(p => p.name);
+  const prof = (typeof OPPONENT_PROFILES !== 'undefined' && OPPONENT_PROFILES[state.opponent]) || {};
+  return {
+    formation: state.currentFormation,
+    opponent: state.opponent,
+    opponentName: prof.name || state.opponent,
+    opponentStyle: prof.style || '',
+    opponentBriefing: (prof.briefing || '').replace(/<[^>]*>/g, ' ').trim(),
+    stats: { ...state.stats },
+    dials: { ...state.dials },
+    lineup: xi,
+    vibeScore: state.vibeScore
+  };
+}
+
+// Escape model text, then allow simple line breaks + **bold** for readability.
+function coachTextToHtml(text) {
+  const esc = String(text)
+    .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+  return esc.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>').replace(/\n/g, '<br>');
+}
+
+// Returns the parsed JSON on success, or null → caller uses scripted fallback.
+async function callCoachAPI(mode, message) {
+  if (!COACH_API) return null; // file:// → no backend reachable
+  try {
+    const res = await fetch(COACH_API, {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({ mode, message: message || '', state: buildCoachState() })
+    });
+    const data = await res.json().catch(() => ({}));
+    if (!res.ok || data.fallback || !data.reply) return null;
+    return data;
+  } catch (e) {
+    return null;
+  }
+}
+
+function pushUserMessage(text) {
+  const container = document.getElementById('coach-messages');
+  if (!container) return;
+  const bubble = document.createElement('div');
+  bubble.className = 'coach-msg-bubble';
+  bubble.style.cssText = 'align-self: flex-end; background: rgba(6, 182, 212, 0.18); border: 1px solid var(--accent-cyan); max-width: 85%;';
+  bubble.innerHTML = `<strong>🧑‍💼 감독님:</strong><br>${coachTextToHtml(text)}`;
+  container.appendChild(bubble);
+  container.scrollTop = container.scrollHeight;
+}
+
+function pushPendingMessage() {
+  const container = document.getElementById('coach-messages');
+  if (!container) return null;
+  const bubble = document.createElement('div');
+  bubble.className = 'coach-msg-bubble';
+  bubble.innerHTML = `<strong>🤖 Coach V:</strong> <em style="opacity:0.7;">전술 분석 중…</em>`;
+  container.appendChild(bubble);
+  container.scrollTop = container.scrollHeight;
+  return bubble;
+}
+
+// Free-text chat submit (form onsubmit).
+async function submitCoachChat(event) {
+  if (event) event.preventDefault();
+  const input = document.getElementById('coach-input');
+  if (!input) return false;
+  const text = input.value.trim();
+  if (!text) return false;
+  input.value = '';
+  pushUserMessage(text);
+  const pending = pushPendingMessage();
+  const data = await callCoachAPI('chat', text);
+  if (pending) pending.remove();
+  if (data && data.reply) {
+    pushCoachMessage(coachTextToHtml(data.reply));
+  } else {
+    pushCoachMessage(scriptedChatFallback());
+  }
+  return false;
+}
+
+function scriptedChatFallback() {
+  return `📋 <strong>[Coach V 오프라인 진단]</strong><br>현재 공격 <strong>${state.stats.attack}</strong> · 중원 <strong>${state.stats.midfield}</strong> · 수비 <strong>${state.stats.defense}</strong> · 체력 <strong>${state.stats.stamina}</strong> 입니다. U자형 후방 빌드업을 줄이고 하프스페이스 침투로 상대 수비 라인을 흔드는 것을 권장합니다. (실시간 AI는 배포 환경에서 가동됩니다)`;
+}
+
+// Preset buttons → real analysis with scripted fallback (original hand-written text).
+async function requestAiTacticalAdvice(type) {
+  const pending = pushPendingMessage();
+  const prompt = (type === 'mexico')
+    ? '상대 국가팀을 공략할 맞춤 전술(포메이션·다이얼·핵심 선수 활용)을 추천해줘.'
+    : '현재 스쿼드 밸런스를 진단하고 후반 체력 저하 대비 교체 조언을 해줘.';
+  const data = await callCoachAPI('analysis', prompt);
+  if (pending) pending.remove();
+  if (data && data.reply) {
+    pushCoachMessage(coachTextToHtml(data.reply), false);
+    return;
+  }
+  // Scripted fallback (offline / no key)
   if (type === 'mexico') {
     pushCoachMessage(`⚡ <strong>[상대 국가팀 맞춤 전술 분석: 멕시코/남아공]</strong><br>상대는 측면 역습 속도가 빠르고 수비 라인이 높습니다. <strong>4-2-3-1 포메이션</strong>으로 전환하고, 이강인의 킬패스와 손흥민·양민혁의 초광속 침투를 극대화하는 것을 추천합니다! (스쿼드 밸런스 최적화)`, false);
   } else {
@@ -477,7 +604,8 @@ function requestAiTacticalAdvice(type) {
 // --- Opponent Selection & Tactical Dial Control Functions ---
 function selectOpponent(opp) {
   state.opponent = opp;
-  
+  state.opponentPlan = null; // new opponent re-scouts on next kickoff
+
   document.querySelectorAll('.btn-opponent').forEach(btn => btn.classList.remove('active'));
   const activeBtn = document.getElementById(`btn-opp-${opp}`);
   if (activeBtn) activeBtn.classList.add('active');
@@ -528,8 +656,8 @@ function switchBottomTab(tabName) {
   const benchBox = document.getElementById('bench-container');
   const tacticsBox = document.getElementById('tactical-controls-console');
   const btnBench = document.getElementById('tab-btn-bench');
-  const btnTactics = document.getElementById('tab-btn-tactics');
-  
+  const btnTactics = document.getElementById('tab-btn-console');
+
   if (!benchBox || !tacticsBox) return;
   
   if (tabName === 'bench') {
@@ -586,9 +714,13 @@ function recalculateVibe() {
   
   // 4. Squad Synergy Bonus
   const synergy = (state.squadSynergyBonus || 0);
-  
+
+  // 5. Controversy: benching the captain re-enacts the real 2026 RSA-match flashpoint.
+  const sonBenched = !(squadData[state.currentFormation] || []).some(p => p.name === '손흥민');
+  const controversyDelta = sonBenched ? -18 : 0;
+
   // Final calculation
-  let finalScore = baseScore + matchupDelta + synergy;
+  let finalScore = baseScore + matchupDelta + synergy + controversyDelta;
   
   // Clamp between 15 and 98
   state.vibeScore = Math.min(98, Math.max(15, Math.round(finalScore)));
@@ -689,11 +821,59 @@ function updateStats() {
 }
 
 // --- Live Chat Stream Auto Generator ---
+// Derive the active fan-sentiment tags from the live board state.
+function activeFanTags() {
+  const tags = ['general'];
+  const d = state.dials || {};
+  if (d.route === 'nopassback') tags.push('nopassback');
+  if (d.route === 'kangin') tags.push('kangin');
+  if (d.press === 'high') tags.push('highPress');
+  if (d.press === 'tenback') tags.push('tenback');
+  if (d.mentality === 'attack') tags.push('attackMentality');
+  if (d.mentality === 'lock') tags.push('lockMentality');
+
+  const xi = (squadData[state.currentFormation] || []).map(p => p.name);
+  if (!xi.includes('손흥민')) tags.push('sonBenched');
+
+  if (state.matchPhase === 1) tags.push('half');
+  else if (state.matchPhase === 2) tags.push('full');
+  else tags.push('pre');
+
+  const st = Object.values(state.staminaState || {});
+  if (st.length) {
+    const avg = st.reduce((a, b) => a + b, 0) / st.length;
+    if (avg < 60) tags.push('fatigue');
+  }
+  if ((state.stats.attack || 0) >= 82) tags.push('strongAttack');
+  if ((state.stats.defense || 100) <= 60) tags.push('weakDefense');
+  return tags;
+}
+
+// Pick a comment conditioned on the current state (offline bank, $0 runtime).
+// Falls back to the legacy static pool if the bank asset is missing.
+function pickFanComment() {
+  const bank = (typeof FAN_COMMENTS_2026 !== 'undefined') ? FAN_COMMENTS_2026 : null;
+  if (!bank || !bank.length) {
+    const c = fanComments[Math.floor(Math.random() * fanComments.length)];
+    return { text: c.text, type: c.type };
+  }
+  const active = new Set(activeFanTags());
+  const situational = bank.filter(c => c.tags.some(t => t !== 'general' && active.has(t)));
+  // 60% of the time prefer a situational (context-matched) line; else a broadly-eligible one.
+  let pool;
+  if (situational.length && Math.random() < 0.6) {
+    pool = situational;
+  } else {
+    pool = bank.filter(c => c.tags.includes('general') || c.tags.some(t => active.has(t)));
+  }
+  const chosen = pool[Math.floor(Math.random() * pool.length)] || bank[0];
+  return { text: chosen.text, type: chosen.type };
+}
+
 function startLiveChatStream() {
   setInterval(() => {
-    const randomIdx = Math.floor(Math.random() * fanComments.length);
-    const comment = fanComments[randomIdx];
-    pushChatComment(comment.text, comment.type);
+    const c = pickFanComment();
+    pushChatComment(c.text, c.type);
   }, 4500);
 }
 
@@ -719,6 +899,8 @@ function runSimulation() {
   } else {
     // If already finished, reset or show final
     state.matchPhase = 0;
+    state.subActions = [];
+    state.opponentPlan = null; // re-scout next match
     document.getElementById('btn-run-simulation').innerHTML = `<span>🚀 실전 매치 시뮬레이션 가동</span>`;
     document.getElementById('btn-run-simulation').style.background = '';
     document.getElementById('match-phase-status').innerHTML = `<span>⚽ <strong style="color: var(--accent-cyan);">0' 경기 전 셋업</strong> (포메이션, 교체 및 전술 지침 설정 완료 후 전반 가동)</span>`;
@@ -734,7 +916,11 @@ function runFirstHalf() {
   
   btn.disabled = true;
   btn.innerHTML = `<span>⏳ 전반전 (0~45분) AI 가동 중...</span>`;
-  
+
+  // AI opponent manager scouts our XI and picks counter-tactics (async, non-blocking).
+  // Sets a scripted fallback synchronously so the sim always has a plan by 2nd half.
+  fetchOpponentPlan();
+
   // Quick 1.5s transition relay
   const steps = [
     `⚽ 0' 킥오프! [vs ${state.opponent}] 전반전 탐색전 가동...`,
@@ -808,6 +994,164 @@ function bookSubAction(timing) {
   if (actionsEl) actionsEl.innerHTML = badgeHtml;
 }
 
+// ==========================================================================
+// Real match model: Poisson/xG Monte Carlo (100% local, no LLM).
+// Second-half goals ~ Poisson(lambda); lambda derived from team stats, dials,
+// post-drain stamina, executed subs, and opponent strength. Aggregated over N runs.
+// ==========================================================================
+const OPP_STRENGTH = {
+  MEX: { att: 74, def: 72 },
+  ESP: { att: 86, def: 82 },
+  RSA: { att: 66, def: 70 }
+};
+
+function poissonSample(lambda) {
+  // Knuth's algorithm
+  const L = Math.exp(-lambda);
+  let k = 0, p = 1;
+  do { k += 1; p *= Math.random(); } while (p > L);
+  return k - 1;
+}
+
+function secondHalfLambdas() {
+  const s = state.stats;
+  const o = OPP_STRENGTH[state.opponent] || { att: 72, def: 72 };
+  const mid = 1 + (s.midfield - 65) / 220; // midfield control tilts possession
+  let lamKor = 0.72 * (s.attack / o.def) * mid;
+  let lamOpp = 0.72 * (o.att / s.defense) / mid;
+
+  if (state.dials.mentality === 'attack') { lamKor *= 1.18; lamOpp *= 1.12; }
+  else if (state.dials.mentality === 'lock') { lamKor *= 0.82; lamOpp *= 0.80; }
+  if (state.dials.press === 'high') lamOpp *= 0.88;
+  else if (state.dials.press === 'tenback') { lamOpp *= 0.75; lamKor *= 0.88; }
+  if (state.dials.route === 'nopassback') lamKor *= 1.08;
+  else if (state.dials.route === 'halfspace') lamKor *= 1.10;
+
+  // Stamina after first-half drain: tired legs score less, concede more.
+  const st = Object.values(state.staminaState);
+  const avg = st.length ? st.reduce((a, b) => a + b, 0) / st.length : 70;
+  const sf = 0.75 + (avg / 100) * 0.45; // ~0.9 .. 1.2
+  lamKor *= sf;
+  lamOpp *= (1.9 - sf);
+
+  // AI opponent manager's counter-tactics shift the expected goals.
+  const om = opponentModifiers();
+  lamKor *= om.korMul;
+  lamOpp *= om.oppMul;
+
+  return { lamKor: Math.max(0.05, lamKor), lamOpp: Math.max(0.05, lamOpp) };
+}
+
+// ==========================================================================
+// AI opponent manager (agentic, adversarial). The LLM scouts our XI and
+// returns counter-tactics as structured JSON (opponent mode). A scripted
+// heuristic is used synchronously as fallback so the sim always has a plan.
+// ==========================================================================
+function scriptedCounterPlan() {
+  const s = state.stats;
+  const cd = { tempo: 'standard', route: 'kangin', press: 'region', mentality: 'balance' };
+  let counterFormation = '4-4-2';
+  if (s.attack >= 82) { cd.press = 'high'; cd.mentality = 'lock'; counterFormation = '4-2-3-1'; }
+  if (s.defense <= 60) { cd.mentality = 'attack'; cd.tempo = 'direct'; }
+  if (state.dials.mentality === 'attack') cd.press = 'high'; // punish over-commit
+  return {
+    counterFormation,
+    counterDials: cd,
+    reasoning: '한국의 강점을 지우고 약점을 노리는 기본 대응 전술입니다.',
+    scripted: true
+  };
+}
+
+function opponentModifiers() {
+  const plan = state.opponentPlan;
+  if (!plan || !plan.counterDials) return { korMul: 1, oppMul: 1 };
+  const cd = plan.counterDials;
+  let korMul = 1, oppMul = 1;
+  if (cd.press === 'high') korMul *= 0.90;      // their press suppresses our goals
+  else if (cd.press === 'tenback') korMul *= 0.82;
+  if (cd.mentality === 'attack') oppMul *= 1.15; // they commit forward, score more
+  else if (cd.mentality === 'lock') oppMul *= 0.85;
+  if (cd.tempo === 'direct') oppMul *= 1.08;
+  return { korMul, oppMul };
+}
+
+// Fetch the AI opponent's plan (LLM), falling back to the scripted heuristic.
+async function fetchOpponentPlan() {
+  // Synchronous fallback first, so the sim always has a plan even if the call is slow.
+  if (!state.opponentPlan) state.opponentPlan = scriptedCounterPlan();
+
+  const data = await callCoachAPI('opponent');
+  const plan = data && data.opponent ? data.opponent : null;
+  if (plan && plan.counterFormation && plan.counterDials) {
+    plan.scripted = false;
+    state.opponentPlan = plan;
+    const oppName = (typeof OPPONENT_PROFILES !== 'undefined' && OPPONENT_PROFILES[state.opponent])
+      ? OPPONENT_PROFILES[state.opponent].name : state.opponent;
+    pushCoachMessage(
+      `🧠 <strong>[상대 감독 AI 스카우트: ${oppName}]</strong><br>` +
+      `맞불 포메이션 <strong>${plan.counterFormation}</strong> · 성향 ${plan.counterDials.mentality || '?'} / 압박 ${plan.counterDials.press || '?'}<br>` +
+      `“${plan.reasoning || '한국의 약점을 겨냥합니다.'}”`,
+      true
+    );
+  }
+}
+
+function runMonteCarlo(iterations = 1000) {
+  const { lamKor, lamOpp } = secondHalfLambdas();
+  const baseKor = state.halfTimeScore.kor;
+  const baseOpp = state.halfTimeScore.opp;
+  let win = 0, draw = 0, lose = 0, sumKor = 0, sumOpp = 0;
+  const scoreCount = {};
+  for (let i = 0; i < iterations; i++) {
+    const k = baseKor + poissonSample(lamKor);
+    const o = baseOpp + poissonSample(lamOpp);
+    sumKor += k; sumOpp += o;
+    if (k > o) win++; else if (k === o) draw++; else lose++;
+    const key = `${k}:${o}`;
+    scoreCount[key] = (scoreCount[key] || 0) + 1;
+  }
+  let modal = `${baseKor}:${baseOpp}`, best = -1;
+  for (const key in scoreCount) {
+    if (scoreCount[key] > best) { best = scoreCount[key]; modal = key; }
+  }
+  const [mk, mo] = modal.split(':').map(Number);
+  return {
+    iterations,
+    winPct: Math.round((win / iterations) * 100),
+    drawPct: Math.round((draw / iterations) * 100),
+    losePct: Math.round((lose / iterations) * 100),
+    modalScore: { kor: mk, opp: mo },
+    avgKor: sumKor / iterations,
+    avgOpp: sumOpp / iterations,
+    lamKor, lamOpp
+  };
+}
+
+// Execute booked substitutions: real swap on the pitch + fresh-legs stamina.
+function executeSubstitutions() {
+  const executed = [];
+  if (state.subActions.some(a => a.time === '60분')) {
+    const pitch = squadData[state.currentFormation] || [];
+    const onPitch = new Set(pitch.map(p => p.name));
+    let target = null, worst = 999;
+    pitch.forEach(p => {
+      if (p.type === 'gk') return;
+      const stm = state.staminaState[p.name] ?? 70;
+      if (stm < worst) { worst = stm; target = p; }
+    });
+    const incoming = benchPlayers.find(b => b.type === (target ? target.type : 'att') && !onPitch.has(b.name))
+      || benchPlayers.find(b => !onPitch.has(b.name));
+    if (target && incoming) {
+      const idx = pitch.indexOf(target);
+      pitch[idx] = { ...incoming, pos: target.pos, role: incoming.role || target.role };
+      state.staminaState[incoming.name] = 88;
+      delete state.staminaState[target.name];
+      executed.push({ out: target.name, in: incoming.name });
+    }
+  }
+  return executed;
+}
+
 function runSecondHalf() {
   const modal = document.getElementById('sim-modal');
   const liveCast = document.getElementById('sim-live-cast');
@@ -824,26 +1168,25 @@ function runSecondHalf() {
   if (canvasBox) canvasBox.style.display = 'none';
   if (pkBox) pkBox.style.display = 'none';
   
-  // Run Monte Carlo 1,000 sampling logic
-  let baseKor = state.halfTimeScore.kor;
-  let baseOpp = state.halfTimeScore.opp;
-  
-  // Custom ML contribution weights
-  if (state.dials.route === 'halfspace') baseKor += 1.2;
-  if (state.dials.route === 'nopassback') baseKor += 1.1;
-  if (state.dials.mentality === 'attack') { baseKor += 1.4; baseOpp += 0.5; }
-  if (state.dials.press === 'tenback') { baseOpp -= 0.8; baseKor -= 0.5; }
-  if (state.subActions.some(a => a.time === '60분')) baseKor += 0.8;
-  
-  // Monte Carlo round outcome
-  const finalKor = Math.max(0, Math.round(baseKor + (Math.random() * 0.8 - 0.3)));
-  const finalOpp = Math.max(0, Math.round(baseOpp + (Math.random() * 0.8 - 0.3)));
-  state.finalScore = { kor: finalKor, opp: finalOpp };
-  
+  // Execute booked substitutions (real swap + fresh legs) before sampling.
+  const executedSubs = executeSubstitutions();
+  renderPitch(state.currentFormation);
+
+  // Real Monte Carlo: 1,000 Poisson draws of each side's 2nd-half goals,
+  // added to the half-time score, aggregated into a win/draw/loss distribution.
+  const sim = runMonteCarlo(1000);
+  state.simResult = sim;
+  state.finalScore = { kor: sim.modalScore.kor, opp: sim.modalScore.opp };
+  const finalKor = state.finalScore.kor;
+  const finalOpp = state.finalScore.opp;
+
+  const subStep = executedSubs.length > 0
+    ? `🔄 60' 교체 실행: ${executedSubs[0].out} → ${executedSubs[0].in} (프레시 레그 공격 가담!)`
+    : `⚡ 65' 이강인 탈압박 후 전진 패스! 공격 주도권 장악!`;
   const steps = [
     `🔥 45' 후반전 가동! [vs ${state.opponent}] 후반전 전술 지침 및 예약 가동...`,
-    state.subActions.length > 0 ? `🔄 60' 예약된 조커 교체 (${state.subActions[0].text}) 적중! 상대 수비 교란!` : `⚡ 65' 이강인 탈압박 후 전진 패스! 공격 주도권 장악!`,
-    `⚽ 88' 최종 승부처! 1,000회 몬테카를로 기대 득점 시뮬레이션 연산 완료! -> 최종 90분 스코어 ${finalKor} : ${finalOpp}!!`
+    subStep,
+    `⚽ 88' 1,000회 몬테카를로 연산 완료! 승 ${sim.winPct}% · 무 ${sim.drawPct}% · 패 ${sim.losePct}% → 최빈 스코어 ${finalKor} : ${finalOpp}!!`
   ];
   
   let i = 0;
@@ -889,9 +1232,10 @@ function showFinalResult() {
   
   let styleName = ""; let desc = ""; let stage = "";
   const kor = state.finalScore.kor; const opp = state.finalScore.opp;
-  
+  const sim = state.simResult || { winPct: 0, drawPct: 0, losePct: 0 };
+
   if (kor > opp) {
-    styleName = `🔥 '1,000회 연산 승리 68% 적중!' ${state.opponent} 완파 명장`;
+    styleName = `🔥 '몬테카를로 승률 ${sim.winPct}% 적중!' ${state.opponent} 완파 명장`;
     desc = `U자형 백패스를 과감히 폐기하고 ${state.dials.route === 'halfspace' ? '하프스페이스 침투' : '다이렉트 역습'}와 후반 승부수를 적중시켰습니다! 최종 스코어 ${kor}:${opp} 극적 승리! 팬 지지율 ${state.vibeScore}% 달성!`;
     stage = "월드컵 8강/4강 진출! 🇰🇷✨";
   } else if (kor === opp) {
@@ -903,9 +1247,11 @@ function showFinalResult() {
     desc = `후반 체력 저하와 상대의 파상공세를 극복하지 못하고 ${kor}:${opp}로 아쉽게 패배했습니다. 하지만 팬 여론과 XAI 진단에서는 전술적 당위성을 인정받았습니다.`;
     stage = "조별리그 1승 1무 1패 (토너먼트 도전) 🔥";
   }
-  
+
+  const distLine = `📊 1,000회 몬테카를로: 승 ${sim.winPct}% · 무 ${sim.drawPct}% · 패 ${sim.losePct}% (기대 득점 ${sim.avgKor != null ? sim.avgKor.toFixed(2) : '-'} : ${sim.avgOpp != null ? sim.avgOpp.toFixed(2) : '-'})`;
+
   document.getElementById('res-style-name').textContent = styleName;
-  document.getElementById('res-desc').textContent = desc;
+  document.getElementById('res-desc').textContent = `${desc}\n\n${distLine}`;
   document.getElementById('res-val-stage').textContent = stage;
   document.getElementById('res-val-vibe').textContent = `${state.vibeScore}%`;
   document.getElementById('res-val-joker').textContent = `${Math.min(95, state.vibeScore + 8)}%`;
@@ -915,8 +1261,129 @@ function closeModal() {
   document.getElementById('sim-modal').classList.remove('active');
 }
 
-function shareResult() {
-  alert('📤 [바이럴 공유 완료!]\n당신의 전술 카드 명함 텍스트가 복사되었습니다. SNS와 DAKER 대중 투표에 공유해 보세요! 🚀⚽');
+// ==========================================================================
+// Real viral share + "challenge a friend" URL-encoded tactic state.
+// ==========================================================================
+function showToast(msg) {
+  const t = document.createElement('div');
+  t.textContent = msg;
+  t.style.cssText = 'position: fixed; left: 50%; bottom: 32px; transform: translateX(-50%); z-index: 9999; background: rgba(15, 23, 42, 0.96); color: #fff; border: 1px solid var(--accent-cyan); padding: 0.85rem 1.2rem; border-radius: 10px; font-size: 0.9rem; font-weight: 700; box-shadow: 0 8px 30px rgba(0,0,0,0.5); max-width: 90vw; text-align: center;';
+  document.body.appendChild(t);
+  setTimeout(() => t.remove(), 3400);
+}
+
+// Canonical name → player object, gathered across all formations + bench.
+function buildMasterRoster() {
+  const map = {};
+  Object.values(squadData).forEach(list => list.forEach(p => { if (!map[p.name]) map[p.name] = { ...p }; }));
+  benchPlayers.forEach(p => { if (!map[p.name]) map[p.name] = { ...p }; });
+  return map;
+}
+
+function currentLineupNames() {
+  return (squadData[state.currentFormation] || []).map(p => p.name);
+}
+
+function buildChallengePayload() {
+  return {
+    v: 1,
+    f: state.currentFormation,
+    o: state.opponent,
+    d: { ...state.dials },
+    xi: currentLineupNames(),
+    s: { k: state.finalScore.kor, o: state.finalScore.opp },
+    vb: state.vibeScore
+  };
+}
+
+function buildChallengeURL() {
+  const base = (location.origin && location.origin !== 'null')
+    ? location.origin + location.pathname
+    : location.href.split('#')[0];
+  const encoded = btoa(unescape(encodeURIComponent(JSON.stringify(buildChallengePayload()))));
+  return `${base}#t=${encoded}`;
+}
+
+// Decode a shared link into the live board. Defensive: any failure → no-op.
+function applyChallengeFromURL() {
+  try {
+    const m = (location.hash || '').match(/[#&]t=([^&]+)/);
+    if (!m) return null;
+    const payload = JSON.parse(decodeURIComponent(escape(atob(m[1]))));
+    if (!payload || !payload.f || !squadData[payload.f]) return null;
+
+    const roster = buildMasterRoster();
+    const template = squadData[payload.f];
+    if (Array.isArray(payload.xi) && payload.xi.length === template.length) {
+      squadData[payload.f] = template.map((slot, i) => {
+        const base = roster[payload.xi[i]];
+        if (!base) return { ...slot };
+        return { ...base, pos: slot.pos, role: base.role || slot.role };
+      });
+    }
+    state.currentFormation = payload.f;
+    if (payload.o) state.opponent = payload.o;
+    if (payload.d && typeof payload.d === 'object') state.dials = { ...state.dials, ...payload.d };
+    return { score: payload.s, vibe: payload.vb, opponent: payload.o };
+  } catch (e) {
+    return null;
+  }
+}
+
+function announceChallenge(challenge) {
+  // Reflect decoded opponent + dials in the control UI.
+  if (typeof selectOpponent === 'function' && state.opponent) selectOpponent(state.opponent);
+  if (typeof syncDialButtons === 'function') syncDialButtons();
+  const s = challenge.score || {};
+  const target = (typeof s.k === 'number' && typeof s.o === 'number')
+    ? `상대 감독의 기록은 <strong>${s.k}:${s.o}</strong> (지지율 ${challenge.vibe ?? '?'}%)입니다. ` : '';
+  pushCoachMessage(`🎯 <strong>[도전장 접수!]</strong><br>누군가 자신의 전술을 공유하며 감독님께 도전했습니다. ${target}이 셋업을 그대로 이어받았습니다 — 더 나은 결과를 만들어 상대를 이겨보세요!`, true);
+}
+
+function syncDialButtons() {
+  ['tempo', 'route', 'press', 'mentality'].forEach(cat => {
+    const btn = document.getElementById(`btn-${cat}-${state.dials[cat]}`);
+    if (!btn) return;
+    const parent = btn.closest('.tactic-btns');
+    if (parent) parent.querySelectorAll('.btn-tactic').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+  });
+}
+
+async function shareResult() {
+  const styleName = (document.getElementById('res-style-name')?.textContent || 'K-Tactics 감독 명함').trim();
+  const url = buildChallengeURL();
+  const caption = `[K-Tactics Lab 2026] ${styleName}\n최종 ${state.finalScore.kor}:${state.finalScore.opp} · 팬 지지율 ${state.vibeScore}%\n내 전술에 도전 👉 ${url}`;
+
+  // 1) Native share sheet with the result-card image (mobile).
+  let sheetShown = false;
+  try {
+    const card = document.getElementById('manager-result-card');
+    if (card && typeof html2canvas === 'function' && navigator.canShare) {
+      const canvas = await html2canvas(card, { backgroundColor: '#0f172a', scale: 2 });
+      const blob = await new Promise(r => canvas.toBlob(r, 'image/png'));
+      if (blob) {
+        const file = new File([blob], 'k-tactics-card.png', { type: 'image/png' });
+        if (navigator.canShare({ files: [file] })) {
+          sheetShown = true;
+          await navigator.share({ files: [file], title: 'K-Tactics Lab 2026', text: caption, url });
+          return;
+        }
+      }
+    }
+  } catch (e) {
+    if (sheetShown) return; // user opened then dismissed the share sheet
+  }
+
+  // 2) Clipboard fallback (desktop).
+  try {
+    await navigator.clipboard.writeText(caption);
+    showToast('📋 공유 문구 + 도전 링크 복사 완료! SNS·DAKER 투표에 붙여넣기 하세요 🚀');
+    return;
+  } catch (e) { /* fall through */ }
+
+  // 3) Last-resort.
+  alert('📤 공유 문구 (복사해 사용하세요):\n\n' + caption);
 }
 
 // --- Download Viral Shareable Card as PNG (html2canvas) ---
@@ -1042,7 +1509,18 @@ function openScoutingModal(name, data, posColor) {
   document.getElementById('scout-val-min').textContent = `${data.min}분`;
   document.getElementById('scout-val-starts').textContent = `${data.starts}회`;
   document.getElementById('scout-val-ga').textContent = `${data.gls}골 ${data.ast}도움`;
-  
+
+  // Section 2: real derived rating dimensions (from per-90 FBref stats).
+  const setAdv = (id, val) => { const el = document.getElementById(id); if (el) el.textContent = val ?? '-'; };
+  setAdv('scout-adv-attack', data.attack);
+  setAdv('scout-adv-defense', data.defense);
+  setAdv('scout-adv-midfield', data.midfield);
+  setAdv('scout-adv-stamina', data.stamina);
+  setAdv('scout-adv-shooting', data.shooting);
+  setAdv('scout-adv-composure', data.composure);
+  const noteEl = document.getElementById('scout-adv-note');
+  if (noteEl && data.statStr) noteEl.textContent = data.statStr;
+
   modal.classList.add('active');
 }
 
@@ -1064,7 +1542,10 @@ function initPenaltyShootoutUI() {
   
   logEl.innerHTML = '';
   selectedPkKickers = [];
-  
+
+  const ht = document.getElementById('pk-header-title');
+  if (ht) ht.textContent = `⚽ 90분 정규시간 ${state.finalScore.kor}:${state.finalScore.opp} 동점 종료! 승부차기(PK) 돌입!`;
+
   const pitchList = squadData[state.currentFormation] || [];
   const topKickers = pitchList.slice(0, 7);
   
@@ -1151,7 +1632,7 @@ function startPenaltyShootout() {
         if (actions) actions.style.display = 'flex';
         
         document.getElementById('res-style-name').textContent = korWin ? "🔥 'PK 혈투 끝에 승리한 강철 심장' 승부차기 명장" : "🎲 '아쉬운 PK 석패' 불굴의 투혼 지휘관";
-        document.getElementById('res-desc').textContent = `90분 정규시간 2:2 동점 이후 승부차기에서 ${selectedPkKickers.map(k=>k.name).join(', ')} 키커들의 활약으로 ${korPk}:${oppPk} 최종 승부를 가렸습니다.`;
+        document.getElementById('res-desc').textContent = `90분 정규시간 ${state.finalScore.kor}:${state.finalScore.opp} 동점 이후 승부차기에서 ${selectedPkKickers.map(k=>k.name).join(', ')} 키커들의 활약으로 ${korPk}:${oppPk} 최종 승부를 가렸습니다.`;
         document.getElementById('res-val-stage').textContent = korWin ? "월드컵 8강/16강 통과! 🇰🇷✨" : "월드컵 16강 명승부 ⚽";
       }, 3500);
     }

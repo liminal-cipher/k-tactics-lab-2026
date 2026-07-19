@@ -55,7 +55,7 @@
       <section class="stats-box" id="section-stats">
         <div class="widget-header-box">
           <span class="widget-title">📊 실시간 팀 밸런스 진단</span>
-          <span class="widget-badge">FBref 공인</span>
+          <span class="widget-badge">FBref 기반</span>
         </div>
         
         <div class="stat-row">
@@ -151,7 +151,7 @@
       <div class="bottom-tab-container" id="bottom-tab-container">
         <div class="bottom-tab-header">
           <button class="btn-bottom-tab active" id="tab-btn-bench" onclick="switchBottomTab('bench')">🔄 교체 대기 벤치 멤버 (선수 클릭/드래그 교체)</button>
-          <button class="btn-bottom-tab" id="tab-btn-tactics" onclick="switchBottomTab('tactics')">🕹️ 감독 4대 핵심 전술 지침 콘솔 (Custom ML 입력)</button>
+          <button class="btn-bottom-tab" id="tab-btn-console" onclick="switchBottomTab('tactics')">🕹️ 감독 4대 핵심 전술 지침 콘솔 (Custom ML 입력)</button>
         </div>
 
         <!-- Bench Squad Container (Tab 1) -->
@@ -226,6 +226,11 @@
           </div>
         </div>
         
+        <form class="coach-input-row" onsubmit="return submitCoachChat(event)" style="display: flex; gap: 0.4rem; flex-shrink: 0;">
+          <input id="coach-input" type="text" maxlength="500" autocomplete="off" placeholder="Coach V에게 전술 질문… (예: 스페인전 어떻게 막죠?)" style="flex: 1; min-width: 0; padding: 0.55rem 0.75rem; background: rgba(0,0,0,0.45); border: 1px solid var(--glass-border); border-radius: 6px; color: #fff; font-size: 0.82rem;">
+          <button type="submit" style="padding: 0.55rem 0.9rem; background: var(--accent-cyan); color: #000; border: none; border-radius: 6px; font-weight: 800; cursor: pointer; font-size: 0.82rem; white-space: nowrap;">전송</button>
+        </form>
+
         <div class="coach-actions" style="display: flex; flex-direction: column; gap: 0.5rem; padding-top: 0.5rem; border-top: 1px solid rgba(255,255,255,0.08); flex-shrink: 0;">
           <button class="btn-coach-action" onclick="requestAiTacticalAdvice('mexico')" style="width: 100%; text-align: left; padding: 0.6rem 0.9rem; background: rgba(6, 182, 212, 0.15); border: 1px solid var(--accent-cyan); color: #fff; border-radius: 6px; font-weight: 700; cursor: pointer; transition: all 0.2s; font-size: 0.82rem;">
             ⚡ 멕시코/남아공 공략 전술 추천
@@ -247,7 +252,7 @@
         <div>
           <h2 style="font-size: 1.5rem; font-weight: 900; color: #fff; display: flex; align-items: center; gap: 0.6rem;">
             <span>🚪 2026 월드컵 본선 출전 20인 공식 선수단 락커룸</span>
-            <span style="font-size: 0.75rem; background: rgba(16, 185, 129, 0.15); color: var(--accent-emerald); border: 1px solid var(--accent-emerald); padding: 0.2rem 0.6rem; border-radius: 4px;">FBref 100% 공인 멤버</span>
+            <span style="font-size: 0.75rem; background: rgba(16, 185, 129, 0.15); color: var(--accent-emerald); border: 1px solid var(--accent-emerald); padding: 0.2rem 0.6rem; border-radius: 4px;">2026 WC 출전 20인 (FBref 기반)</span>
           </h2>
           <p style="font-size: 0.85rem; color: var(--text-secondary); margin-top: 0.3rem;">
             실제 대회에 출전한 20명의 공식 기록을 조회합니다. 카드를 클릭하면 상세 분석 및 스카우팅 리포트를 확인할 수 있습니다. (미출전 선수는 제외됨)
@@ -300,10 +305,10 @@
         <button class="btn-close-modal" onclick="closeScoutingModal()">✕</button>
       </div>
 
-      <!-- Section 1: Official Verified FBref Data -->
+      <!-- Section 1: FBref-based standard stats -->
       <div style="margin-top: 1rem; background: rgba(15, 23, 42, 0.7); border: 1px solid var(--glass-border); border-radius: 10px; padding: 1.2rem;">
         <h4 style="font-size: 0.95rem; font-weight: 800; color: var(--accent-cyan); margin-bottom: 0.8rem; display: flex; align-items: center; gap: 0.4rem;">
-          <span>✅ 1차 대회 검증 기록 (FBref 공인 표준 스탯)</span>
+          <span>✅ 2026 WC 출전 기록 (FBref 기반 표준 스탯)</span>
         </h4>
         <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 0.8rem; font-size: 0.85rem;">
           <div style="background: rgba(255,255,255,0.03); padding: 0.6rem; border-radius: 6px;">
@@ -325,31 +330,31 @@
         </div>
       </div>
 
-      <!-- Section 2: Deep Analytical Placeholder Metrics (User Requested Placeholders) -->
-      <div style="margin-top: 1.2rem; background: rgba(30, 41, 59, 0.6); border: 1px dashed rgba(255,255,255,0.2); border-radius: 10px; padding: 1.2rem;">
+      <!-- Section 2: Derived rating dimensions (from per-90 FBref stats, scripts/parse_stats.py) -->
+      <div style="margin-top: 1.2rem; background: rgba(30, 41, 59, 0.6); border: 1px solid var(--glass-border); border-radius: 10px; padding: 1.2rem;">
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.8rem;">
           <h4 style="font-size: 0.95rem; font-weight: 800; color: var(--accent-amber); display: flex; align-items: center; gap: 0.4rem;">
-            <span>🔬 2차 심층 분석 지표 (Advanced Metrics)</span>
+            <span>🔬 4대 파생 능력치 (per-90 스탯 산출)</span>
           </h4>
-          <span style="font-size: 0.7rem; background: rgba(245, 158, 11, 0.15); color: var(--accent-amber); border: 1px solid var(--accent-amber); padding: 0.15rem 0.5rem; border-radius: 4px;">Placeholder / 연동 대기</span>
+          <span style="font-size: 0.7rem; background: rgba(245, 158, 11, 0.15); color: var(--accent-amber); border: 1px solid var(--accent-amber); padding: 0.15rem 0.5rem; border-radius: 4px;">FBref 기반 산출</span>
         </div>
-        
-        <p style="font-size: 0.8rem; color: var(--text-secondary); margin-bottom: 1rem; line-height: 1.4;">
-          심층 세부 데이터(xG, 전진 패스, 경합 승률 등)는 향후 2단계 API 연동 및 심사 이후 순차적으로 업데이트될 예정입니다.
+
+        <p style="font-size: 0.8rem; color: var(--text-secondary); margin-bottom: 1rem; line-height: 1.4;" id="scout-adv-note">
+          per-90 FBref 스탯을 포지션 베이스 + 가중식으로 변환한 4대 능력치입니다 (scripts/parse_stats.py).
         </p>
 
         <div style="display: flex; flex-direction: column; gap: 0.6rem; font-size: 0.85rem;">
           <div style="display: flex; justify-content: space-between; padding: 0.5rem; background: rgba(0,0,0,0.2); border-radius: 6px;">
-            <span style="color: var(--text-primary);">기대 득점 (xG / npxG per 90)</span>
-            <span style="color: var(--text-secondary); font-style: italic;">[데이터 로딩 중 / FBref 연동 대기]</span>
+            <span style="color: var(--text-primary);">공격력 / 수비력</span>
+            <span style="color: #fff; font-weight: 700;"><span id="scout-adv-attack">-</span> / <span id="scout-adv-defense">-</span></span>
           </div>
           <div style="display: flex; justify-content: space-between; padding: 0.5rem; background: rgba(0,0,0,0.2); border-radius: 6px;">
-            <span style="color: var(--text-primary);">패스 성공률 & 전진 패스 (Progressive Passes)</span>
-            <span style="color: var(--text-secondary); font-style: italic;">[데이터 로딩 중 / FBref 연동 대기]</span>
+            <span style="color: var(--text-primary);">중원 장악 / 체력</span>
+            <span style="color: #fff; font-weight: 700;"><span id="scout-adv-midfield">-</span> / <span id="scout-adv-stamina">-</span></span>
           </div>
           <div style="display: flex; justify-content: space-between; padding: 0.5rem; background: rgba(0,0,0,0.2); border-radius: 6px;">
-            <span style="color: var(--text-primary);">공중볼 경합 승률 & 인터셉트 (Aerial & Interceptions)</span>
-            <span style="color: var(--text-secondary); font-style: italic;">[데이터 로딩 중 / FBref 연동 대기]</span>
+            <span style="color: var(--text-primary);">슈팅 결정력 / 침착성</span>
+            <span style="color: #fff; font-weight: 700;"><span id="scout-adv-shooting">-</span> / <span id="scout-adv-composure">-</span></span>
           </div>
         </div>
       </div>
@@ -358,7 +363,7 @@
       <div style="margin-top: 1.2rem; background: rgba(6, 182, 212, 0.1); border-left: 4px solid var(--accent-cyan); padding: 1rem; border-radius: 4px;">
         <div style="font-weight: 800; color: var(--accent-cyan); font-size: 0.85rem; margin-bottom: 0.3rem;">🤖 Coach V 스카우팅 리포트</div>
         <p style="font-size: 0.8rem; color: #fff; line-height: 1.4;">
-          "2026 월드컵 본선 무대에서 대한민국 국가대표팀을 위해 실전에 출전한 공식 인증 선수입니다. 현재 포지션에서의 세부 전술 롤 적합도는 향후 2차 심층 분석 지표 업데이트와 함께 상세 평가될 예정입니다."
+          "2026 월드컵 본선에서 대한민국 국가대표팀으로 실전 출전한 선수입니다. FBref per-90 스탯을 4대 능력치로 변환한 지표를 기준으로, 현재 포지션에서의 전술 롤 적합도를 평가합니다."
         </p>
       </div>
 
@@ -396,7 +401,7 @@
       <!-- Penalty Shootout Trigger / Interactive Box (When Match Ends in Draw) -->
       <div class="pk-shootout-container" id="pk-shootout-container" style="display: none; margin-bottom: 1.2rem; background: rgba(15, 23, 42, 0.85); border: 2px solid var(--accent-amber); border-radius: 10px; padding: 1.2rem;">
         <div style="text-align: center; margin-bottom: 1rem;">
-          <h4 style="font-size: 1.2rem; font-weight: 900; color: var(--accent-amber); margin-bottom: 0.3rem;">⚽ 90분 정규시간 2:2 동점 종료! 승부차기(PK) 돌입!</h4>
+          <h4 id="pk-header-title" style="font-size: 1.2rem; font-weight: 900; color: var(--accent-amber); margin-bottom: 0.3rem;">⚽ 90분 정규시간 동점 종료! 승부차기(PK) 돌입!</h4>
           <p style="font-size: 0.82rem; color: var(--text-secondary);">1번부터 5번까지 PK 키커를 지정하고 최종 승부를 가리십시오.</p>
         </div>
         <div id="pk-kicker-selectors" style="display: grid; grid-template-columns: repeat(5, 1fr); gap: 0.5rem; margin-bottom: 1rem;">
@@ -445,7 +450,23 @@
     </div>
   </div>
 
+  <!-- ================= HERO INTRO MODAL (남아공전 재도전 온보딩) ================= -->
+  <div id="hero-intro-modal" style="position: fixed; inset: 0; z-index: 10000; background: rgba(5,8,18,0.92); backdrop-filter: blur(6px); display: flex; align-items: center; justify-content: center; padding: 1.5rem;">
+    <div style="max-width: 560px; width: 100%; background: linear-gradient(160deg, rgba(15,23,42,0.98), rgba(30,41,59,0.98)); border: 1px solid var(--glass-border); border-radius: 16px; padding: 2rem; box-shadow: 0 20px 60px rgba(0,0,0,0.6); text-align: center;">
+      <div style="font-size: 0.78rem; font-weight: 800; color: var(--accent-rose); letter-spacing: 0.1em; margin-bottom: 0.6rem;">2026 북중미 월드컵 · 조별리그 최종전</div>
+      <h2 style="font-size: 1.65rem; font-weight: 900; color: #fff; line-height: 1.35; margin-bottom: 1rem;">비기기만 하면 32강이었다.<br>그런데 <span style="color: var(--accent-rose);">남아공에 0-1</span>로 졌다.</h2>
+      <p style="font-size: 0.92rem; color: var(--text-secondary); line-height: 1.65; margin-bottom: 1.6rem;">
+        손흥민은 벤치에 앉았고, 전술은 없었다. 황금세대와 꿀조를 받고도 조별리그 탈락. 그날 온 국민이 외쳤다.<br>
+        <strong style="color:#fff;">"내가 감독이었다면 달랐다."</strong><br>
+        이제 그 경기를, 당신이 다시 지휘한다.
+      </p>
+      <button onclick="startHeroScenario()" style="width: 100%; padding: 0.9rem; background: var(--accent-rose); color: #fff; border: none; border-radius: 10px; font-size: 1.05rem; font-weight: 900; cursor: pointer; box-shadow: 0 8px 24px rgba(244,63,94,0.35);">⚽ 그 남아공전을 다시 지휘하기</button>
+      <button onclick="dismissHeroIntro()" style="margin-top: 0.85rem; background: none; border: none; color: var(--text-secondary); font-size: 0.82rem; cursor: pointer; text-decoration: underline;">자유 모드로 시작 (다른 상대 선택)</button>
+    </div>
+  </div>
+
   <script src="data/squad_stats_2026.js"></script>
+  <script src="data/fan_comments_2026.js"></script>
   <script src="app.js"></script>
 </body>
 </html>
