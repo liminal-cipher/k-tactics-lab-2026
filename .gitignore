@@ -1,3 +1,11 @@
 # Local configuration and logs
 *.log
 .DS_Store
+
+# Secrets & serverless env (never commit the API key)
+.env
+.env.local
+.env.*.local
+
+# Vercel build/dev output
+.vercel
