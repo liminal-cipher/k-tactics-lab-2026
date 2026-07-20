@@ -1,11 +1,15 @@
 /* ==========================================================================
    K-Tactics Lab 2026 - Coach V serverless proxy (Vercel, Node 18+)
    --------------------------------------------------------------------------
-   Holds GEMINI_API_KEY server-side so judges use the AI with NO key.
+   Holds API keys server-side so judges use the AI with NO key.
    CommonJS + global fetch, zero dependencies, no package.json, no build.
 
-   Provider is isolated behind callLLM() so the model can be swapped later
-   (Gemini Flash-Lite <-> Anthropic Haiku <-> hybrid) by editing one function.
+   Provider layer: callLLM() tries providers in order and returns the first
+   success. A provider without its env key is skipped, so deployment config
+   alone decides the active backend:
+     1. Google Gemini Flash-Lite  (GEMINI_API_KEY)
+     2. Groq gpt-oss-120b         (GROQ_API_KEY)
+   If every provider fails, the client falls back to scripted responses.
 
    POST /api/coach
    body: { mode: "chat"|"analysis"|"opponent", message?: string, state?: {...} }
@@ -109,17 +113,18 @@ function extractJson(text) {
 }
 
 // --------------------------------------------------------------------------
-// Provider layer. Swap this one function to change LLM backend.
-// Currently: Google Gemini Flash-Lite (free tier) via generateContent.
+// Provider layer. callLLM() walks the chain below; each provider is skipped
+// when its env key is missing, so the active backend is pure deploy config.
 // --------------------------------------------------------------------------
-const LLM_MODEL = 'gemini-2.5-flash-lite';
+const GEMINI_MODEL = 'gemini-2.5-flash-lite';
+const GROQ_MODEL = 'openai/gpt-oss-120b';
 
-async function callLLM({ system, user, maxTokens, temperature, schema }) {
+async function callGemini({ system, user, maxTokens, temperature, schema }) {
   const key = process.env.GEMINI_API_KEY;
   if (!key) return { ok: false, noKey: true };
 
   const url =
-    `https://generativelanguage.googleapis.com/v1beta/models/${LLM_MODEL}:generateContent?key=${key}`;
+    `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent?key=${key}`;
 
   const generationConfig = {
     maxOutputTokens: maxTokens,
@@ -153,10 +158,67 @@ async function callLLM({ system, user, maxTokens, temperature, schema }) {
       .join('\n')
       .trim();
     if (!text) return { ok: false, status: 'empty' };
-    return { ok: true, text, model: LLM_MODEL };
+    return { ok: true, text, model: GEMINI_MODEL };
   } catch (e) {
     return { ok: false, status: 'exception' };
   }
+}
+
+// Groq (OpenAI-compatible). gpt-oss is a reasoning model: reasoning is kept
+// out of the reply (include_reasoning: false) but still consumes completion
+// tokens, hence the headroom on max_completion_tokens. JSON mode requires
+// non-raw reasoning output, which include_reasoning: false satisfies.
+async function callGroq({ system, user, maxTokens, temperature, schema }) {
+  const key = process.env.GROQ_API_KEY;
+  if (!key) return { ok: false, noKey: true };
+
+  const sys = schema
+    ? `${system}\n\n반드시 아래 JSON 스키마를 만족하는 JSON 객체 하나만 출력하라. JSON 외 다른 텍스트 금지.\n${JSON.stringify(schema)}`
+    : system;
+
+  const body = {
+    model: GROQ_MODEL,
+    max_completion_tokens: maxTokens + 1024,
+    temperature,
+    reasoning_effort: 'low',
+    include_reasoning: false,
+    messages: [
+      { role: 'system', content: sys },
+      { role: 'user', content: user },
+    ],
+  };
+  if (schema) body.response_format = { type: 'json_object' };
+
+  try {
+    const r = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+      method: 'POST',
+      headers: {
+        'content-type': 'application/json',
+        authorization: `Bearer ${key}`,
+      },
+      body: JSON.stringify(body),
+    });
+    if (!r.ok) {
+      const detail = await r.text().catch(() => '');
+      return { ok: false, status: r.status, detail: detail.slice(0, 400) };
+    }
+    const data = await r.json();
+    const text = (data.choices?.[0]?.message?.content || '').trim();
+    if (!text) return { ok: false, status: 'empty' };
+    return { ok: true, text, model: GROQ_MODEL };
+  } catch (e) {
+    return { ok: false, status: 'exception' };
+  }
+}
+
+async function callLLM(req) {
+  let lastFail = { ok: false, noKey: true, status: 'no-key' };
+  for (const provider of [callGemini, callGroq]) {
+    const out = await provider(req);
+    if (out.ok) return out;
+    if (!out.noKey) lastFail = out; // keep the most informative failure
+  }
+  return lastFail;
 }
 
 module.exports = async function handler(req, res) {
@@ -165,8 +227,8 @@ module.exports = async function handler(req, res) {
     return;
   }
 
-  if (!process.env.GEMINI_API_KEY) {
-    // No key configured -> tell client to use scripted fallback (never a hard error).
+  if (!process.env.GEMINI_API_KEY && !process.env.GROQ_API_KEY) {
+    // No provider key configured -> tell client to use scripted fallback (never a hard error).
     res.status(200).json({ reply: '', fallback: true, error: 'no-key' });
     return;
   }
