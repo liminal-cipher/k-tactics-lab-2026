@@ -43,7 +43,7 @@
 | **Typography** | `Google Fonts API` | `Outfit`, `Plus Jakarta Sans`, `Noto Sans KR` 3종 폰트를 CDN으로 로딩하여, 영문·숫자 스탯의 가독성과 한글 렌더링 최적화 |
 | **State & Interaction** | `Native JS State & HTML5 Drag/Touch APIs` | 외부 상태 관리 라이브러리 없이 전역 반응형 State 객체와 HTML5 `dataTransfer` 드래그 앤 드롭 + 모바일 클릭 맞교환(Click-to-Swap) 이원화 구현 |
 | **Simulation Engine** | `로컬 Poisson 몬테카를로 (LLM 미사용)` | 공식 20인 FBref 스탯(`data/squad_stats_2026.js`)에서 λ를 유도해 브라우저 단에서 **1,000회 Poisson 몬테카를로**로 승/무/패 확률분포를 연산. 결정론적·검증가능·$0 |
-| **AI Layer** | `Google Gemini 2.5 Flash-Lite (서버리스 프록시)` | Coach V 채팅·사전분석·AI 상대감독을 Vercel 서버리스 함수(`api/coach.js`)로 호출. API 키는 서버에 은닉되어 심사자는 키 없이 사용. 무료 티어라 비용 ≈ $0, 실패 시 스크립트 폴백 |
+| **AI Layer** | `멀티 프로바이더 LLM 체인 (서버리스 프록시)` | Coach V 채팅·사전분석·AI 상대감독을 Vercel 서버리스 함수(`api/coach.js`)로 호출. `callLLM()` 체인이 Gemini 2.5 Flash-Lite → Groq `gpt-oss-120b` 순으로 시도하고 전부 실패 시 스크립트 폴백. API 키는 서버에 은닉되어 심사자는 키 없이 사용, 무료 티어라 비용 ≈ $0 |
 | **Image Export & Share** | `html2canvas v1.4.1 + Web Share API` | 최종 명함 카드를 2배수 고화질 PNG로 캡처하고, 네이티브 공유·클립보드·'도전 링크(URL 인코딩)'로 바이럴 유도 |
 | **Hosting & Deploy** | `Vercel (Static + Serverless Functions)` | 정적 자산은 CDN, AI만 서버리스 함수로. 별도 인프라 관리 없이 무료 티어로 **운영 비용 ≈ $0**. `file://` 오프라인 폴백 보장 |
 
@@ -60,8 +60,8 @@
    * **전·후반 이원화 루프:** 전반전 기본 스탯 및 체력 소모(Stamina Fatigue) 반영 후, 하프타임 전술 다이얼 조정이 후반전 1,000회 몬테카를로 확률 연산 및 PK 승부차기에 직접 개입한다.
 3. **📊 실시간 팀 밸런스 진단 최상단 배치 (FBref 기반 Core Metrics)**
    * 좌측 패널 최상단 1순위 위젯으로 **공격 파괴력(xG), 측면 수비 안정도, 중원 장악력, 체력 유지력**을 직관적으로 노출하여, 전술 선택의 실질적 성적표를 명확히 제시한다.
-4. **🤖 실제 LLM 수석 코치 'Coach V' + AI 상대 감독 (Gemini 연동)**
-   * Coach V는 현재 보드 상태(스탯·다이얼·라인업·상대 브리핑)를 주입받아 **실제 LLM(Gemini)** 이 그라운디드 조언을 하며, 자유 질문 채팅을 지원한다. 공격수를 골문에 두는 등 전술 기행에는 즉각 **[비상 경보]**.
+4. **🤖 실제 LLM 수석 코치 'Coach V' + AI 상대 감독 (멀티 프로바이더 LLM 연동)**
+   * Coach V는 현재 보드 상태(스탯·다이얼·라인업·상대 브리핑)를 주입받아 **실제 LLM** 이 그라운디드 조언을 하며, 자유 질문 채팅을 지원한다. 공격수를 골문에 두는 등 전술 기행에는 즉각 **[비상 경보]**.
    * **AI 상대 감독:** 킥오프 시 LLM이 우리 XI를 스카우팅해 카운터 포메이션·전술을 **구조화 JSON**으로 결정하고, 그 결과가 몬테카를로 시뮬에 실제 반영된다(적대적 에이전틱 루프). 네트워크·무료 한도 실패 시 전부 스크립트 폴백.
    * 팬 지지율(`vibeScore`)은 경기 성패와 분리된 2차 스토리 지표이며, 하단 실시간 여론 중계창은 **경기 상태로 조건 선택되는 오프라인 댓글 뱅크**(손흥민 벤치·고압박 체력 등)로 채워진다.
 5. **🚪 선수단 락커룸 & 심층 스카우팅 리포트**
@@ -95,7 +95,7 @@ k-tactics-lab/
 ├── index.css        # 글래스모피즘 디자인 시스템, 반응형 레이아웃, Keyframe 애니메이션
 ├── app.js           # 전술 엔진, 로컬 몬테카를로 시뮬, Coach V/AI 상대감독 클라이언트, Vibe, 락커룸
 ├── api/
-│   └── coach.js     # Vercel 서버리스 프록시 (Gemini 호출, 키 은닉, chat/analysis/opponent)
+│   └── coach.js     # Vercel 서버리스 프록시 (LLM 체인 Gemini→Groq, 키 은닉, chat/analysis/opponent)
 ├── data/
 │   ├── squad_stats_2026.js  # 2026 WC 출전 공식 20인 FBref 파생 스탯
 │   └── fan_comments_2026.js # 상태 태깅 여론 댓글 뱅크 (오프라인 생성 자산, 런타임 $0)
@@ -105,7 +105,7 @@ k-tactics-lab/
 ├── docs/
 │   └── AI_ENGINEERING.md     # 데이터 파이프라인·모델 선택·프롬프트·비용 아키텍처 근거
 ├── vercel.json      # 서버리스 함수 설정
-├── .env.example     # GEMINI_API_KEY 예시 (실제 키는 커밋 금지)
+├── .env.example     # GEMINI_API_KEY / GROQ_API_KEY 예시 (실제 키는 커밋 금지)
 ├── PROPOSAL.md      # DAKER 해커톤 공식 제출용 기획서
 └── README.md        # 프로젝트 아키텍처 및 실행 안내서 (본 문서)
 ```
@@ -126,8 +126,8 @@ cd k-tactics-lab-2026
 
 ### 🤖 AI 활성화 — 선택 (Vercel 배포)
 Coach V의 실시간 LLM과 AI 상대감독은 서버리스 함수가 필요하다.
-1. [Google AI Studio](https://aistudio.google.com/apikey)에서 **무료 Gemini API 키** 발급
-2. Vercel에 저장소 연결(Import) 후 환경변수 **`GEMINI_API_KEY`** 설정
+1. 무료 API 키 발급: [Google AI Studio](https://aistudio.google.com/apikey)(Gemini) 또는 [Groq Console](https://console.groq.com/keys) 중 하나 이상
+2. Vercel에 저장소 연결(Import) 후 환경변수 **`GEMINI_API_KEY`** 및/또는 **`GROQ_API_KEY`** 설정 (키가 있는 프로바이더만 체인에서 활성화)
 3. 로컬 개발 시: `npx vercel dev` (localhost:3000에서 `/api/coach` 라이브)
 > 키는 서버에만 저장되어 노출되지 않으며, 심사자는 배포 URL 방문만으로 **키 없이** 사용한다.
 
