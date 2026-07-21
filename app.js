@@ -1075,6 +1075,27 @@ function opponentModifiers() {
   return { korMul, oppMul };
 }
 
+// Vocabulary the LLM opponent must answer in (mirrors api/coach.js enums).
+// Groq's JSON mode guarantees syntax only, so values are validated here:
+// an off-enum plan must never replace the working scripted plan.
+const OPPONENT_VOCAB = {
+  formations: ['4-3-3', '3-5-2', '4-2-3-1', '4-4-2'],
+  tempo: ['build', 'standard', 'direct'],
+  route: ['halfspace', 'nopassback', 'kangin'],
+  press: ['tenback', 'region', 'high'],
+  mentality: ['lock', 'balance', 'attack']
+};
+
+function isValidOpponentPlan(plan) {
+  if (!plan || !plan.counterDials) return false;
+  const cd = plan.counterDials;
+  return OPPONENT_VOCAB.formations.includes(plan.counterFormation) &&
+    OPPONENT_VOCAB.tempo.includes(cd.tempo) &&
+    OPPONENT_VOCAB.route.includes(cd.route) &&
+    OPPONENT_VOCAB.press.includes(cd.press) &&
+    OPPONENT_VOCAB.mentality.includes(cd.mentality);
+}
+
 // Fetch the AI opponent's plan (LLM), falling back to the scripted heuristic.
 async function fetchOpponentPlan() {
   // Synchronous fallback first, so the sim always has a plan even if the call is slow.
@@ -1082,15 +1103,16 @@ async function fetchOpponentPlan() {
 
   const data = await callCoachAPI('opponent');
   const plan = data && data.opponent ? data.opponent : null;
-  if (plan && plan.counterFormation && plan.counterDials) {
+  if (isValidOpponentPlan(plan)) {
     plan.scripted = false;
     state.opponentPlan = plan;
     const oppName = (typeof OPPONENT_PROFILES !== 'undefined' && OPPONENT_PROFILES[state.opponent])
       ? OPPONENT_PROFILES[state.opponent].name : state.opponent;
     pushCoachMessage(
       `🧠 <strong>[상대 감독 AI 스카우트: ${oppName}]</strong><br>` +
-      `맞불 포메이션 <strong>${plan.counterFormation}</strong> · 성향 ${plan.counterDials.mentality || '?'} / 압박 ${plan.counterDials.press || '?'}<br>` +
-      `“${plan.reasoning || '한국의 약점을 겨냥합니다.'}”`,
+      `맞불 포메이션 <strong>${plan.counterFormation}</strong> · 성향 ${plan.counterDials.mentality} / 압박 ${plan.counterDials.press}<br>` +
+      // reasoning is free-form LLM text: escape it like the chat path does.
+      `“${coachTextToHtml(plan.reasoning || '한국의 약점을 겨냥합니다.')}”`,
       true
     );
   }

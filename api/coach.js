@@ -65,19 +65,19 @@ const OPPONENT_SCHEMA = {
 const PERSONA =
   '너는 대한민국 축구 대표팀의 AI 수석 코치 "Coach V"다. ' +
   '2026 북중미 월드컵을 배경으로, 한국어로 간결하고 전술적으로 조언한다. ' +
-  '핵심 화두는 무의미한 백패스를 줄인 전진 빌드업과 측면 수비 밸런스다. ' +
+  '핵심 화두는 U자형 후방 빌드업 탈피와 측면 수비 밸런스다. ' +
   '실제 스탯과 보드 상태에 근거해 말하고, 근거 없는 과장은 피한다.';
 
 // Korean output-style rules. gpt-oss-120b otherwise leaks English soccer
-// jargon ("half-space", "lock mentality") and special hyphens (U+2011);
-// these rules force plain Hangul terms and short native sentences.
+// jargon ("half-space", "lock mentality") and translationese. Examples are
+// Hangul-only (no English tokens to echo) and spelled exactly like the app
+// UI labels. Length stays with each mode's depth instruction, not here.
 const STYLE =
   '표현 규칙(반드시 지킬 것): ' +
-  '모든 축구 용어를 한글로만 쓴다. 예: half-space는 "하프 스페이스", ' +
-  'build-up은 "빌드업", ten-back은 "텐백", press는 "압박". ' +
-  '영어 알파벳 단어나 괄호 원어 병기를 절대 쓰지 않는다. ' +
-  '특수 하이픈이나 이모지 등 특수문자를 쓰지 않고 보통 문장부호만 쓴다. ' +
-  '번역투를 피하고 자연스러운 구어체 단문으로 짧게 말한다.';
+  '축구 용어는 하프스페이스, 텐백, 빌드업, 압박처럼 자연스러운 한글 표기만 쓴다. ' +
+  '영어 단어와 괄호 원어 병기를 쓰지 않는다. U자형, PK처럼 굳어진 표기는 예외다. ' +
+  '이모지나 특수 하이픈 없이 보통 문장부호만 쓴다. ' +
+  '번역투를 피하고 자연스러운 구어체로 말한다.';
 
 function summarizeState(state) {
   const s = state && typeof state === 'object' ? state : {};
@@ -100,8 +100,10 @@ function buildSystem(mode, state) {
   if (mode === 'opponent') {
     return (
       '너는 대한민국의 상대팀 감독이다. 아래 한국 대표팀 셋업의 약점을 공략하는 카운터 전술을 결정하라.\n' +
-      '주어진 JSON 스키마에 정확히 맞춰 응답하라. counterFormation과 각 counterDials 값은 반드시 허용된 옵션 중에서 고른다.\n' +
-      'reasoning 필드는 한국어로 쓴다. ' + STYLE + '\n\n' +
+      '주어진 JSON 스키마에 정확히 맞춰 응답하라. counterFormation과 각 counterDials 값은 반드시 허용된 옵션의 영어 코드 그대로 쓴다.\n' +
+      // Do NOT inject the full STYLE here: its no-English rule would fight the
+      // English enum values the schema requires. Scope it to reasoning only.
+      'reasoning 필드만 자연스러운 한국어로 쓴다. 축구 용어는 하프스페이스, 텐백처럼 한글로 표기하고, 이모지나 특수문자 없이 짧은 단문으로 쓴다.\n\n' +
       '=== 한국 대표팀 현재 셋업 ===\n' + board
     );
   }
@@ -282,9 +284,14 @@ module.exports = async function handler(req, res) {
     return;
   }
 
+  // Deterministic cleanup the prompt rules can only encourage: normalize
+  // exotic hyphens/minus (U+2010..U+2015, U+2212) the model still emits.
+  const hyphens = new RegExp('[\\u2010-\\u2015\\u2212]', 'g');
+  const text = out.text.replace(hyphens, '-');
+
   if (isOpponent) {
-    res.status(200).json({ reply: out.text, opponent: extractJson(out.text), model: out.model, fallback: false });
+    res.status(200).json({ reply: text, opponent: extractJson(text), model: out.model, fallback: false });
   } else {
-    res.status(200).json({ reply: out.text, model: out.model, fallback: false });
+    res.status(200).json({ reply: text, model: out.model, fallback: false });
   }
 };
