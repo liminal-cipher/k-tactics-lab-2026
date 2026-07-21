@@ -364,17 +364,14 @@ function checkBizarrePositioning(p1, p2) {
   if (strikerInBack) {
     const spot = strikerInBack.pos === 'GK' ? '골문' : '최후방 수비';
     pushCoachMessage(`🚨 <strong>[AI 코치 비상 경보] 감독님 제정신이십니까?!</strong><br>월드클래스 공격수 <strong>${strikerInBack.name} 선수를 ${spot}(${strikerInBack.pos})에 박아두다니...</strong> 축구 역사상 전례가 없는 역대급 기행입니다! 팬들이 복장 터져서 쓰러집니다!!`, true);
-    state.squadSynergyBonus = -25;
     triggerScreenShake();
     pushChatComment(`${strikerInBack.name}을 왜 수비에 둬?! 감독 제정신이냐 당장 경질해라!!`, 'hater');
   } else if (keeperUpFront) {
     pushCoachMessage(`🚨 <strong>[AI 코치 파멸 경보] ${keeperUpFront.name} 골키퍼가 최전방 스트라이커(${keeperUpFront.pos})?!</strong><br>골문은 누가 지키나요?! 이건 예능 축구도 아니고 파멸 그 자체입니다!! 매 경기 10실점 확정입니다!!`, true);
-    state.squadSynergyBonus = -30;
     triggerScreenShake();
     pushChatComment('골키퍼를 공격수로 쓰네 ㅋㅋㅋ 골문 텅텅 비었다 패망각 ㅋㅋㅋ', 'hater');
   } else {
     pushCoachMessage(`🔄 <strong>선수 교체/배치 완료!</strong><br><strong>${p1.name}</strong> ↔ <strong>${p2.name}</strong> 위치가 변경되었습니다. 선수들의 조직력이 새롭게 가동됩니다!`, false);
-    state.squadSynergyBonus = Math.min(12, (state.squadSynergyBonus || 0) + 1);
     pushChatComment(`오 ${p1.name} 투입했네? 이번 교체 카드는 잘 통할 것 같음!`, 'vip');
   }
   
@@ -427,8 +424,7 @@ function selectPlayerRole(player, newRole) {
   renderBench();
   
   pushCoachMessage(`⚙️ <strong>${player.name}</strong> 전술 임무 변경:<br>"<strong>${newRole}</strong>" 임무를 부여받았습니다! 선수가 경기장에서 더 적극적인 롤을 수행합니다!`, false);
-  
-  state.squadSynergyBonus = Math.min(12, (state.squadSynergyBonus || 0) + 1);
+
   recalculateVibe();
   updateStats();
 }
@@ -691,19 +687,20 @@ function recalculateVibe() {
   else if (state.currentFormation === '4-3-3') baseScore += 5;    // Attacking classic
   else if (state.currentFormation === '4-4-2') baseScore -= 2;    // Rigid/classic
   
-  // 2. Tactical Dials Impact (Entertainment vs Pragmatism Trade-offs)
-  if (state.dials.tempo === 'direct') baseScore += 4;             // Fast & thrilling (+4)
-  else if (state.dials.tempo === 'build') baseScore -= 3;          // Slow build-up (-3)
-  
-  if (state.dials.route === 'nopassback') baseScore += 8;         // Aggressive forward passing (+8)
-  else if (state.dials.route === 'halfspace') baseScore += 4;     // Smart tactical (+4)
-  else if (state.dials.route === 'kangin') baseScore += 5;        // Star player focus (+5)
-  
-  if (state.dials.press === 'high') baseScore += 6;               // High energy Gegenpressing (+6)
-  else if (state.dials.press === 'tenback') baseScore -= 12;      // Boring 2-tier bus (-12!)
-  
-  if (state.dials.mentality === 'attack') baseScore += 7;         // All-out attack (+7)
-  else if (state.dials.mentality === 'lock') baseScore -= 10;     // Time-wasting / bus locking (-10!)
+  // 2. Tactical Dials Impact — each category spans a negative AND a positive so
+  //    the public reacts in both directions (no more "everything nudges it up").
+  if (state.dials.tempo === 'direct') baseScore += 5;            // thrilling pace (+5)
+  else if (state.dials.tempo === 'build') baseScore -= 4;        // slow U-shape buildup (-4)
+
+  if (state.dials.route === 'nopassback') baseScore += 8;        // the signature "사이다" fix (+8)
+  else if (state.dials.route === 'halfspace') baseScore += 3;    // smart, quietly liked (+3)
+  else if (state.dials.route === 'kangin') baseScore -= 2;       // "해줘축구" star-reliance the traumatized public distrusts (-2)
+
+  if (state.dials.press === 'high') baseScore += 6;              // energetic gegenpress (+6)
+  else if (state.dials.press === 'tenback') baseScore -= 12;     // boring 2-tier bus (-12)
+
+  if (state.dials.mentality === 'attack') baseScore += 7;        // brave all-out (+7)
+  else if (state.dials.mentality === 'lock') baseScore -= 10;    // time-wasting bus (-10)
   
   // 3. Counter-Matchup Synergy / Penalty (Against state.opponent)
   let matchupDelta = 0;
@@ -719,16 +716,21 @@ function recalculateVibe() {
     if (state.currentFormation === '3-5-2' || state.dials.press === 'region') matchupDelta += 5;
   }
   
-  // 4. Squad Synergy Bonus
-  const synergy = (state.squadSynergyBonus || 0);
+  // 4. Lineup integrity — computed LIVE from the current board (not accumulated),
+  //    so fixing a bizarre placement instantly clears its penalty. Vibe is now a
+  //    pure function of state: the same setup always yields the same score.
+  const pitch = squadData[state.currentFormation] || [];
+  let placementPenalty = 0;
+  if (pitch.some(p => p.type === 'gk' && ATTACK_POS.includes(p.pos))) placementPenalty -= 30;
+  if (pitch.some(p => p.type === 'att' && BACKLINE_POS.includes(p.pos))) placementPenalty -= 25;
 
   // 5. Controversy: benching the captain re-enacts the real 2026 RSA-match flashpoint.
-  const sonBenched = !(squadData[state.currentFormation] || []).some(p => p.name === '손흥민');
+  const sonBenched = !pitch.some(p => p.name === '손흥민');
   const controversyDelta = sonBenched ? -18 : 0;
 
   // Final calculation
-  let finalScore = baseScore + matchupDelta + synergy + controversyDelta;
-  
+  const finalScore = baseScore + matchupDelta + placementPenalty + controversyDelta;
+
   // Clamp between 15 and 98
   state.vibeScore = Math.min(98, Math.max(15, Math.round(finalScore)));
   updateVibeMeter();
@@ -834,6 +836,9 @@ function activeFanTags() {
   const d = state.dials || {};
   if (d.route === 'nopassback') tags.push('nopassback');
   if (d.route === 'kangin') tags.push('kangin');
+  if (d.route === 'halfspace') tags.push('halfspace');
+  if (d.tempo === 'direct') tags.push('directTempo');
+  if (d.tempo === 'build') tags.push('buildTempo');
   if (d.press === 'high') tags.push('highPress');
   if (d.press === 'tenback') tags.push('tenback');
   if (d.mentality === 'attack') tags.push('attackMentality');
@@ -856,6 +861,10 @@ function activeFanTags() {
   return tags;
 }
 
+// Remember the last few lines shown so the stream never repeats back-to-back.
+const recentFanTexts = [];
+const RECENT_FAN_WINDOW = 3;
+
 // Pick a comment conditioned on the current state (offline bank, $0 runtime).
 // Falls back to the legacy static pool if the bank asset is missing.
 function pickFanComment() {
@@ -873,7 +882,13 @@ function pickFanComment() {
   } else {
     pool = bank.filter(c => c.tags.includes('general') || c.tags.some(t => active.has(t)));
   }
-  const chosen = pool[Math.floor(Math.random() * pool.length)] || bank[0];
+  if (!pool.length) pool = bank;
+  // Never show a line that's in the last few picks, so consecutive comments differ.
+  let fresh = pool.filter(c => !recentFanTexts.includes(c.text));
+  if (!fresh.length) fresh = pool; // pool smaller than the window: allow reuse
+  const chosen = fresh[Math.floor(Math.random() * fresh.length)] || bank[0];
+  recentFanTexts.push(chosen.text);
+  if (recentFanTexts.length > RECENT_FAN_WINDOW) recentFanTexts.shift();
   return { text: chosen.text, type: chosen.type };
 }
 
