@@ -294,7 +294,9 @@ module.exports = async function handler(req, res) {
   });
 
   if (!out.ok) {
-    res.status(502).json({ error: out.status || 'upstream', detail: out.detail, fallback: true });
+    // Client only needs to know it should use the scripted fallback; the raw
+    // upstream detail was diagnostic-only and is intentionally not exposed.
+    res.status(502).json({ error: out.status || 'upstream', fallback: true });
     return;
   }
 
