@@ -43,7 +43,7 @@
 | **Typography** | `Google Fonts API` | `Outfit`, `Plus Jakarta Sans`, `Noto Sans KR` 3종 폰트를 CDN으로 로딩하여, 영문·숫자 스탯의 가독성과 한글 렌더링 최적화 |
 | **State & Interaction** | `Native JS State & HTML5 Drag/Touch APIs` | 외부 상태 관리 라이브러리 없이 전역 반응형 State 객체와 HTML5 `dataTransfer` 드래그 앤 드롭 + 모바일 클릭 맞교환(Click-to-Swap) 이원화 구현 |
 | **Simulation Engine** | `로컬 Poisson 몬테카를로 (LLM 미사용)` | 공식 20인 FBref 스탯(`data/squad_stats_2026.js`)에서 λ를 유도해 브라우저 단에서 **1,000회 Poisson 몬테카를로**로 승/무/패 확률분포를 연산. 결정론적·검증가능·$0 |
-| **AI Layer** | `멀티 프로바이더 LLM 체인 (서버리스 프록시)` | Coach V 채팅·사전분석·AI 상대감독을 Vercel 서버리스 함수(`api/coach.js`)로 호출. `callLLM()` 체인이 Gemini 2.5 Flash-Lite → Groq `gpt-oss-120b` 순으로 시도하고 전부 실패 시 스크립트 폴백. API 키는 서버에 은닉되어 심사자는 키 없이 사용, 무료 티어라 비용 ≈ $0 |
+| **AI Layer** | `멀티 프로바이더 LLM 체인 (서버리스 프록시)` | Coach V 채팅·사전분석·AI 상대감독을 Vercel 서버리스 함수(`api/coach.js`)로 호출. `callLLM()` 체인이 Groq `gpt-oss-120b` → Gemini 2.5 Flash-Lite 순으로 시도하고 전부 실패 시 스크립트 폴백. API 키는 서버에 은닉되어 심사자는 키 없이 사용, 무료 티어라 비용 ≈ $0 |
 | **Image Export & Share** | `html2canvas v1.4.1 + Web Share API` | 최종 명함 카드를 2배수 고화질 PNG로 캡처하고, 네이티브 공유·클립보드·'도전 링크(URL 인코딩)'로 바이럴 유도 |
 | **Hosting & Deploy** | `Vercel (Static + Serverless Functions)` | 정적 자산은 CDN, AI만 서버리스 함수로. 별도 인프라 관리 없이 무료 티어로 **운영 비용 ≈ $0**. `file://` 오프라인 폴백 보장 |
 
@@ -95,7 +95,7 @@ k-tactics-lab/
 ├── index.css        # 글래스모피즘 디자인 시스템, 반응형 레이아웃, Keyframe 애니메이션
 ├── app.js           # 전술 엔진, 로컬 몬테카를로 시뮬, Coach V/AI 상대감독 클라이언트, Vibe, 락커룸
 ├── api/
-│   └── coach.js     # Vercel 서버리스 프록시 (LLM 체인 Gemini→Groq, 키 은닉, chat/analysis/opponent)
+│   └── coach.js     # Vercel 서버리스 프록시 (LLM 체인 Groq→Gemini, 키 은닉, chat/analysis/opponent)
 ├── data/
 │   ├── squad_stats_2026.js  # 2026 WC 출전 공식 20인 FBref 파생 스탯
 │   └── fan_comments_2026.js # 상태 태깅 여론 댓글 뱅크 (오프라인 생성 자산, 런타임 $0)
