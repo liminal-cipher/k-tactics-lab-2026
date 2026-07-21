@@ -79,6 +79,20 @@ const STYLE =
   '이모지나 특수 하이픈 없이 보통 문장부호만 쓴다. ' +
   '번역투를 피하고 자연스러운 구어체로 말한다.';
 
+// Korean display names for dial codes, copied from the index.html buttons.
+// The board summary uses these so the model quotes UI vocabulary instead of
+// echoing raw codes like "direct" into Korean replies.
+const DIAL_KO = {
+  tempo: { build: '지공 빌드업', standard: '표준 템포', direct: '다이렉트 역습' },
+  route: { halfspace: '하프스페이스', nopassback: 'U자 백패스 금지', kangin: '이강인 프리롤' },
+  press: { tenback: '텐백 저지선', region: '중원 지역방어', high: '게겐프레싱' },
+  mentality: { lock: '잠그기', balance: '균형', attack: '닥공' },
+};
+
+function dialKo(group, value) {
+  return (DIAL_KO[group] && DIAL_KO[group][value]) || value || '?';
+}
+
 function summarizeState(state) {
   const s = state && typeof state === 'object' ? state : {};
   const stats = s.stats && typeof s.stats === 'object' ? s.stats : {};
@@ -89,7 +103,7 @@ function summarizeState(state) {
     `상대: ${s.opponentName || s.opponent || '미상'}${s.opponentStyle ? ` (${s.opponentStyle})` : ''}`,
     s.opponentBriefing ? `상대 브리핑: ${String(s.opponentBriefing).slice(0, 400)}` : '',
     `팀 지표: 공격 ${stats.attack ?? '?'} / 중원 ${stats.midfield ?? '?'} / 수비 ${stats.defense ?? '?'} / 체력 ${stats.stamina ?? '?'}`,
-    `전술 다이얼: 템포 ${dials.tempo || '?'}, 루트 ${dials.route || '?'}, 압박 ${dials.press || '?'}, 성향 ${dials.mentality || '?'}`,
+    `전술 다이얼: 템포 ${dialKo('tempo', dials.tempo)}, 루트 ${dialKo('route', dials.route)}, 압박 ${dialKo('press', dials.press)}, 성향 ${dialKo('mentality', dials.mentality)}`,
     lineup.length ? `선발 XI: ${lineup.join(', ')}` : '',
     typeof s.vibeScore === 'number' ? `팬 여론(지지율): ${s.vibeScore}%` : '',
   ].filter(Boolean).join('\n');
