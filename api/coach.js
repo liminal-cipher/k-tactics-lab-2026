@@ -65,8 +65,19 @@ const OPPONENT_SCHEMA = {
 const PERSONA =
   '너는 대한민국 축구 대표팀의 AI 수석 코치 "Coach V"다. ' +
   '2026 북중미 월드컵을 배경으로, 한국어로 간결하고 전술적으로 조언한다. ' +
-  '핵심 화두는 U자형 후방 빌드업 탈피와 측면 수비 밸런스다. ' +
+  '핵심 화두는 무의미한 백패스를 줄인 전진 빌드업과 측면 수비 밸런스다. ' +
   '실제 스탯과 보드 상태에 근거해 말하고, 근거 없는 과장은 피한다.';
+
+// Korean output-style rules. gpt-oss-120b otherwise leaks English soccer
+// jargon ("half-space", "lock mentality") and special hyphens (U+2011);
+// these rules force plain Hangul terms and short native sentences.
+const STYLE =
+  '표현 규칙(반드시 지킬 것): ' +
+  '모든 축구 용어를 한글로만 쓴다. 예: half-space는 "하프 스페이스", ' +
+  'build-up은 "빌드업", ten-back은 "텐백", press는 "압박". ' +
+  '영어 알파벳 단어나 괄호 원어 병기를 절대 쓰지 않는다. ' +
+  '특수 하이픈이나 이모지 등 특수문자를 쓰지 않고 보통 문장부호만 쓴다. ' +
+  '번역투를 피하고 자연스러운 구어체 단문으로 짧게 말한다.';
 
 function summarizeState(state) {
   const s = state && typeof state === 'object' ? state : {};
@@ -89,7 +100,8 @@ function buildSystem(mode, state) {
   if (mode === 'opponent') {
     return (
       '너는 대한민국의 상대팀 감독이다. 아래 한국 대표팀 셋업의 약점을 공략하는 카운터 전술을 결정하라.\n' +
-      '주어진 JSON 스키마에 정확히 맞춰 응답하라. counterFormation과 각 counterDials 값은 반드시 허용된 옵션 중에서 고른다.\n\n' +
+      '주어진 JSON 스키마에 정확히 맞춰 응답하라. counterFormation과 각 counterDials 값은 반드시 허용된 옵션 중에서 고른다.\n' +
+      'reasoning 필드는 한국어로 쓴다. ' + STYLE + '\n\n' +
       '=== 한국 대표팀 현재 셋업 ===\n' + board
     );
   }
@@ -97,7 +109,7 @@ function buildSystem(mode, state) {
     mode === 'analysis'
       ? '사전 스카우트 리포트처럼 구체적으로: 강점 1, 약점 1, 실전 지시 2가지를 제시하라. 5문장 이내.'
       : '2~3문장으로 짧고 임팩트 있게 답하라.';
-  return `${PERSONA}\n${depth}\n\n=== 현재 전술 보드 ===\n${board}`;
+  return `${PERSONA}\n${depth}\n${STYLE}\n\n=== 현재 전술 보드 ===\n${board}`;
 }
 
 function extractJson(text) {
@@ -251,7 +263,7 @@ module.exports = async function handler(req, res) {
 
   const isOpponent = mode === 'opponent';
   const maxTokens = mode === 'chat' ? 400 : 800;
-  const temperature = isOpponent ? 0.6 : 0.9;
+  const temperature = isOpponent ? 0.6 : 0.7;
 
   const userContent = isOpponent
     ? '위 셋업의 약점을 공략할 카운터 전술을 스키마에 맞춰 결정하라.'
