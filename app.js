@@ -350,18 +350,25 @@ function handlePlayerSwap(sourcePlayer, targetPlayer, sourceOrigin, targetOrigin
 }
 
 // --- Witty AI Coach Warning Logic ---
+// Position sets used to detect a bizarre placement regardless of who is moved.
+const BACKLINE_POS = ['GK', 'CB', 'LB', 'RB', 'LCB', 'RCB', 'LWB', 'RWB'];
+const ATTACK_POS = ['ST', 'LW', 'RW', 'LS', 'RS', 'CAM', 'LAM', 'RAM'];
+
 function checkBizarrePositioning(p1, p2) {
-  const pitchList = squadData[state.currentFormation];
-  const son = pitchList.find(x => x.name === '손흥민');
-  const hyunwoo = pitchList.find(x => x.name === '조현우');
-  
-  if (son && ['CB', 'LB', 'RB', 'LCB', 'RCB', 'GK'].includes(son.pos)) {
-    pushCoachMessage(`🚨 <strong>[AI 코치 비상 경보] 감독님 제정신이십니까?!</strong><br>월드클래스 공격수 <strong>손흥민 선수를 최후방 수비/골키퍼에 박아두다니...</strong> 축구 역사상 전례가 없는 역대급 기행입니다! 팬들이 복장 터져서 쓰러집니다!!`, true);
+  const pitchList = squadData[state.currentFormation] || [];
+  // Compare intrinsic role (type) against the slot (pos), not hardcoded names,
+  // so any striker parked on the back line / any keeper pushed up is caught.
+  const strikerInBack = pitchList.find(x => x.type === 'att' && BACKLINE_POS.includes(x.pos));
+  const keeperUpFront = pitchList.find(x => x.type === 'gk' && ATTACK_POS.includes(x.pos));
+
+  if (strikerInBack) {
+    const spot = strikerInBack.pos === 'GK' ? '골문' : '최후방 수비';
+    pushCoachMessage(`🚨 <strong>[AI 코치 비상 경보] 감독님 제정신이십니까?!</strong><br>월드클래스 공격수 <strong>${strikerInBack.name} 선수를 ${spot}(${strikerInBack.pos})에 박아두다니...</strong> 축구 역사상 전례가 없는 역대급 기행입니다! 팬들이 복장 터져서 쓰러집니다!!`, true);
     state.squadSynergyBonus = -25;
     triggerScreenShake();
-    pushChatComment('손흥민을 왜 수비에 둬?! 감독 제정신이냐 당장 경질해라!!', 'hater');
-  } else if (hyunwoo && ['ST', 'LW', 'RW', 'LS', 'RS', 'CAM'].includes(hyunwoo.pos)) {
-    pushCoachMessage(`🚨 <strong>[AI 코치 파멸 경보] 빛현우 골키퍼가 최전방 스트라이커?!</strong><br>골문은 누가 지키나요?! 이건 예능 축구도 아니고 파멸 그 자체입니다!! 매 경기 10실점 확정입니다!!`, true);
+    pushChatComment(`${strikerInBack.name}을 왜 수비에 둬?! 감독 제정신이냐 당장 경질해라!!`, 'hater');
+  } else if (keeperUpFront) {
+    pushCoachMessage(`🚨 <strong>[AI 코치 파멸 경보] ${keeperUpFront.name} 골키퍼가 최전방 스트라이커(${keeperUpFront.pos})?!</strong><br>골문은 누가 지키나요?! 이건 예능 축구도 아니고 파멸 그 자체입니다!! 매 경기 10실점 확정입니다!!`, true);
     state.squadSynergyBonus = -30;
     triggerScreenShake();
     pushChatComment('골키퍼를 공격수로 쓰네 ㅋㅋㅋ 골문 텅텅 비었다 패망각 ㅋㅋㅋ', 'hater');
