@@ -638,7 +638,7 @@ function setTacticalDial(category, val) {
     if (val === 'direct') pushCoachMessage(`⚡ <strong>[템포 변경: 다이렉트 고속 역습]</strong><br>전방으로 빠른 수직 패스를 투입합니다! 체력 소모가 다소 크지만 상대 수비 뒷공간을 단숨에 찢을 수 있습니다.`);
     else if (val === 'build') pushCoachMessage(`🐢 <strong>[템포 변경: 지공 세밀 빌드업]</strong><br>중원에서 점유율을 쥐고 차근차근 상대 수비를 흔듭니다. 패스 성공률과 중원 장악 지수가 상승합니다.`);
   } else if (category === 'route') {
-    if (val === 'halfspace') pushCoachMessage(`🎯 <strong>[공격 루트: 하프스페이스 침투]</strong><br>상대 풀백과 센터백 사이의 하프스페이스 틈새를 집중 타격합니다. xG 기대 득점치가 극대화됩니다!`);
+    if (val === 'halfspace') pushCoachMessage(`🎯 <strong>[공격 루트: 하프스페이스 침투]</strong><br>상대 풀백과 센터백 사이의 하프스페이스 틈새를 집중 타격합니다. 결정적 슈팅 기회가 극대화됩니다!`);
     else if (val === 'nopassback') pushCoachMessage(`🚫 <strong>[공격 루트: U자 백패스 전면 금지]</strong><br>후방 횡패스를 엄격히 제한하고 무조건 전방으로 전진 패스만 허용합니다! 팬 여론이 대폭 상승합니다!`, false);
   } else if (category === 'press') {
     if (val === 'high') pushCoachMessage(`🔥 <strong>[압박 강도: 초고강도 게겐프레싱]</strong><br>전방에서 공을 빼앗기자마자 5초 내에 다시 에워쌉니다! 강력한 수비 지수를 얻지만 후반전 체력 급감에 주의하세요!`, true);
@@ -995,7 +995,7 @@ function bookSubAction(timing) {
 }
 
 // ==========================================================================
-// Real match model: Poisson/xG Monte Carlo (100% local, no LLM).
+// Real match model: Poisson Monte Carlo on team-derived goal rates (local, no LLM).
 // Second-half goals ~ Poisson(lambda); lambda derived from team stats, dials,
 // post-drain stamina, executed subs, and opponent strength. Aggregated over N runs.
 // ==========================================================================
