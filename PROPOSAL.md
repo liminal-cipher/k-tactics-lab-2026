@@ -10,9 +10,9 @@
 ### 1.1 기획 배경 및 문제 정의 (언론 및 전술 분석 데이터 기반)
 2026년 국제축구연맹(FIFA) 북중미 월드컵 본선 무대를 치르며, 대한민국 축구 국가대표팀의 경기력과 전술에 대한 국민적 관심과 열기가 고조되고 있습니다. 그러나 실전 본선 무대 및 최근 국제 대회 과정에서 국내외 축구 전문 언론(조선일보, 동아일보, 머니투데이, 경기일보 등)과 전술 분석가들 사이에서는 다음과 같은 **3대 핵심 전술적 쟁점(Tactical Dilemmas)** 이 반복적으로 지적되었습니다.
 
-1. **단조로운 빌드업 패턴 (U자형 빌드업 논란):** 공격 전개 시 중앙 지역을 통과하는 전진 패스나 탈압박 시도 대신, 센터백, 수비형 미드필더, 좌우 풀백 사이에서만 공을 돌리는 형태. 이로 인해 경로가 알파벳 'U'자를 그리며 중앙 공격이 실종되고 횡패스와 백패스만 반복되는 '빌드다운(Build-down)' 현상이 발생합니다 ([Dong-A Ilbo, 2026a](https://www.donga.com/news/Sports/article/all/20260618/125890214/1); [Kyeonggi Ilbo, 2026](https://www.kyeonggi.com/article/20260620580031)).
-2. **측면 수비(풀백/윙백) 밸런스 불안:** 스리백 및 풀백 운용 과정에서 공격 가담 시 발생한 뒷공간을 신속히 커버하지 못해 상대(남아공, 멕시코 등)의 집중 공략 대상이 되며, '자동문 수비'라는 비판을 받았습니다 ([Chosun Ilbo, 2026](https://www.chosun.com/sports/football/2026/06/21/W6TKP9L8H2X9M0L/); [Yonhap News Agency, 2026a](https://www.yna.co.kr/view/AKR20260614102900007)).
-3. **스타 선수 개인 기량 의존 ('해줘 축구' 논란):** 체계적인 팀 전술과 플랜 B의 부재로 인해 후반전 체력 저하 시 손흥민, 이강인 등 특정 주전 스타 선수의 개인 역량에 과도하게 의존하며, 상대가 이들을 집중 견제할 경우 득점 빈곤에 빠지는 구조적 한계가 드러났습니다 ([Yonhap News Agency, 2026b](https://www.yna.co.kr/view/AKR20260625089100007); [Dong-A Ilbo, 2026b](https://www.donga.com/news/Sports/article/all/20260626/125910488/1)).
+1. **단조로운 빌드업 패턴 (U자형 빌드업 논란):** 공격 전개 시 중앙 지역을 통과하는 전진 패스나 탈압박 시도 대신, 센터백, 수비형 미드필더, 좌우 풀백 사이에서만 공을 돌리는 형태. 이로 인해 경로가 알파벳 'U'자를 그리며 중앙 공격이 실종되고 무의미한 면피용 백패스만 반복되는 졸전이 발생했습니다 ([Yonhap News Agency, 2026a](https://www.yna.co.kr/view/AKR20260625159400546); [Hankook Ilbo, 2026](https://www.hankookilbo.com/news/article/A2026062608010004313)).
+2. **측면 수비(풀백/윙백) 밸런스 불안:** 스리백 및 풀백 운용 과정에서 공격 가담 시 발생한 뒷공간을 신속히 커버하지 못해 상대(남아공 등) 풀백의 적극적인 오버래핑에 휘둘리며 집중 공략 대상이 되었습니다 ([Yonhap News Agency, 2026b](https://www.yna.co.kr/view/AKR20260625090500007); [Financial News, 2026](https://www.fnnews.com/news/202606251312188929)).
+3. **스타 선수 개인 기량 의존 ('해줘 축구' 논란):** 체계적인 팀 전술과 플랜 B 조커 부재로 인해 손흥민 등 스타 선수에게 의존하다, 정작 중요한 경기에서 이들을 벤치로 내린 변칙 전술마저 실패하며 남아공에 0-1 완패를 당하는 무기력함을 노출했습니다 ([MBC, 2026](https://imnews.imbc.com/news/2026/sports/article/6832790_36946.html); [Kyeonggi Ilbo, 2026](https://www.kyeonggi.com/article/20260626580030)).
 
 
 기존의 축구 미디어 및 커뮤니티 환경에서는 일방적인 관람과 텍스트 기반의 비평만이 이루어졌으며, 전문 전술 시뮬레이션 게임(Football Manager 등)은 일반 대중이 접근하기에 높은 진입장벽과 복잡성을 지니고 있습니다. 이에 본 서비스는 **실제 언론 보도와 전술 분석을 통해 검증된 3대 쟁점** 을 일반 대중이 직관적인 인터랙션을 통해 직접 해결해 보고 그 인과관계를 체감할 수 있도록 기획되었습니다.
@@ -230,16 +230,16 @@ Coach V 채팅·사전 분석과 AI 상대 감독의 카운터 전술 결정만 
 본 서비스의 핵심 과제 도출 및 전술 밸런스 설계는 다음의 국내외 언론 보도 및 축구 전술 분석 매체의 2026 북중미 월드컵 보도 데이터를 기초로 하여 검증 및 도출되었습니다. 본문 내 인용(In-text Citation)과 참고문헌은 모두 미국심리학회(APA 7th Edition) 인용 양식을 따르며, 하이퍼링크를 통해 실제 기사 원문을 바로 확인할 수 있습니다.
 
 1. **U자형 빌드업 및 단조로운 공격 전개 문제 (Build-up & Offensive Tactics Dilemma):**
-   * **([Dong-A Ilbo, 2026a](https://www.donga.com/news/Sports/article/all/20260618/125890214/1)):** Dong-A Ilbo. (2026, June 18). *[2026 북중미 월드컵 홍명보호, '가변 스리백' 고집과 단조로운 빌드업 전술의 한계](https://www.donga.com/news/Sports/article/all/20260618/125890214/1)*. 동아일보.
-   * **([Kyeonggi Ilbo, 2026](https://www.kyeonggi.com/article/20260620580031)):** Kyeonggi Ilbo. (2026, June 20). *[홍명보호 조별리그 2연패… 중원 삭제된 U자형 패스와 공격 전술 부재에 쏟아지는 팬 여론 비판](https://www.kyeonggi.com/article/20260620580031)*. 경기일보.
+   * **([Yonhap News Agency, 2026a](https://www.yna.co.kr/view/AKR20260625159400546)):** Yonhap News Agency. (2026, June 26). *[[Times] Hong Myung-bo's face-saving backpass, Korean football lost its 'roots'](https://www.yna.co.kr/view/AKR20260625159400546)*. Yonhap News Agency.
+   * **([Hankook Ilbo, 2026](https://www.hankookilbo.com/news/article/A2026062608010004313)):** Hankook Ilbo. (2026, June 26). *[Hong Myung-bo "Baffled by this performance" Coach also doesn't know the cause of the 'South Africa poor match'](https://www.hankookilbo.com/news/article/A2026062608010004313)*. Hankook Ilbo.
 
 2. **풀백(윙백) 수비 불안 및 자동문 밸런스 문제 (Defensive Balance & Fullback Vulnerability):**
-   * **([Chosun Ilbo, 2026](https://www.chosun.com/sports/football/2026/06/21/W6TKP9L8H2X9M0L/)):** Chosun Ilbo. (2026, June 21). *[전술적 유연성 잃은 스리백… 멕시코·남아공 공세에 속수무책 뚫린 풀백 수비 조직력](https://www.chosun.com/sports/football/2026/06/21/W6TKP9L8H2X9M0L/)*. 조선일보.
-   * **([Yonhap News Agency, 2026a](https://www.yna.co.kr/view/AKR20260614102900007)):** Yonhap News Agency. (2026, June 14). *[체코전 승리 이끈 가변형 스리백, 과연 남은 경기에서도 수비 뒷공간 노출 없이 통할까](https://www.yna.co.kr/view/AKR20260614102900007)*. 연합뉴스.
+   * **([Yonhap News Agency, 2026b](https://www.yna.co.kr/view/AKR20260625090500007)):** Yonhap News Agency. (2026, June 25). *[[World Cup] 'Dangerous to boost Africa's spirit' concern becomes reality... Defeat after a poor match](https://www.yna.co.kr/view/AKR20260625090500007)*. Yonhap News Agency.
+   * **([Financial News, 2026](https://www.fnnews.com/news/202606251312188929)):** Financial News. (2026, June 25). *["Too poor to be true" Hong Myung-bo's team, 0-1 crushing defeat to South Africa... Crisis of elimination [2026 World Cup]](https://www.fnnews.com/news/202606251312188929)*. Financial News.
 
 3. **스타 선수 의존도 심화 및 플랜 B 조커 부재 ('Stargazing' & Plan B Dilemma):**
-   * **([Yonhap News Agency, 2026b](https://www.yna.co.kr/view/AKR20260625089100007)):** Yonhap News Agency. (2026, June 25). *[손흥민·이강인 개인 기량에 의존한 '해줘 축구'의 결말… 플랜 B 조커 부재와 전술 경직성이 부른 참사](https://www.yna.co.kr/view/AKR20260625089100007)*. 연합뉴스.
-   * **([Dong-A Ilbo, 2026b](https://www.donga.com/news/Sports/article/all/20260626/125910488/1)):** Dong-A Ilbo. (2026, June 26). *[남아공전 0-1 충격패 탈락… 세밀한 전술 지휘 없는 스타 의존 축구와 감독 선택의 Trade-off](https://www.donga.com/news/Sports/article/all/20260626/125910488/1)*. 동아일보.
+   * **([MBC, 2026](https://imnews.imbc.com/news/2026/sports/article/6832790_36946.html)):** MBC. (2026, June 25). *[[Breaking] Hong Myung-bo's team loses 0-1 to South Africa, 3rd in group... 'Round of 32 unclear'](https://imnews.imbc.com/news/2026/sports/article/6832790_36946.html)*. MBC.
+   * **([Kyeonggi Ilbo, 2026](https://www.kyeonggi.com/article/20260626580030)):** Kyeonggi Ilbo. (2026, June 26). *[Hong Myung-bo "Defeat against South Africa is due to Monterrey heat" [2026 World Cup]](https://www.kyeonggi.com/article/20260626580030)*. Kyeonggi Ilbo.
 
 
 ---
