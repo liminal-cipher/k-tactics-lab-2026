@@ -117,7 +117,7 @@ function buildSystem(mode, state) {
       '주어진 JSON 스키마에 정확히 맞춰 응답하라. counterFormation과 각 counterDials 값은 반드시 허용된 옵션의 영어 코드 그대로 쓴다.\n' +
       // Do NOT inject the full STYLE here: its no-English rule would fight the
       // English enum values the schema requires. Scope it to reasoning only.
-      'reasoning 필드만 자연스러운 한국어로 쓴다. 축구 용어는 하프스페이스, 텐백처럼 한글로 표기하고, 이모지나 특수문자 없이 짧은 단문으로 쓴다.\n\n' +
+      'reasoning 필드만 자연스러운 한국어로 쓴다. 축구 용어는 하프스페이스, 텐백, 백패스 금지처럼 한글로 표기하고, JSON에 쓴 영어 코드를 문장에 그대로 옮기지 않는다. 이모지나 특수문자 없이 짧은 단문으로 쓴다.\n\n' +
       '=== 한국 대표팀 현재 셋업 ===\n' + board
     );
   }
