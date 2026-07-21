@@ -21,9 +21,9 @@
 
 2026 북중미 월드컵 본선 실전 무대를 치르며, 국내외 주요 축구 매체와 전문가들은 한국 축구를 향해 다음과 같은 **3대 고질적 전술 쟁점 (Tactical Dilemmas)** 을 집중적으로 보도했다.
 
-* **▲ U자형 빌드업 논란:** 중앙 침투 실종 및 의미 없는 횡·백패스 반복, 결국 남아공전 졸전으로 귀결 ([Yonhap News Agency, 2026a](https://www.yna.co.kr/view/AKR20260625159400546); [Hankook Ilbo, 2026](https://www.hankookilbo.com/news/article/A2026062608010004313))
-* **▲ 풀백 수비 자동문:** 상대 풀백의 적극적 공세에 뒷공간 노출 및 수비 조직력 붕괴 ([Yonhap News Agency, 2026b](https://www.yna.co.kr/view/AKR20260625090500007); [Financial News, 2026](https://www.fnnews.com/news/202606251312188929))
-* **▲ 해줘 축구(스타 의존):** 체계적 플랜 B 없이 개인 역량에 의존하다 완패, 무더위 핑계 등 총체적 난국 ([MBC, 2026](https://imnews.imbc.com/news/2026/sports/article/6832790_36946.html); [Kyeonggi Ilbo, 2026](https://www.kyeonggi.com/article/20260626580030))
+* **▲ U자형 빌드업 논란:** 중앙 침투 실종 및 의미 없는 횡·백패스 반복, 결국 남아공전 졸전으로 귀결 ([MBC, 2026a](https://imnews.imbc.com/replay/2026/nwdesk/article/6833724_37004.html); [Hankook Ilbo, 2026](https://www.hankookilbo.com/news/article/A2026062608010004313))
+* **▲ 풀백 수비 자동문:** 상대 풀백의 적극적 공세에 뒷공간 노출 및 수비 조직력 붕괴 ([Korea Daily, 2026](https://www.koreadaily.com/article/20260625003112534); [Financial News, 2026](https://www.fnnews.com/news/202606251312188929))
+* **▲ 해줘 축구(스타 의존):** 체계적 플랜 B 없이 개인 역량에 의존하다 완패, 무더위 핑계 등 총체적 난국 ([MBC, 2026b](https://imnews.imbc.com/news/2026/sports/article/6832790_36946.html); [Kyeonggi Ilbo, 2026](https://www.kyeonggi.com/article/20260626580030))
 
 
 그러나 이를 소비하는 미디어 생태계에는 명확한 공백이 존재한다.
