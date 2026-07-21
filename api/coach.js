@@ -7,8 +7,8 @@
    Provider layer: callLLM() tries providers in order and returns the first
    success. A provider without its env key is skipped, so deployment config
    alone decides the active backend:
-     1. Google Gemini Flash-Lite  (GEMINI_API_KEY)
-     2. Groq gpt-oss-120b         (GROQ_API_KEY)
+     1. Groq gpt-oss-120b         (GROQ_API_KEY)
+     2. Google Gemini Flash-Lite  (GEMINI_API_KEY)
    If every provider fails, the client falls back to scripted responses.
 
    POST /api/coach
@@ -241,7 +241,7 @@ async function callGroq({ system, user, maxTokens, temperature, schema }) {
 
 async function callLLM(req) {
   let lastFail = { ok: false, noKey: true, status: 'no-key' };
-  for (const provider of [callGemini, callGroq]) {
+  for (const provider of [callGroq, callGemini]) {
     const out = await provider(req);
     if (out.ok) return out;
     if (!out.noKey) lastFail = out; // keep the most informative failure
