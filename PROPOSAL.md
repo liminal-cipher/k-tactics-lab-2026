@@ -165,7 +165,7 @@ $$\text{Vibe} = \text{clip}\Big(55 + \Delta\text{Formation} + \sum\Delta\text{Di
 * **데이터 구조:** `{ text: '댓글내용', tags: ['nopassback', 'highPress', ...], type: 'normal' | 'vip' | 'hater' }`
 
 ### 5.6 AI 레이어: Coach V & AI 상대 감독 (멀티 프로바이더 LLM 체인)
-Coach V 채팅·사전 분석과 AI 상대 감독의 카운터 전술 결정만 실제 LLM을 사용하며, Vercel 서버리스 프록시(`api/coach.js`)가 API 키를 서버에 은닉합니다. `callLLM()` 체인은 **Google Gemini 2.5 Flash-Lite → Groq gpt-oss-120b** 순으로 시도하고, 키가 없는 프로바이더는 건너뛰며, 전부 실패하면 클라이언트가 스크립트 폴백으로 무중단 응답합니다. AI 상대 감독은 구조화 JSON(포메이션·4대 다이얼·근거)으로 응답하되, 클라이언트가 허용된 enum 값인지 검증(`isValidOpponentPlan`)한 뒤에만 시뮬레이션에 반영합니다. 상세 근거는 [`docs/AI_ENGINEERING.md`](docs/AI_ENGINEERING.md)에 정리되어 있습니다.
+Coach V 채팅·사전 분석과 AI 상대 감독의 카운터 전술 결정만 실제 LLM을 사용하며, Vercel 서버리스 프록시(`api/coach.js`)가 API 키를 서버에 은닉합니다. `callLLM()` 체인은 **Groq gpt-oss-120b → Google Gemini 2.5 Flash-Lite** 순으로 시도하고, 키가 없는 프로바이더는 건너뛰며, 전부 실패하면 클라이언트가 스크립트 폴백으로 무중단 응답합니다. AI 상대 감독은 구조화 JSON(포메이션·4대 다이얼·근거)으로 응답하되, 클라이언트가 허용된 enum 값인지 검증(`isValidOpponentPlan`)한 뒤에만 시뮬레이션에 반영합니다. 상세 근거는 [`docs/AI_ENGINEERING.md`](docs/AI_ENGINEERING.md)에 정리되어 있습니다.
 
 ---
 
