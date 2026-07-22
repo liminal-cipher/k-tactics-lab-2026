@@ -104,10 +104,12 @@ k-tactics-lab/
 │   └── fan_comments_2026.js # 상태 태깅 여론 댓글 뱅크 (오프라인 생성 자산, 런타임 $0)
 ├── scripts/
 │   ├── parse_stats.py        # FBref per-90 → 4대 능력치 변환 (오프라인)
-│   └── gen_fan_comments.py   # 여론 뱅크 생성기 (오프라인, 선택)
+│   ├── gen_fan_comments.py   # 여론 뱅크 생성기 (오프라인, 선택)
+│   └── validate_model.js     # 몬테카를로 엔진 검증 하니스 (보정·수렴, node로 재현)
 ├── docs/
 │   ├── AI_ENGINEERING.md     # 모델 선택·프롬프트·비용 아키텍처 근거
 │   ├── DATA_PIPELINE.md      # FBref 수집→정제→변환→검증 전 과정 (공식·워크드 예제·재현성 검증)
+│   ├── MODEL_SELECTION.md    # 경기 모델 선택 근거 + 해석적 정답 대비 검증·수렴 분석
 │   └── USER_GUIDE.md         # 플레이 방법 및 엔진 동작 원리 해설 (무엇이 실제 연산이고 무엇이 연출인지)
 ├── vercel.json      # 서버리스 함수 설정
 ├── .env.example     # GEMINI_API_KEY / GROQ_API_KEY 예시 (실제 키는 커밋 금지)

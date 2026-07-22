@@ -46,6 +46,8 @@
 
 ## 4. 경기 결과 모델 (로컬 Poisson 몬테카를로)
 
+> 모델 선택 근거(대안 비교), 해석적 정답 대비 보정 검증, N=1,000 수렴 분석은 [`MODEL_SELECTION.md`](MODEL_SELECTION.md)에 있다 (`node scripts/validate_model.js`로 재현 가능).
+
 `app.js`의 `secondHalfLambdas` / `poissonSample` / `runMonteCarlo`.
 
 - 후반전 양팀 득점을 **Poisson(λ)**에서 1,000회 샘플링해 하프타임 스코어에 더하고, 승/무/패 분포와 최빈 스코어를 집계한다.
