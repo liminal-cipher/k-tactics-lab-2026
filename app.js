@@ -777,6 +777,26 @@ function toggleCollapse(headBtn) {
   headBtn.setAttribute('aria-expanded', String(!collapsed));
 }
 
+// Right-rail tabs (bench / Coach V / fan chat). One pane at a time — this is why
+// the fan chat and the tactical console can no longer overlap.
+function switchRailTab(name) {
+  document.querySelectorAll('.rail-tab').forEach(b =>
+    b.classList.toggle('active', b.dataset.tab === name));
+  document.querySelectorAll('.rail-pane').forEach(p =>
+    p.classList.toggle('active', p.id === `rail-pane-${name}`));
+  if (typeof SFX !== 'undefined' && SFX.ui) SFX.ui();
+}
+
+// Force the opponent-coach chip open/closed (used around the live match so the
+// half-time controls inside it are never hidden behind the collapsed state).
+function setOppChip(open) {
+  const chip = document.getElementById('opp-coach-chip');
+  if (!chip) return;
+  chip.classList.toggle('collapsed', !open);
+  const head = chip.querySelector('.collapse-head');
+  if (head) head.setAttribute('aria-expanded', String(open));
+}
+
 function switchBottomTab(tabName) {
   const benchBox = document.getElementById('bench-container');
   const tacticsBox = document.getElementById('tactical-controls-console');
@@ -1063,6 +1083,7 @@ function runSimulation() {
     document.getElementById('btn-run-simulation').style.background = '';
     document.getElementById('match-phase-status').innerHTML = `<span>⚽ <strong style="color: var(--accent-cyan);">0' 경기 전 셋업</strong> (포메이션, 교체 및 전술 지침 설정 완료 후 전반 가동)</span>`;
     document.getElementById('match-phase-actions').innerHTML = '';
+    setOppChip(false); // collapse the chip back once the match is over
     renderPitch(state.currentFormation);
   }
 }
@@ -1075,6 +1096,7 @@ function runFirstHalf() {
   btn.disabled = true;
   btn.innerHTML = `<span>⏳ 전반전 (0~45분) AI 가동 중...</span>`;
   SFX.whistle();
+  setOppChip(true); // reveal the live status + half-time controls
 
   // AI opponent manager scouts our XI and picks counter-tactics (async, non-blocking).
   // Sets a scripted fallback synchronously so the sim always has a plan by 2nd half.
