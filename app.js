@@ -107,8 +107,35 @@ const benchPlayers = [
   { id: 'b6', name: '옌스 카스트로프', pos: 'SUB', avatar: '🔥', role: '다이내믹 압박', type: 'mid' },
   { id: 'b7', name: '김문환', pos: 'SUB', avatar: '🏃', role: '우측 오버래핑', type: 'def' },
   { id: 'b8', name: '이기혁', pos: 'SUB', avatar: '🛡️', role: '멀티 수비수', type: 'def' },
-  { id: 'b9', name: '박진섭', pos: 'SUB', avatar: '🧱', role: '수비 스크린', type: 'def' }
+  { id: 'b9', name: '박진섭', pos: 'SUB', avatar: '🧱', role: '수비형 센터백', type: 'def' }
 ];
+
+// Canonical bench role per player — ONE consistent archetype so the substitutes'
+// bench never mixes role nouns ("홀딩 미드필더") with action phrases ("초광속 침투")
+// or left/right tags that mean nothing for an unassigned reserve. Pitch cards keep
+// their formation-specific roles; this labels the bench only (see resyncBench).
+const BENCH_ROLE = {
+  '손흥민': '인사이드 포워드',
+  '오현규': '컴플리트 포워드',
+  '조규성': '타겟 스트라이커',
+  '이강인': '전천후 플레이메이커',
+  '황희찬': '돌파형 윙어',
+  '엄지성': '스피드 윙어',
+  '양현준': '측면 윙어',
+  '이재성': '박스 투 박스',
+  '황인범': '딥라잉 플레이메이커',
+  '백승호': '홀딩 미드필더',
+  '김진규': '전진형 미드필더',
+  '옌스 카스트로프': '다이내믹 미드필더',
+  '이태석': '오버래핑 풀백',
+  '설영우': '밸런스형 풀백',
+  '김문환': '측면 풀백',
+  '김민재': '중앙 수비수',
+  '이한범': '커버링 센터백',
+  '이기혁': '멀티 센터백',
+  '박진섭': '수비형 센터백',
+  '김승규': '안정형 수문장'
+};
 
 const roleOptions = {
   att: ['인사이드 포워드', '컴플리트 포워드', '라인 브레이커', '전천후 플레이메이커', '크랙 드리블러'],
@@ -273,7 +300,7 @@ function resyncBench() {
   const onPitch = new Set(currentLineupNames());
   const reserves = Object.values(buildMasterRoster())
     .filter(p => !onPitch.has(p.name))
-    .map(p => ({ id: p.id, name: p.name, pos: 'SUB', avatar: p.avatar, role: p.role, type: p.type }));
+    .map(p => ({ id: p.id, name: p.name, pos: 'SUB', avatar: p.avatar, role: BENCH_ROLE[p.name] || p.role, type: p.type }));
   benchPlayers.splice(0, benchPlayers.length, ...reserves);
 }
 
