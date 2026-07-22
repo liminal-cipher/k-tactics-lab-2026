@@ -448,6 +448,14 @@
             <span class="result-stat-value" id="res-val-joker" style="color: var(--accent-amber);">88점</span>
           </div>
         </div>
+
+        <!-- XAI: 승부 요인 TOP 3 (항상 표시) + λ 분해 상세 (접이식) -->
+        <div class="res-xai" id="res-xai" style="display: none;">
+          <div class="res-xai-head">⚡ 승부 요인 TOP 3 <em>(1,000회 시뮬 기대득점 기여도)</em></div>
+          <div class="res-xai-top3" id="res-xai-top3"></div>
+          <button type="button" class="res-xai-toggle" id="res-xai-toggle" onclick="toggleXaiDetail()">📐 상세 분석 (λ 분해) 펼치기 ▾</button>
+          <div class="res-xai-detail" id="res-xai-detail" style="display: none;"></div>
+        </div>
       </div>
 
       <div style="display: flex; gap: 0.75rem; margin-top: 1rem;" id="sim-modal-actions" style="display: none;">

@@ -1233,30 +1233,40 @@ function secondHalfLambdas() {
   const mid = 1 + (s.midfield - 65) / 220; // midfield control tilts possession
   let lamKor = 0.72 * (s.attack / o.def) * mid;
   let lamOpp = 0.72 * (o.att / s.defense) / mid;
+  const base = { kor: lamKor, opp: lamOpp };
 
-  if (state.dials.mentality === 'attack') { lamKor *= 1.18; lamOpp *= 1.12; }
-  else if (state.dials.mentality === 'lock') { lamKor *= 0.82; lamOpp *= 0.80; }
-  if (state.dials.press === 'high') lamOpp *= 0.88;
-  else if (state.dials.press === 'tenback') { lamOpp *= 0.75; lamKor *= 0.88; }
-  if (state.dials.route === 'halfspace') lamKor *= 1.10;
-  else if (state.dials.route === 'wing') lamKor *= 1.07;
-  else if (state.dials.route === 'longball') { lamKor *= 1.06; lamOpp *= 1.03; }
-  if (state.dials.nopassback) lamKor *= 1.08;
-  if (state.dials.kangin) { lamKor *= 1.08; lamOpp *= 1.04; } // star magic, but over-reliance opens gaps
+  // XAI instrumentation: every multiplier is recorded as a named factor.
+  // apply() keeps the math identical to the original chained *= lines.
+  const factors = [];
+  const apply = (id, label, korMul, oppMul) => {
+    lamKor *= korMul;
+    lamOpp *= oppMul;
+    factors.push({ id, label, korMul, oppMul });
+  };
+
+  if (state.dials.mentality === 'attack') apply('mentality-attack', '전원 닥공 전환', 1.18, 1.12);
+  else if (state.dials.mentality === 'lock') apply('mentality-lock', '수비 잠그기 운영', 0.82, 0.80);
+  if (state.dials.press === 'high') apply('press-high', '게겐프레싱 고압박', 1, 0.88);
+  else if (state.dials.press === 'tenback') apply('press-tenback', '텐백 저지선', 0.88, 0.75);
+  if (state.dials.route === 'halfspace') apply('route-halfspace', '하프스페이스 중앙 침투', 1.10, 1);
+  else if (state.dials.route === 'wing') apply('route-wing', '측면 오버랩', 1.07, 1);
+  else if (state.dials.route === 'longball') apply('route-longball', '다이렉트 롱볼', 1.06, 1.03);
+  if (state.dials.nopassback) apply('nopassback', 'U자 백패스 금지', 1.08, 1);
+  if (state.dials.kangin) apply('kangin', '이강인 프리롤', 1.08, 1.04); // star magic, but over-reliance opens gaps
 
   // Stamina after first-half drain: tired legs score less, concede more.
   const st = Object.values(state.staminaState);
   const avg = st.length ? st.reduce((a, b) => a + b, 0) / st.length : 70;
   const sf = 0.75 + (avg / 100) * 0.45; // ~0.9 .. 1.2
-  lamKor *= sf;
-  lamOpp *= (1.9 - sf);
+  apply('stamina', `후반 체력 (평균 ${Math.round(avg)}%)`, sf, 1.9 - sf);
 
   // AI opponent manager's counter-tactics shift the expected goals.
   const om = opponentModifiers();
-  lamKor *= om.korMul;
-  lamOpp *= om.oppMul;
+  const oppName = (typeof OPPONENT_PROFILES !== 'undefined' && OPPONENT_PROFILES[state.opponent])
+    ? OPPONENT_PROFILES[state.opponent].name.split(' ')[0] : state.opponent;
+  apply('opponent', `${oppName} AI 감독 카운터`, om.korMul, om.oppMul);
 
-  return { lamKor: Math.max(0.05, lamKor), lamOpp: Math.max(0.05, lamOpp) };
+  return { lamKor: Math.max(0.05, lamKor), lamOpp: Math.max(0.05, lamOpp), base, factors };
 }
 
 // ==========================================================================
@@ -1336,7 +1346,7 @@ async function fetchOpponentPlan() {
 }
 
 function runMonteCarlo(iterations = 1000) {
-  const { lamKor, lamOpp } = secondHalfLambdas();
+  const { lamKor, lamOpp, base, factors } = secondHalfLambdas();
   const baseKor = state.halfTimeScore.kor;
   const baseOpp = state.halfTimeScore.opp;
   let win = 0, draw = 0, lose = 0, sumKor = 0, sumOpp = 0;
@@ -1362,7 +1372,7 @@ function runMonteCarlo(iterations = 1000) {
     modalScore: { kor: mk, opp: mo },
     avgKor: sumKor / iterations,
     avgOpp: sumOpp / iterations,
-    lamKor, lamOpp
+    lamKor, lamOpp, lamBase: base, factors
   };
 }
 
@@ -1442,6 +1452,72 @@ function runSecondHalf() {
   }, 1200);
 }
 
+// ==========================================================================
+// XAI: post-match factor attribution. Each lambda multiplier's contribution
+// is the exact expected-goal delta vs. removing that factor (multiplicative
+// model, so removal = divide it back out). Narrated as pundit one-liners.
+// ==========================================================================
+const XAI_NARRATIVE = {
+  'mentality-attack': { up: '전원 닥공 전환이 화력을 폭발시켰다', down: '전원 닥공 전환이 뒷공간을 열어줬다' },
+  'mentality-lock': { up: '수비 잠그기 운영이 실점 문을 걸어 잠갔다', down: '수비 잠그기 운영이 공격 화력까지 묶었다' },
+  'press-high': { up: '게겐프레싱이 상대 빌드업을 질식시켰다', down: '게겐프레싱이 역효과를 냈다' },
+  'press-tenback': { up: '텐백 저지선이 골문 앞을 걸어 잠갔다', down: '텐백 저지선이 공격 전개까지 막아버렸다' },
+  'route-halfspace': { up: '하프스페이스 중앙 침투가 공격에 날을 세웠다', down: '하프스페이스 침투가 중앙에서 막혔다' },
+  'route-wing': { up: '측면 오버랩이 공격 루트를 넓혔다', down: '측면 오버랩이 통하지 않았다' },
+  'route-longball': { up: '다이렉트 롱볼이 단숨에 골문을 위협했다', down: '다이렉트 롱볼이 소유권만 헌납했다' },
+  'nopassback': { up: 'U자 백패스 금지가 전진 본능을 깨웠다', down: 'U자 백패스 금지가 빌드업 불안을 낳았다' },
+  'kangin': { up: '이강인 프리롤이 마법을 부렸다', down: '이강인 의존이 뒷공간 리스크로 돌아왔다' },
+  'stamina': { up: '체력 안배가 후반 뒷심을 만들었다', down: '후반 체력 방전이 발목을 잡았다' },
+  'opponent': { up: '상대 AI 감독의 소극적 운영이 오히려 공간을 내줬다', down: '상대 AI 감독의 카운터 전술이 우리를 옥죄었다' }
+};
+
+function renderXaiBreakdown() {
+  const box = document.getElementById('res-xai');
+  const top3El = document.getElementById('res-xai-top3');
+  const detailEl = document.getElementById('res-xai-detail');
+  const sim = state.simResult;
+  if (!box || !top3El || !detailEl) return;
+  if (!sim || !sim.factors || !sim.factors.length) { box.style.display = 'none'; return; }
+
+  // Net expected-goal impact of each factor on OUR margin (kor gain - opp gain).
+  const ranked = sim.factors.map(f => {
+    const dKor = sim.lamKor * (1 - 1 / f.korMul); // goals this factor added for Korea
+    const dOpp = sim.lamOpp * (1 - 1 / f.oppMul); // goals it added for the opponent
+    return { ...f, net: dKor - dOpp };
+  }).filter(f => Math.abs(f.net) >= 0.005)
+    .sort((a, b) => Math.abs(b.net) - Math.abs(a.net));
+
+  top3El.innerHTML = ranked.slice(0, 3).map(f => {
+    const up = f.net > 0;
+    const n = XAI_NARRATIVE[f.id] || {};
+    const line = (up ? n.up : n.down) || `${f.label}${up ? '이(가) 플러스로 작용했다' : '이(가) 마이너스로 작용했다'}`;
+    return `<div class="res-xai-line ${up ? 'xai-up' : 'xai-down'}">${up ? '▲' : '▼'} ${line} <b>(${up ? '+' : ''}${f.net.toFixed(2)}골)</b></div>`;
+  }).join('') || `<div class="res-xai-line">특이 요인 없음 (기본 전력 그대로 맞대결)</div>`;
+
+  const mulTd = (m) => m === 1 ? '<td class="xai-dim">—</td>' : `<td class="${m > 1 ? 'xai-up' : 'xai-down'}">×${m.toFixed(2)}</td>`;
+  detailEl.innerHTML = `
+    <table class="res-xai-table">
+      <tr><th>요인</th><th>한국 λ</th><th>상대 λ</th></tr>
+      <tr><td>기본 전력 (FBref 공${state.stats.attack}·수${state.stats.defense}·중원${state.stats.midfield})</td>
+        <td>${sim.lamBase.kor.toFixed(2)}</td><td>${sim.lamBase.opp.toFixed(2)}</td></tr>
+      ${sim.factors.map(f => `<tr><td>${f.label}</td>${mulTd(f.korMul)}${mulTd(f.oppMul)}</tr>`).join('')}
+      <tr class="xai-total"><td>최종 λ → 1,000회 Poisson 시뮬</td>
+        <td>${sim.lamKor.toFixed(2)}</td><td>${sim.lamOpp.toFixed(2)}</td></tr>
+    </table>
+    <p class="res-xai-note">λ = 후반전 기대 득점. 각 배수는 해당 전술 선택이 기대 득점에 곱해진 실제 가중치이며, TOP 3의 골 수치는 그 요인을 제거했을 때와의 기대 득점 차이입니다.</p>`;
+  box.style.display = 'block';
+}
+
+function toggleXaiDetail() {
+  const detailEl = document.getElementById('res-xai-detail');
+  const btn = document.getElementById('res-xai-toggle');
+  if (!detailEl || !btn) return;
+  const open = detailEl.style.display !== 'none';
+  detailEl.style.display = open ? 'none' : 'block';
+  btn.textContent = open ? '📐 상세 분석 (λ 분해) 펼치기 ▾' : '📐 상세 분석 접기 ▴';
+  SFX.ui();
+}
+
 // Full-time: flip the main CTA into reset mode so the next click starts a fresh match
 // (covers both the regular result path and the draw -> PK path).
 function markMatchFinished() {
@@ -1463,6 +1539,7 @@ function showFinalResult() {
 
   liveCast.style.display = 'none';
   markMatchFinished();
+  renderXaiBreakdown(); // before the PK early-return so the draw path gets it too
   
   // Check if Draw -> Trigger PK Shootout!
   if (state.finalScore.kor === state.finalScore.opp) {
