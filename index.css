@@ -5,35 +5,39 @@
 @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700&family=Noto+Sans+KR:wght@300;400;500;700&display=swap');
 
 :root {
-  /* Color Palette - Premium Dark & Emerald Sports Theme */
-  --bg-primary: #080c16;
-  --bg-secondary: #0f172a;
-  --bg-tertiary: #1e293b;
-  
-  --text-primary: #f8fafc;
-  --text-secondary: #94a3b8;
-  --text-muted: #64748b;
-  
-  --accent-emerald: #10b981;
-  --accent-emerald-glow: rgba(16, 185, 129, 0.4);
-  --accent-cyan: #06b6d4;
-  --accent-cyan-glow: rgba(6, 182, 212, 0.4);
-  --accent-rose: #f43f5e;
-  --accent-rose-glow: rgba(244, 63, 94, 0.4);
-  --accent-amber: #f59e0b;
-  --accent-purple: #8b5cf6;
-  
-  /* Glassmorphism Tokens */
-  --glass-bg: rgba(15, 23, 42, 0.75);
-  --glass-bg-hover: rgba(30, 41, 59, 0.85);
-  --glass-border: rgba(255, 255, 255, 0.08);
-  --glass-border-highlight: rgba(16, 185, 129, 0.4);
-  --glass-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
-  
-  /* Pitch Colors */
-  --pitch-bg: #064e3b;
-  --pitch-stripe: #065f46;
-  --pitch-line: rgba(255, 255, 255, 0.25);
+  /* Color Palette - Clean Light Sports Theme (single light mode) */
+  --bg-primary: #eef2f7;
+  --bg-secondary: #ffffff;
+  --bg-tertiary: #e6ebf2;
+
+  --text-primary: #0f172a;
+  --text-secondary: #566579;
+  --text-muted: #94a3b8;
+
+  --accent-emerald: #059669;
+  --accent-emerald-glow: rgba(5, 150, 105, 0.18);
+  --accent-cyan: #0891b2;
+  --accent-cyan-glow: rgba(8, 145, 178, 0.18);
+  --accent-rose: #e11d48;
+  --accent-rose-glow: rgba(225, 29, 72, 0.18);
+  --accent-amber: #d97706;
+  --accent-purple: #7c3aed;
+
+  /* Surface / "glass" Tokens (now clean opaque light cards) */
+  --glass-bg: rgba(255, 255, 255, 0.92);
+  --glass-bg-hover: rgba(255, 255, 255, 1);
+  --glass-border: rgba(15, 23, 42, 0.1);
+  --glass-border-highlight: rgba(5, 150, 105, 0.5);
+  --glass-shadow: 0 6px 22px 0 rgba(15, 23, 42, 0.08);
+
+  /* Inner sunken surfaces (replaces old rgba(0,0,0,.x) boxes) */
+  --surface-sunken: #f1f5f9;
+  --surface-sunken-2: #e9eef4;
+
+  /* Pitch Colors (kept green for readability; brighter grass) */
+  --pitch-bg: #0e7d54;
+  --pitch-stripe: #10925f;
+  --pitch-line: rgba(255, 255, 255, 0.7);
   
   /* Layout & Spacing */
   --header-height: 72px;
@@ -60,9 +64,9 @@ body {
   line-height: 1.5;
   overflow-x: hidden;
   min-height: 100vh;
-  background-image: 
-    radial-gradient(circle at 15% 20%, rgba(16, 185, 129, 0.08) 0%, transparent 40%),
-    radial-gradient(circle at 85% 80%, rgba(6, 182, 212, 0.08) 0%, transparent 40%);
+  background-image:
+    radial-gradient(circle at 15% 20%, rgba(5, 150, 105, 0.07) 0%, transparent 42%),
+    radial-gradient(circle at 85% 80%, rgba(8, 145, 178, 0.07) 0%, transparent 42%);
   transition: background-color 0.3s ease;
 }
 
@@ -85,14 +89,14 @@ body {
 
 body.shake-danger {
   animation: shake 0.5s cubic-bezier(0.36, 0.07, 0.19, 0.97) both;
-  background-image: 
-    radial-gradient(circle at 50% 50%, rgba(244, 63, 94, 0.2) 0%, transparent 70%);
+  background-image:
+    radial-gradient(circle at 50% 50%, rgba(225, 29, 72, 0.14) 0%, transparent 70%);
 }
 
 body.glow-success {
-  background-image: 
-    radial-gradient(circle at 50% 30%, rgba(16, 185, 129, 0.18) 0%, transparent 60%),
-    radial-gradient(circle at 80% 80%, rgba(6, 182, 212, 0.15) 0%, transparent 50%);
+  background-image:
+    radial-gradient(circle at 50% 30%, rgba(5, 150, 105, 0.14) 0%, transparent 60%),
+    radial-gradient(circle at 80% 80%, rgba(8, 145, 178, 0.12) 0%, transparent 50%);
 }
 
 /* ==========================================================================
@@ -136,7 +140,7 @@ body.glow-success {
   font-size: 1.35rem;
   font-weight: 800;
   letter-spacing: -0.02em;
-  background: linear-gradient(to right, #fff, var(--text-secondary));
+  background: linear-gradient(to right, #0f172a, #475569);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
 }
@@ -162,7 +166,7 @@ body.glow-success {
   display: flex;
   align-items: center;
   gap: 0.5rem;
-  background: rgba(255, 255, 255, 0.04);
+  background: var(--surface-sunken);
   padding: 0.4rem 0.8rem;
   border-radius: var(--radius-full);
   border: 1px solid var(--glass-border);
@@ -230,7 +234,7 @@ body.glow-success {
   gap: 0.5rem;
   padding-bottom: 0.55rem;
   margin-bottom: 0.65rem;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+  border-bottom: 1px solid var(--glass-border);
   flex-wrap: wrap; /* Prevents text clipping and right-edge overflow! */
   width: 100%;
 }
@@ -239,7 +243,7 @@ body.glow-success {
   font-family: var(--font-display);
   font-size: 0.95rem;
   font-weight: 800;
-  color: #fff;
+  color: var(--text-primary);
   display: flex;
   align-items: center;
   gap: 0.4rem;
@@ -411,7 +415,7 @@ body.glow-success {
 
 /* Live Chat Stream Box */
 .live-chat-box {
-  background: rgba(0, 0, 0, 0.3);
+  background: var(--surface-sunken);
   border-radius: var(--radius-md);
   border: 1px solid var(--glass-border);
   padding: 0.8rem;
@@ -450,12 +454,15 @@ body.glow-success {
 }
 
 .chat-item {
-  background: rgba(255, 255, 255, 0.03);
+  background: var(--bg-secondary);
   padding: 0.4rem 0.6rem;
   border-radius: 6px;
   line-height: 1.4;
   animation: slideInRight 0.3s ease;
-  border-left: 2px solid var(--glass-border);
+  border-left: 2px solid var(--accent-cyan);
+  border-top: 1px solid var(--glass-border);
+  border-right: 1px solid var(--glass-border);
+  border-bottom: 1px solid var(--glass-border);
 }
 
 .chat-user {
@@ -595,7 +602,7 @@ body.glow-success {
 }
 
 .btn-formation {
-  background: rgba(255, 255, 255, 0.05);
+  background: var(--surface-sunken);
   border: 1px solid var(--glass-border);
   color: var(--text-secondary);
   padding: 0.35rem 0.7rem;
@@ -607,7 +614,7 @@ body.glow-success {
 }
 
 .btn-formation:hover {
-  background: rgba(255, 255, 255, 0.1);
+  background: var(--surface-sunken-2);
   color: var(--text-primary);
 }
 
@@ -624,12 +631,14 @@ body.glow-success {
   flex: 1 1 380px;
   min-height: 380px !important;
   flex-shrink: 0;
-  background: linear-gradient(180deg, #053b2c 0%, #064e3b 50%, #053b2c 100%);
+  background:
+    repeating-linear-gradient(90deg, rgba(255,255,255,0.05) 0 9%, rgba(255,255,255,0) 9% 18%),
+    linear-gradient(180deg, #12915f 0%, #0e7d54 50%, #0c6e49 100%);
   border-radius: var(--radius-lg);
-  border: 3px solid rgba(255, 255, 255, 0.15);
+  border: 3px solid #ffffff;
   position: relative;
   overflow: hidden;
-  box-shadow: inset 0 0 50px rgba(0, 0, 0, 0.6), var(--glass-shadow);
+  box-shadow: inset 0 0 60px rgba(0, 0, 0, 0.28), var(--glass-shadow);
   display: flex;
   flex-direction: column;
   justify-content: space-between;
@@ -669,17 +678,17 @@ body.glow-success {
 
 /* Drag & Drop Card Styles */
 .player-card {
-  width: 74px;
-  background: rgba(15, 23, 42, 0.92);
+  width: 78px;
+  background: #ffffff;
   border: 2px solid var(--glass-border);
   border-radius: var(--radius-md);
-  padding: 0.2rem;
+  padding: 0.25rem 0.2rem 0.3rem;
   display: flex;
   flex-direction: column;
   align-items: center;
   cursor: grab;
   transition: all 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+  box-shadow: 0 4px 12px rgba(15, 23, 42, 0.28);
   position: relative;
   user-select: none;
 }
@@ -776,13 +785,13 @@ body.glow-success {
   width: 40px;
   height: 40px;
   border-radius: 50%;
-  background: linear-gradient(135deg, #1e293b, #334155);
+  background: linear-gradient(135deg, #eef2f7, #dbe3ec);
   display: flex;
   align-items: center;
   justify-content: center;
   font-size: 1.2rem;
   margin-bottom: 0.2rem;
-  border: 2px solid rgba(255, 255, 255, 0.1);
+  border: 2px solid rgba(15, 23, 42, 0.08);
   pointer-events: none;
 }
 
@@ -791,9 +800,9 @@ body.glow-success {
   font-weight: 700;
   color: var(--text-primary);
   text-align: center;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  line-height: 1.15;
+  word-break: keep-all;
+  overflow-wrap: anywhere;
   width: 100%;
   pointer-events: none;
 }
@@ -801,22 +810,22 @@ body.glow-success {
 .player-role-tag {
   font-size: 0.58rem;
   color: var(--accent-cyan);
-  font-weight: 600;
+  font-weight: 700;
   text-align: center;
-  margin-top: 0.1rem;
-  background: rgba(6, 182, 212, 0.12);
+  margin-top: 0.15rem;
+  background: rgba(8, 145, 178, 0.1);
   padding: 0.1rem 0.25rem;
   border-radius: 4px;
   width: 100%;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  line-height: 1.2;
+  word-break: keep-all;
+  overflow-wrap: anywhere;
   pointer-events: none;
 }
 
 /* Bench Squad Section (Bottom of Pitch) */
 .bench-container {
-  background: rgba(0, 0, 0, 0.35);
+  background: var(--surface-sunken);
   border-radius: var(--radius-md);
   padding: 0.5rem 0.7rem;
   border: 1px solid var(--glass-border);
@@ -843,9 +852,9 @@ body.glow-success {
 }
 
 .bench-grid .player-card {
-  min-width: 68px;
-  width: 68px;
-  background: rgba(30, 41, 59, 0.85);
+  min-width: 72px;
+  width: 72px;
+  background: #ffffff;
 }
 
 /* ==========================================================================
@@ -861,7 +870,7 @@ body.glow-success {
 }
 
 .stats-box {
-  background: rgba(0, 0, 0, 0.25);
+  background: var(--surface-sunken);
   border-radius: var(--radius-md);
   padding: 0.9rem;
   border: 1px solid var(--glass-border);
@@ -873,7 +882,7 @@ body.glow-success {
 
 .stat-row { display: flex; flex-direction: column; gap: 0.25rem; }
 .stat-header { display: flex; justify-content: space-between; font-size: 0.8rem; font-weight: 600; }
-.stat-bar-bg { height: 8px; background: rgba(255, 255, 255, 0.05); border-radius: var(--radius-full); overflow: hidden; }
+.stat-bar-bg { height: 8px; background: var(--surface-sunken-2); border-radius: var(--radius-full); overflow: hidden; }
 .stat-bar-fill { height: 100%; border-radius: var(--radius-full); transition: width 0.5s ease; }
 
 .fill-attack { background: var(--accent-rose); box-shadow: 0 0 8px var(--accent-rose-glow); }
@@ -980,7 +989,7 @@ body.glow-success {
 .modal-overlay {
   position: fixed;
   top: 0; left: 0; right: 0; bottom: 0;
-  background: rgba(0, 0, 0, 0.85);
+  background: rgba(15, 23, 42, 0.45);
   backdrop-filter: blur(8px);
   -webkit-backdrop-filter: blur(8px);
   z-index: 1000;
@@ -1004,7 +1013,7 @@ body.glow-success {
   width: 90%;
   max-width: 650px;
   padding: 1.75rem;
-  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.8), 0 0 30px var(--accent-emerald-glow);
+  box-shadow: 0 24px 60px rgba(15, 23, 42, 0.28);
   transform: scale(0.9);
   transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
   max-height: 90vh;
@@ -1034,7 +1043,7 @@ body.glow-success {
 }
 
 .role-option-item {
-  background: rgba(0, 0, 0, 0.3);
+  background: var(--surface-sunken);
   border: 1px solid var(--glass-border);
   padding: 0.8rem;
   border-radius: var(--radius-sm);
@@ -1050,7 +1059,7 @@ body.glow-success {
 
 /* Match Commentary Simulation Box */
 .sim-live-cast {
-  background: rgba(0, 0, 0, 0.5);
+  background: var(--surface-sunken);
   border: 1px solid var(--glass-border);
   border-radius: var(--radius-md);
   padding: 1.25rem;
@@ -1072,14 +1081,14 @@ body.glow-success {
 
 /* Manager Result Card (Viral Shareable Card) */
 .manager-result-card {
-  background: linear-gradient(135deg, #0f172a, #1e293b);
+  background: linear-gradient(135deg, #ffffff, #ecfdf5);
   border: 2px solid var(--accent-emerald);
   border-radius: var(--radius-md);
   padding: 1.5rem;
   text-align: center;
   position: relative;
   overflow: hidden;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+  box-shadow: 0 10px 30px rgba(15, 23, 42, 0.12);
   margin-bottom: 1.25rem;
 }
 
@@ -1114,7 +1123,7 @@ body.glow-success {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: 0.75rem;
-  background: rgba(0, 0, 0, 0.35);
+  background: var(--surface-sunken);
   padding: 0.8rem;
   border-radius: var(--radius-sm);
   border: 1px solid var(--glass-border);
@@ -1194,19 +1203,22 @@ body.glow-success {
 }
 
 .coach-msg-bubble {
-  background: rgba(30, 41, 59, 0.8);
-  border: 1px solid rgba(6, 182, 212, 0.3);
+  background: #ffffff;
+  border: 1px solid rgba(8, 145, 178, 0.35);
+  border-left: 3px solid var(--accent-cyan);
   border-radius: var(--radius-md);
   padding: 0.8rem 1rem;
   font-size: 0.85rem;
   color: var(--text-primary);
   line-height: 1.5;
+  box-shadow: 0 2px 8px rgba(15, 23, 42, 0.06);
 }
 
 .coach-msg-bubble.warning {
   border-color: var(--accent-rose);
-  background: rgba(244, 63, 94, 0.15);
-  color: #fff;
+  border-left-color: var(--accent-rose);
+  background: rgba(225, 29, 72, 0.08);
+  color: var(--text-primary);
 }
 
 .coach-win-actions {
@@ -1256,7 +1268,7 @@ body.glow-success {
   justify-content: space-between;
   flex-wrap: wrap;
   gap: 0.6rem;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  border-bottom: 1px solid var(--glass-border);
   padding-bottom: 0.35rem;
 }
 
@@ -1278,7 +1290,7 @@ body.glow-success {
 .btn-opponent {
   padding: 0.25rem 0.65rem;
   border-radius: var(--radius-full);
-  background: rgba(255, 255, 255, 0.05);
+  background: var(--surface-sunken);
   border: 1px solid var(--glass-border);
   color: var(--text-secondary);
   font-weight: 800;
@@ -1297,7 +1309,7 @@ body.glow-success {
 .match-phase-status {
   font-size: 0.8rem;
   font-weight: 700;
-  color: #fff;
+  color: var(--text-primary);
 }
 
 .match-phase-actions {
@@ -1309,7 +1321,7 @@ body.glow-success {
 .stamina-gauge-wrap {
   width: 100%;
   height: 5px;
-  background: rgba(0, 0, 0, 0.5);
+  background: var(--surface-sunken-2);
   border-radius: 3px;
   margin-top: 3px;
   overflow: hidden;
@@ -1332,7 +1344,7 @@ body.glow-success {
 
 /* --- Comprehensive 4 Tactical Controls Console --- */
 .tactical-controls-console {
-  background: rgba(15, 23, 42, 0.65);
+  background: var(--surface-sunken);
   border: 1px solid var(--glass-border);
   border-radius: var(--radius-md);
   padding: 0.8rem 1rem;
@@ -1346,8 +1358,8 @@ body.glow-success {
 }
 
 .tactic-box {
-  background: rgba(0, 0, 0, 0.35);
-  border: 1px solid rgba(255, 255, 255, 0.06);
+  background: var(--bg-secondary);
+  border: 1px solid var(--glass-border);
   border-radius: var(--radius-sm);
   padding: 0.6rem;
   display: flex;
@@ -1372,7 +1384,7 @@ body.glow-success {
   font-size: 0.72rem;
   font-weight: 700;
   border-radius: 4px;
-  background: rgba(255, 255, 255, 0.05);
+  background: var(--surface-sunken);
   border: 1px solid var(--glass-border);
   color: var(--text-secondary);
   cursor: pointer;
@@ -1389,7 +1401,7 @@ body.glow-success {
 
 /* --- PK Shootout & Half-time Badge UI --- */
 .pk-kicker-card {
-  background: rgba(0, 0, 0, 0.4);
+  background: var(--bg-secondary);
   border: 1px solid var(--glass-border);
   border-radius: 6px;
   padding: 0.5rem;
@@ -1431,7 +1443,7 @@ body.glow-success {
 .bottom-tab-header {
   display: flex;
   gap: 0.5rem;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  border-bottom: 1px solid var(--glass-border);
   padding-bottom: 0.45rem;
   overflow-x: auto;
 }
@@ -1440,7 +1452,7 @@ body.glow-success {
   flex: 1;
   padding: 0.4rem 0.75rem;
   border-radius: var(--radius-sm);
-  background: rgba(255, 255, 255, 0.04);
+  background: var(--surface-sunken);
   border: 1px solid var(--glass-border);
   color: var(--text-secondary);
   font-weight: 800;
@@ -1452,7 +1464,7 @@ body.glow-success {
 }
 
 .btn-bottom-tab:hover {
-  background: rgba(255, 255, 255, 0.1);
+  background: var(--surface-sunken-2);
   color: var(--text-primary);
 }
 
