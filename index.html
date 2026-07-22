@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>K-Tactics Lab 2026 - 대한민국 대표팀 전술 솔루션 & 감독 시뮬레이터</title>
   <meta name="description" content="2026 월드컵 한국 축구의 3대 핵심 쟁점(U자형 빌드업, 풀백 밸런스, 해줘 축구)을 해결하는 대중 참여형 인터랙티브 전술 샌드박스 웹서비스">
-  <meta name="keywords" content="DAKER, 바이브코딩, 월드컵, 대한민국 대표팀, 국가대표팀, 축구 전술, 전술 시뮬레이터, AI 코치, 팬 여론 지지도">
+  <meta name="keywords" content="DAKER, 바이브코딩, 월드컵, 대한민국 대표팀, 국가대표팀, 축구 전술, 전술 시뮬레이터, AI 코치, 팬 지지율">
   <meta name="author" content="K-Tactics Lab 2026">
 
   <!-- Open Graph / social share (1-round public-vote virality) -->
@@ -46,13 +46,13 @@
     <div class="header-status" style="display: flex; align-items: center; gap: 0.8rem; flex-wrap: wrap;">
       <div class="status-pill" id="status-vibe-pill">
         <span class="status-dot"></span>
-        <span>여론: <strong id="header-vibe-val" style="color: var(--accent-emerald);">50%</strong></span>
+        <span>지지율: <strong id="header-vibe-val" style="color: var(--accent-emerald);">50%</strong></span>
       </div>
       <div class="status-pill" id="status-formation-pill" style="display: none;">
         <span>포메이션: <strong id="header-formation-val" style="color: var(--accent-cyan);">4-3-3 (밸런스)</strong></span>
       </div>
       <button class="btn-simulate-compact" id="btn-run-simulation" onclick="runSimulation()" style="padding: 0.5rem 1.3rem; font-size: 0.88rem; box-shadow: 0 0 18px var(--accent-emerald-glow);">
-        <span>🚀 실전 매치 시뮬레이션 가동</span>
+        <span>🚀 경기 시뮬레이션</span>
       </button>
     </div>
   </header>
@@ -424,7 +424,7 @@
         <span class="manager-title-badge" id="res-badge">K-Tactics 공식 인증 감독</span>
         <h2 class="manager-style-name" id="res-style-name">"답답한 백패스 축구 완벽 극복! 중앙을 지배하는 명장 지략가"</h2>
         <p class="manager-desc" id="res-desc">
-          U자형 백패스를 과감히 폐기하고 이강인과 하프스페이스 침투를 극대화한 당신의 전술! 측면 수비까지 안정적으로 잠그며 팬 여론 지지율 92%를 달성했습니다.
+          U자형 백패스를 과감히 폐기하고 이강인과 하프스페이스 침투를 극대화한 당신의 전술! 측면 수비까지 안정적으로 잠그며 팬 지지율 92%를 달성했습니다.
         </p>
         
         <div class="result-stats-grid">
@@ -433,7 +433,7 @@
             <span class="result-stat-value" id="res-val-stage" style="color: var(--accent-emerald);">8강 진출! 🇰🇷</span>
           </div>
           <div class="result-stat-item">
-            <span class="result-stat-label">팬 여론 지지도</span>
+            <span class="result-stat-label">팬 지지율</span>
             <span class="result-stat-value" id="res-val-vibe" style="color: var(--accent-cyan);">92%</span>
           </div>
           <div class="result-stat-item">
@@ -460,8 +460,8 @@
       <div style="font-size: 0.78rem; font-weight: 800; color: var(--accent-rose); letter-spacing: 0.1em; margin-bottom: 0.6rem;">2026 북중미 월드컵 · 조별리그 최종전</div>
       <h2 style="font-size: 1.65rem; font-weight: 900; color: var(--text-primary); line-height: 1.35; margin-bottom: 1rem;">비기기만 하면 32강이었다.<br>그런데 <span style="color: var(--accent-rose);">남아공에 0-1</span>로 졌다.</h2>
       <p style="font-size: 0.92rem; color: var(--text-secondary); line-height: 1.65; margin-bottom: 1.6rem;">
-        손흥민은 벤치에 앉았고, 전술은 없었다. 황금세대와 꿀조를 받고도 조별리그 탈락. 그날 온 국민이 외쳤다.<br>
-        <strong style="color: var(--text-primary);">"내가 감독이었다면 달랐다."</strong><br>
+        손흥민이 빠진 채 나선 최종전, 경기는 끝내 풀리지 않았다. 좋은 스쿼드로도 조별리그의 벽을 넘지 못했고, 그날 많은 팬들이 같은 생각을 했다.<br>
+        <strong style="color: var(--text-primary);">"내가 감독이었다면 어땠을까?"</strong><br>
         이제 그 경기를, 당신이 다시 지휘한다.
       </p>
       <button onclick="startHeroScenario()" style="width: 100%; padding: 0.9rem; background: var(--accent-rose); color: #fff; border: none; border-radius: 10px; font-size: 1.05rem; font-weight: 900; cursor: pointer; box-shadow: 0 8px 24px rgba(244,63,94,0.35);">⚽ 그 남아공전을 다시 지휘하기</button>

@@ -119,7 +119,7 @@ const roleOptions = {
 const coachQuotes = {
   default: "감독님! 선수를 <strong>마우스로 끌어(Drag & Drop)</strong> 원하는 위치나 벤치 선수와 교체해보세요. 클릭하면 세부 전술 역할(Role)도 바꿀 수 있습니다!",
   halfspace: "오! 중앙 하프스페이스를 뚫기 시작했습니다! 측면에서 의미 없이 돌던 공이 드디어 상대 위험 지역으로 투입됩니다. (공격력 ↑)",
-  nopassback: "🔥 '무의미한 U자형 백패스 금지' 선언!! 팬들이 '이게 진짜 사이다 축구지!'라며 열광합니다! 여론 지지도 20% 폭등!!",
+  nopassback: "🔥 '무의미한 U자형 백패스 금지' 선언!! 팬들이 '이게 진짜 사이다 축구지!'라며 열광합니다! 지지율 20% 폭등!!",
   kangin: "🎯 이강인 선수에게 프리롤을 주셨군요! 상대 수비 2~3명이 끌려다니면서 손흥민 선수에게 광활한 공간이 열립니다!",
   inverted: "🔄 인버티드 풀백 지시! 좌우 풀백이 중앙으로 좁혀 들어와 중원 수적 우위를 만들고, 백패스 남발 문제를 해결합니다!",
   defensive: "🔒 풀백 쓰리백 스토퍼 전환! 월드컵에서 우리를 울렸던 측면 자동문 수비가 철옹성으로 변했습니다. 실점 걱정 끝!",
@@ -165,7 +165,7 @@ function startHeroScenario() {
   if (typeof selectOpponent === 'function') selectOpponent('RSA');
   pushCoachMessage(
     `🔥 <strong>[남아공전 재도전]</strong><br>비기기만 하면 32강입니다. 손흥민을 선발로 되돌리고, U자 백패스를 폐기하고, 당신만의 전술로 그날의 결과를 바꾸세요. ` +
-    `단, 손흥민을 벤치에 두면 팬 여론이 폭락합니다.`,
+    `단, 손흥민을 벤치에 두면 팬 지지율이 폭락합니다.`,
     true
   );
 }
@@ -210,8 +210,20 @@ function renderPitch(formation) {
   });
 }
 
+// Keep the bench equal to the 20-man roster minus whoever is on the pitch,
+// so a fielded player (e.g. 조규성 starting in 4-4-2) never also shows up as a
+// substitute. Runs on every bench render (init, formation change, swaps).
+function resyncBench() {
+  const onPitch = new Set(currentLineupNames());
+  const reserves = Object.values(buildMasterRoster())
+    .filter(p => !onPitch.has(p.name))
+    .map(p => ({ id: p.id, name: p.name, pos: 'SUB', avatar: p.avatar, role: p.role, type: p.type }));
+  benchPlayers.splice(0, benchPlayers.length, ...reserves);
+}
+
 // --- Render Bench Players ---
 function renderBench() {
+  resyncBench();
   const benchGrid = document.getElementById('bench-grid');
   benchGrid.innerHTML = '';
   
@@ -466,6 +478,7 @@ function setFormation(formation) {
   }
   
   renderPitch(formation);
+  renderBench();
   recalculateVibe();
   updateStats();
 }
@@ -654,7 +667,7 @@ function setTacticalDial(category, val) {
     else if (val === 'build') pushCoachMessage(`🐢 <strong>[템포 변경: 지공 세밀 빌드업]</strong><br>중원에서 점유율을 쥐고 차근차근 상대 수비를 흔듭니다. 패스 성공률과 중원 장악 지수가 상승합니다.`);
   } else if (category === 'route') {
     if (val === 'halfspace') pushCoachMessage(`🎯 <strong>[공격 루트: 하프스페이스 침투]</strong><br>상대 풀백과 센터백 사이의 하프스페이스 틈새를 집중 타격합니다. 결정적 슈팅 기회가 극대화됩니다!`);
-    else if (val === 'nopassback') pushCoachMessage(`🚫 <strong>[공격 루트: U자 백패스 전면 금지]</strong><br>후방 횡패스를 엄격히 제한하고 무조건 전방으로 전진 패스만 허용합니다! 팬 여론이 대폭 상승합니다!`, false);
+    else if (val === 'nopassback') pushCoachMessage(`🚫 <strong>[공격 루트: U자 백패스 전면 금지]</strong><br>후방 횡패스를 엄격히 제한하고 무조건 전방으로 전진 패스만 허용합니다! 팬 지지율이 대폭 상승합니다!`, false);
   } else if (category === 'press') {
     if (val === 'high') pushCoachMessage(`🔥 <strong>[압박 강도: 초고강도 게겐프레싱]</strong><br>전방에서 공을 빼앗기자마자 5초 내에 다시 에워쌉니다! 강력한 수비 지수를 얻지만 후반전 체력 급감에 주의하세요!`, true);
     else if (val === 'tenback') pushCoachMessage(`🚌 <strong>[압박 강도: 텐백 2층 버스 저지선]</strong><br>페널티 박스 앞에 10명이 촘촘히 섭니다. 실점 확률을 극단적으로 낮추지만 공격 전개가 단조로워집니다.`);
@@ -1300,7 +1313,7 @@ function showFinalResult() {
     stage = "월드컵 16강 진출! ⚽";
   } else {
     styleName = `🎲 '아쉬운 석패' 고군분투 열정 지휘관`;
-    desc = `후반 체력 저하와 상대의 파상공세를 극복하지 못하고 ${kor}:${opp}로 아쉽게 패배했습니다. 하지만 팬 여론과 XAI 진단에서는 전술적 당위성을 인정받았습니다.`;
+    desc = `후반 체력 저하와 상대의 파상공세를 극복하지 못하고 ${kor}:${opp}로 아쉽게 패배했습니다. 하지만 팬 지지율과 XAI 진단에서는 전술적 당위성을 인정받았습니다.`;
     stage = "조별리그 1승 1무 1패 (토너먼트 도전) 🔥";
   }
 
