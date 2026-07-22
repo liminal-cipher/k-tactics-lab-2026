@@ -29,30 +29,38 @@
   <header class="app-header" id="header-bar">
     <div class="logo-container">
       <div class="logo-icon" id="logo-icon">⚽</div>
-      <h1 class="logo-text">K-Tactics Lab <span style="color: var(--accent-emerald);">2026</span></h1>
+      <div class="brand-block">
+        <h1 class="logo-text">K-Tactics Lab <span style="color: var(--accent-gold);">2026</span></h1>
+        <div class="brand-sub">2026 WORLD CUP · GROUP E · 남아공전 재도전</div>
+      </div>
     </div>
-    
+
+    <!-- Broadcast score bug -->
+    <div class="scorebug" id="scorebug">
+      <span class="sb-team"><span class="sb-dotk"></span><span class="sb-abbr sb-kor">KOR</span></span>
+      <span class="sb-score">0 <i>:</i> 1</span>
+      <span class="sb-team"><span class="sb-abbr sb-opp" id="fixture-opp">MEX</span><span class="sb-doto"></span></span>
+      <span class="sb-phase" id="sb-phase"><span class="sb-dot"></span>SET-UP</span>
+    </div>
+
     <!-- Top Navigation Tabs -->
-    <nav class="main-tab-nav" style="display: flex; gap: 0.6rem; align-items: center;">
-      <button class="tab-btn active" id="tab-btn-tactics" onclick="switchTab('tactics')" style="padding: 0.5rem 1.3rem; font-size: 0.88rem; font-weight: 800; border-radius: var(--radius-full); background: var(--accent-emerald); color: #000; border: 2px solid var(--accent-emerald); cursor: pointer; transition: all 0.3s; display: flex; align-items: center; gap: 0.4rem; box-shadow: 0 0 12px var(--accent-emerald-glow);">
-        ⚽ 전술 지휘 보드
-      </button>
-      <button class="tab-btn" id="tab-btn-locker" onclick="switchTab('locker')" style="padding: 0.5rem 1.3rem; font-size: 0.88rem; font-weight: 800; border-radius: var(--radius-full); background: var(--surface-sunken); color: var(--text-primary); border: 2px solid var(--glass-border); cursor: pointer; transition: all 0.3s; display: flex; align-items: center; gap: 0.4rem;">
-        🚪 선수단 락커룸
-      </button>
+    <nav class="main-tab-nav">
+      <button class="tab-btn active" id="tab-btn-tactics" onclick="switchTab('tactics')">⚽ 전술 보드</button>
+      <button class="tab-btn" id="tab-btn-locker" onclick="switchTab('locker')">🚪 락커룸</button>
     </nav>
 
-    <!-- Industry Convention: Action Button & Status in Top Right Header! -->
-    <div class="header-status" style="display: flex; align-items: center; gap: 0.8rem; flex-wrap: wrap;">
-      <div class="status-pill" id="status-vibe-pill">
-        <span class="status-dot"></span>
-        <span>지지율: <strong id="header-vibe-val" style="color: var(--accent-emerald);">50%</strong></span>
+    <!-- Approval meter + primary CTA -->
+    <div class="header-status">
+      <div class="approval-pill" id="status-vibe-pill">
+        <span class="ap-lab">팬 지지율</span>
+        <div class="ap-meter"><i id="header-vibe-bar" style="width: 50%;"></i></div>
+        <strong id="header-vibe-val">50%</strong>
       </div>
       <div class="status-pill" id="status-formation-pill" style="display: none;">
-        <span>포메이션: <strong id="header-formation-val" style="color: var(--accent-cyan);">4-3-3 (밸런스)</strong></span>
+        <span>포메이션: <strong id="header-formation-val">4-3-3 (밸런스)</strong></span>
       </div>
-      <button class="btn-simulate-compact" id="btn-run-simulation" onclick="runSimulation()" style="padding: 0.5rem 1.3rem; font-size: 0.88rem; box-shadow: 0 0 18px var(--accent-emerald-glow);">
-        <span>🚀 경기 시뮬레이션</span>
+      <button class="btn-simulate-compact cta-sim" id="btn-run-simulation" onclick="runSimulation()">
+        <span>▶ 경기 시뮬레이션</span>
       </button>
     </div>
   </header>
@@ -147,6 +155,7 @@
 
       <!-- Football Pitch -->
       <div class="pitch-container" id="pitch-container" style="flex: 1; min-height: 0;">
+        <div class="floodlight"></div>
         <!-- Pitch markings -->
         <div class="pitch-line-center"></div>
         <div class="pitch-circle-center"></div>
@@ -222,11 +231,11 @@
       </div>
       
       <div class="coach-card" style="flex: 1; min-height: 0; display: flex; flex-direction: column; justify-content: space-between; gap: 0.8rem; background: transparent; border: 1px solid var(--glass-border); padding: 1rem; border-radius: var(--radius-md);">
-        <div class="coach-msg-box" id="coach-messages" style="flex: 1; min-height: 0; overflow-y: auto; background: var(--surface-sunken); padding: 0.8rem; border-radius: 6px; border: 1px solid var(--glass-border); display: flex; flex-direction: column; gap: 0.8rem;">
+        <div class="coach-msg-box" id="coach-messages" style="flex: 1; min-height: 84px; overflow-y: auto; background: var(--surface-sunken); padding: 0.7rem; border-radius: 8px; border: 1px solid var(--glass-border); display: flex; flex-direction: column; gap: 0.7rem;">
           <!-- Default initial greeting -->
           <div class="coach-msg-bubble">
             <strong>🤖 Coach V:</strong><br>
-            "감독님, 2026 북중미 월드컵 본선 무대를 앞두고 합류한 AI 수석 코치 'Coach V'입니다. 현재 대표팀의 핵심 해결 과제는 U자형 후방 빌드업 탈피와 측면 수비의 밸런스 유지입니다. 구장이나 벤치의 선수를 클릭·드래그하여 최적의 포메이션을 구성해 주십시오."
+            "감독님, AI 수석 코치 Coach V입니다. 핵심 과제는 U자형 후방 빌드업 탈피와 측면 수비 밸런스입니다. 구장·벤치의 선수를 드래그·클릭해 최적의 XI를 구성해 보시죠."
           </div>
         </div>
         
@@ -235,12 +244,12 @@
           <button type="submit" style="padding: 0.55rem 0.9rem; background: var(--accent-cyan); color: #000; border: none; border-radius: 6px; font-weight: 800; cursor: pointer; font-size: 0.82rem; white-space: nowrap;">전송</button>
         </form>
 
-        <div class="coach-actions" style="display: flex; flex-direction: column; gap: 0.5rem; padding-top: 0.5rem; border-top: 1px solid var(--glass-border); flex-shrink: 0;">
-          <button class="btn-coach-action" onclick="requestAiTacticalAdvice('mexico')" style="width: 100%; text-align: left; padding: 0.6rem 0.9rem; background: rgba(8, 145, 178, 0.1); border: 1px solid var(--accent-cyan); color: var(--text-primary); border-radius: 6px; font-weight: 700; cursor: pointer; transition: all 0.2s; font-size: 0.82rem;">
-            ⚡ 멕시코/남아공 공략 전술 추천
+        <div class="coach-actions" style="display: flex; gap: 0.4rem; padding-top: 0.5rem; border-top: 1px solid var(--glass-border); flex-shrink: 0;">
+          <button class="btn-coach-action" onclick="requestAiTacticalAdvice('mexico')" style="flex: 1; text-align: center; padding: 0.5rem 0.4rem; background: rgba(51, 214, 255, 0.12); border: 1px solid var(--accent-cyan); color: var(--text-primary); border-radius: 8px; font-weight: 700; cursor: pointer; transition: all 0.2s; font-size: 0.76rem;">
+            ⚡ 상대 공략 추천
           </button>
-          <button class="btn-coach-action" onclick="requestAiTacticalAdvice('balance')" style="width: 100%; text-align: left; padding: 0.6rem 0.9rem; background: rgba(5, 150, 105, 0.1); border: 1px solid var(--accent-emerald); color: var(--text-primary); border-radius: 6px; font-weight: 700; cursor: pointer; transition: all 0.2s; font-size: 0.82rem;">
-            🛡️ 현재 스쿼드 밸런스 진단
+          <button class="btn-coach-action" onclick="requestAiTacticalAdvice('balance')" style="flex: 1; text-align: center; padding: 0.5rem 0.4rem; background: rgba(34, 224, 138, 0.12); border: 1px solid var(--accent-emerald); color: var(--text-primary); border-radius: 8px; font-weight: 700; cursor: pointer; transition: all 0.2s; font-size: 0.76rem;">
+            🛡️ 밸런스 진단
           </button>
         </div>
        </div>
