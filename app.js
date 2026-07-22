@@ -1102,16 +1102,22 @@ function runSimulation() {
   } else if (state.matchPhase === 1) {
     runSecondHalf();
   } else {
-    // If already finished, reset or show final
+    // Full-time -> fresh pre-match reset (keeps the user's current XI, dials, opponent)
     state.matchPhase = 0;
     state.subActions = [];
     state.opponentPlan = null; // re-scout next match
-    document.getElementById('btn-run-simulation').innerHTML = `<span>▶ 경기 시뮬레이션</span>`;
-    document.getElementById('btn-run-simulation').style.background = '';
+    state.staminaState = {}; // fresh legs: stamina bars back to base
+    state.halfTimeScore = { kor: 0, opp: 1 };
+    state.simResult = null;
+    const btn = document.getElementById('btn-run-simulation');
+    btn.innerHTML = `<span>▶ 경기 시뮬레이션</span>`;
+    btn.style.background = '';
+    btn.style.color = '';
     document.getElementById('match-phase-status').innerHTML = `<span>⚽ <strong style="color: var(--accent-cyan);">0' 경기 전 셋업</strong> (포메이션, 교체 및 전술 지침 설정 완료 후 전반 가동)</span>`;
     document.getElementById('match-phase-actions').innerHTML = '';
     setOppChip(false); // collapse the chip back once the match is over
     renderPitch(state.currentFormation);
+    pushCoachMessage(`🔄 <strong>[새 경기 준비 완료]</strong><br>선수단 체력이 회복되었고 상대 스카우팅이 초기화되었습니다. 포메이션과 전술 지침을 다듬은 뒤 <strong>[▶ 경기 시뮬레이션]</strong>으로 재도전하십시오!`);
   }
 }
 
@@ -1436,14 +1442,27 @@ function runSecondHalf() {
   }, 1200);
 }
 
+// Full-time: flip the main CTA into reset mode so the next click starts a fresh match
+// (covers both the regular result path and the draw -> PK path).
+function markMatchFinished() {
+  state.matchPhase = 2;
+  const btn = document.getElementById('btn-run-simulation');
+  btn.innerHTML = `<span>🔄 다시 처음부터</span>`;
+  btn.style.background = 'var(--accent-cyan)';
+  btn.style.color = '#000';
+  const statusEl = document.getElementById('match-phase-status');
+  if (statusEl) statusEl.innerHTML = `<span>🏁 <strong style="color: var(--accent-emerald);">FULL-TIME (90')</strong> 정규시간 스코어 <strong>${state.finalScore.kor} : ${state.finalScore.opp}</strong> | [🔄 다시 처음부터]를 누르면 새 경기를 준비합니다</span>`;
+}
+
 function showFinalResult() {
   const liveCast = document.getElementById('sim-live-cast');
   const resultCard = document.getElementById('manager-result-card');
   const actions = document.getElementById('sim-modal-actions');
   const canvasBox = document.getElementById('sim-canvas-container');
   const pkBox = document.getElementById('pk-shootout-container');
-  
+
   liveCast.style.display = 'none';
+  markMatchFinished();
   
   // Check if Draw -> Trigger PK Shootout!
   if (state.finalScore.kor === state.finalScore.opp) {
@@ -1789,6 +1808,10 @@ function initPenaltyShootoutUI() {
   
   logEl.innerHTML = '';
   selectedPkKickers = [];
+
+  // Restore the start button (a previous shootout hides it at the end)
+  const startBtn = document.getElementById('btn-start-pk');
+  if (startBtn) { startBtn.style.display = ''; startBtn.disabled = false; }
 
   const ht = document.getElementById('pk-header-title');
   if (ht) ht.textContent = `⚽ 90분 정규시간 ${state.finalScore.kor}:${state.finalScore.opp} 동점 종료! 승부차기(PK) 돌입!`;
