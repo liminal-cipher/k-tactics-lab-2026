@@ -32,6 +32,8 @@
 
 ## 3. 데이터 파이프라인 (`scripts/parse_stats.py`)
 
+> 수집→정제→변환→검증 전 과정의 상세(공식 전개, 워크드 예제, 재현성·분포 검증 결과)는 [`DATA_PIPELINE.md`](DATA_PIPELINE.md)에 있다. 아래는 요약이다.
+
 - **출처**: FBref, Korea Republic, World Cup 2026 (Standard / Shooting / Misc 스탯).
 - **스코프**: 실제 출전(> 0 MP)한 **20인만** 포함. 미출전 선수는 제외해 표본을 명확히 한다.
 - **변환**: per-90 원자료(`s90`, `sh`, `sot`, `int`, `tkl`, `crs` 등)를 포지션 베이스 테이블(`ATK_BASE`/`DEF_BASE`/`MID_BASE`) + 가중식으로 4대 능력치(공격/수비/중원/체력, 30~96)로 변환한다.
