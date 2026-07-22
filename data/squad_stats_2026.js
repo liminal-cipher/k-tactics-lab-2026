@@ -147,9 +147,9 @@ const OPPONENT_PROFILES = {
     weights: { tempo: 'direct', attackRoute: 'nopassback', press: 'region', mentality: 'balance' }
   },
   'RSA': {
-    name: '🇿🇦 남아공 (아프리카 복병)',
-    style: '뛰어난 피지컬과 탄력적인 롱볼 다이렉트 카운터 역습을 주무기로 하는 난적',
-    briefing: '💡 카운터 전략: 상대 피지컬 경합을 이겨내기 위해 중원 점유율(표준/지공 템포)을 쥐고 세밀한 빌드업으로 흔드세요!',
+    name: '🇿🇦 남아공 (조직적인 강호)',
+    style: '탄탄한 조직력과 빠른 롱볼 다이렉트 카운터 역습, 세트피스를 주무기로 하는 난적',
+    briefing: '💡 카운터 전략: 상대의 빠른 역습을 무디게 하려면 중원 점유율(표준/지공 템포)을 쥐고 세밀한 빌드업으로 흔드세요!',
     weights: { tempo: 'build', attackRoute: 'kangin', press: 'high', mentality: 'balance' }
   }
 };
