@@ -253,7 +253,9 @@ function createPlayerCardElement(p, source) {
     `;
   }
 
+  const rating = (typeof SQUAD_STATS_2026 !== 'undefined' && SQUAD_STATS_2026[p.name]) ? SQUAD_STATS_2026[p.name].rating : '';
   card.innerHTML = `
+    ${rating ? `<span class="player-rating">${rating}</span>` : ''}
     <span class="player-pos-badge">${p.pos}</span>
     <div class="player-avatar">${p.avatar}</div>
     <div class="player-name">${p.name}</div>
@@ -637,7 +639,12 @@ function selectOpponent(opp) {
   document.querySelectorAll('.btn-opponent').forEach(btn => btn.classList.remove('active'));
   const activeBtn = document.getElementById(`btn-opp-${opp}`);
   if (activeBtn) activeBtn.classList.add('active');
-  
+
+  // Update the broadcast score bug's opponent side.
+  const oppMeta = ({ MEX: ['MEX', '🇲🇽'], ESP: ['ESP', '🇪🇸'], RSA: ['RSA', '🇿🇦'] })[opp] || ['OPP', '🏳️'];
+  const fxOpp = document.getElementById('fixture-opp'); if (fxOpp) fxOpp.textContent = oppMeta[0];
+  const fxFlag = document.getElementById('fixture-opp-flag'); if (fxFlag) fxFlag.textContent = oppMeta[1];
+
   if (typeof OPPONENT_PROFILES !== 'undefined' && OPPONENT_PROFILES[opp]) {
     const prof = OPPONENT_PROFILES[opp];
     const briefingEl = document.getElementById('opponent-briefing-text');
@@ -771,8 +778,10 @@ function updateVibeMeter() {
   
   if (scoreVal) scoreVal.textContent = `지지율 ${state.vibeScore}%`;
   if (headerVal) headerVal.textContent = `${state.vibeScore}%`;
+  const headerBar = document.getElementById('header-vibe-bar');
+  if (headerBar) headerBar.style.width = `${state.vibeScore}%`;
   if (bar) bar.style.width = `${state.vibeScore}%`;
-  
+
   if (body) body.classList.remove('shake-danger', 'glow-success');
   
   if (state.vibeScore >= 80) {
@@ -948,7 +957,7 @@ function runSimulation() {
     state.matchPhase = 0;
     state.subActions = [];
     state.opponentPlan = null; // re-scout next match
-    document.getElementById('btn-run-simulation').innerHTML = `<span>🚀 실전 매치 시뮬레이션 가동</span>`;
+    document.getElementById('btn-run-simulation').innerHTML = `<span>▶ 경기 시뮬레이션</span>`;
     document.getElementById('btn-run-simulation').style.background = '';
     document.getElementById('match-phase-status').innerHTML = `<span>⚽ <strong style="color: var(--accent-cyan);">0' 경기 전 셋업</strong> (포메이션, 교체 및 전술 지침 설정 완료 후 전반 가동)</span>`;
     document.getElementById('match-phase-actions').innerHTML = '';
