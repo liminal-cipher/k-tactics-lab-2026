@@ -51,6 +51,7 @@
 
     <!-- Approval meter + primary CTA -->
     <div class="header-status">
+      <button class="sound-toggle on" id="sound-toggle" onclick="toggleSfx()" title="사운드 끄기">🔊</button>
       <div class="approval-pill" id="status-vibe-pill">
         <span class="ap-lab">팬 지지율</span>
         <div class="ap-meter"><i id="header-vibe-bar" style="width: 50%;"></i></div>
@@ -143,28 +144,32 @@
             <button class="btn-opponent" id="btn-opp-RSA" onclick="selectOpponent('RSA')">🇿🇦 남아공</button>
           </div>
         </div>
-        <div class="mch-row-bottom">
-          <div class="match-phase-status" id="match-phase-status" style="flex: 1; font-size: 0.8rem;">
-            <span>⚽ <strong style="color: var(--accent-cyan);">0' 셋업 완료</strong> | <span id="opponent-briefing-text" style="color: var(--accent-amber);">💡 멕시코 맞춤: 뒷공간 하프스페이스와 다이렉트 템포 공략</span></span>
-          </div>
-          <div id="match-phase-actions">
-            <!-- Will update when half-time arrives -->
-          </div>
-        </div>
       </div>
 
-      <!-- Football Pitch -->
+      <!-- Hero pitch (broadcast tactical cam) -->
       <div class="pitch-container" id="pitch-container" style="flex: 1; min-height: 0;">
         <div class="floodlight"></div>
-        <!-- Pitch markings -->
-        <div class="pitch-line-center"></div>
-        <div class="pitch-circle-center"></div>
-        <div class="pitch-box-top"></div>
-        <div class="pitch-box-bottom"></div>
+        <div class="pitch-vignette"></div>
 
-        <!-- Players Grid (Drag & Drop / Click-to-Swap zones) -->
+        <!-- Tilted field plane: grass + markings + player billboards -->
+        <div class="pitch-field">
+          <div class="pitch-line-center"></div>
+          <div class="pitch-circle-center"></div>
+          <div class="pitch-box-top"></div>
+          <div class="pitch-box-bottom"></div>
+        </div>
+        <!-- Player billboards float upright over the tilted grass -->
         <div class="pitch-players-grid" id="pitch-players-grid">
           <!-- Dynamically populated by app.js -->
+        </div>
+
+        <!-- AI opponent ticker overlay (match status) -->
+        <div class="ai-ticker-overlay">
+          <span class="ai-tag"><span class="ai-dot"></span>AI 상대 감독</span>
+          <div class="match-phase-status" id="match-phase-status">
+            <span>⚽ <strong style="color: var(--accent-cyan);">0' 셋업 완료</strong> · <span id="opponent-briefing-text" style="color: var(--accent-amber);">멕시코 맞춤: 뒷공간 하프스페이스와 다이렉트 템포 공략</span></span>
+          </div>
+          <div class="ai-actions" id="match-phase-actions"><!-- half-time buttons --></div>
         </div>
       </div>
 
