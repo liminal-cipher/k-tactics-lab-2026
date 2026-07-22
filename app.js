@@ -140,6 +140,60 @@ const fanComments = [
   { user: '빛현우팬클럽', text: '조현우만 믿는다 ㅠㅠ 수비수들 정신 좀 차려라', type: 'normal' }
 ];
 
+// --- Synthesized match-day sound FX (Web Audio API; no assets, file:// safe) ---
+const SFX = {
+  ctx: null, muted: false,
+  _ac() {
+    if (!this.ctx) { try { this.ctx = new (window.AudioContext || window.webkitAudioContext)(); } catch (e) { this.ctx = null; } }
+    if (this.ctx && this.ctx.state === 'suspended') this.ctx.resume();
+    return this.ctx;
+  },
+  _tone(freq, start, dur, type, gain) {
+    const ac = this.ctx; if (!ac) return;
+    const o = ac.createOscillator(), g = ac.createGain();
+    o.type = type || 'sine'; o.frequency.value = freq;
+    g.gain.setValueAtTime(0.0001, start);
+    g.gain.exponentialRampToValueAtTime(gain || 0.2, start + 0.012);
+    g.gain.exponentialRampToValueAtTime(0.0001, start + dur);
+    o.connect(g).connect(ac.destination); o.start(start); o.stop(start + dur + 0.02);
+  },
+  _noise(start, dur, gain, freq) {
+    const ac = this.ctx; if (!ac) return;
+    const n = Math.floor(ac.sampleRate * dur), buf = ac.createBuffer(1, n, ac.sampleRate), d = buf.getChannelData(0);
+    for (let i = 0; i < n; i++) d[i] = (Math.random() * 2 - 1);
+    const src = ac.createBufferSource(); src.buffer = buf;
+    const bp = ac.createBiquadFilter(); bp.type = 'bandpass'; bp.frequency.value = freq || 850; bp.Q.value = 0.6;
+    const g = ac.createGain();
+    g.gain.setValueAtTime(0.0001, start);
+    g.gain.linearRampToValueAtTime(gain || 0.14, start + dur * 0.35);
+    g.gain.exponentialRampToValueAtTime(0.0001, start + dur);
+    src.connect(bp).connect(g).connect(ac.destination); src.start(start); src.stop(start + dur);
+  },
+  whistle() {
+    if (this.muted) return; const ac = this._ac(); if (!ac) return; const t = ac.currentTime;
+    [0, 0.19].forEach(off => { this._tone(2150, t + off, 0.15, 'square', 0.14); this._tone(2180, t + off, 0.15, 'sine', 0.10); });
+  },
+  cheer() {
+    if (this.muted) return; const ac = this._ac(); if (!ac) return;
+    this._noise(ac.currentTime, 0.85, 0.13, 800);
+  },
+  goal() {
+    if (this.muted) return; const ac = this._ac(); if (!ac) return; const t = ac.currentTime;
+    [523, 659, 784, 1047].forEach((f, i) => this._tone(f, t + i * 0.09, 0.22, 'triangle', 0.17));
+    this._noise(t + 0.1, 1.5, 0.2, 720);
+  },
+  ui() {
+    if (this.muted) return; const ac = this._ac(); if (!ac) return;
+    this._tone(720, ac.currentTime, 0.05, 'sine', 0.06);
+  }
+};
+function toggleSfx() {
+  SFX.muted = !SFX.muted;
+  const btn = document.getElementById('sound-toggle');
+  if (btn) { btn.textContent = SFX.muted ? '🔇' : '🔊'; btn.classList.toggle('on', !SFX.muted); btn.title = SFX.muted ? '사운드 켜기' : '사운드 끄기'; }
+  if (!SFX.muted) SFX.ui();
+}
+
 // --- Initialize App ---
 document.addEventListener('DOMContentLoaded', () => {
   const challenge = applyChallengeFromURL(); // decode a shared "beat my tactic" link, if any
@@ -659,7 +713,8 @@ function selectOpponent(opp) {
 
 function setTacticalDial(category, val) {
   state.dials[category] = val;
-  
+  if (category === 'route' && val === 'nopassback') SFX.cheer(); else SFX.ui();
+
   // Update button UI
   const parent = document.getElementById(`btn-${category}-${val}`)?.closest('.tactic-btns');
   if (parent) {
@@ -972,6 +1027,7 @@ function runFirstHalf() {
   
   btn.disabled = true;
   btn.innerHTML = `<span>⏳ 전반전 (0~45분) AI 가동 중...</span>`;
+  SFX.whistle();
 
   // AI opponent manager scouts our XI and picks counter-tactics (async, non-blocking).
   // Sets a scripted fallback synchronously so the sim always has a plan by 2nd half.
@@ -1313,6 +1369,7 @@ function showFinalResult() {
   const sim = state.simResult || { winPct: 0, drawPct: 0, losePct: 0 };
 
   if (kor > opp) {
+    SFX.goal();
     styleName = `🔥 '몬테카를로 승률 ${sim.winPct}% 적중!' ${state.opponent} 완파 명장`;
     desc = `U자형 백패스를 과감히 폐기하고 ${state.dials.route === 'halfspace' ? '하프스페이스 침투' : '다이렉트 역습'}와 후반 승부수를 적중시켰습니다! 최종 스코어 ${kor}:${opp} 극적 승리! 팬 지지율 ${state.vibeScore}% 달성!`;
     stage = "월드컵 8강/4강 진출! 🇰🇷✨";
