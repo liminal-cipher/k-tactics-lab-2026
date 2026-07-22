@@ -387,7 +387,7 @@ function openRoleModal(player, cardElement) {
   
   document.getElementById('role-modal-name').innerHTML = `⚙️ ${player.name} (${player.pos}) <span style="font-size:0.8rem; color:var(--accent-cyan); font-weight:800; margin-left:0.5rem;">종합 능력치: ${statObj.rating}점</span>`;
   document.getElementById('role-modal-desc').innerHTML = `
-    <div style="background:rgba(0,0,0,0.4); padding:0.7rem; border-radius:6px; border:1px solid rgba(6, 182, 212, 0.4); margin-bottom:0.8rem;">
+    <div style="background:var(--surface-sunken); padding:0.7rem; border-radius:6px; border:1px solid rgba(8, 145, 178, 0.4); margin-bottom:0.8rem;">
       <div style="color:var(--accent-emerald); font-weight:700; font-size:0.75rem; margin-bottom:0.25rem;">📊 FBref / SofaScore 기반 벤치마크 스탯</div>
       <div style="font-size:0.85rem; color:var(--text-primary); font-weight:700;">기반 분석 통계: <span style="color:var(--accent-amber);">${statObj.statStr}</span></div>
       <div style="font-size:0.75rem; color:var(--text-secondary); margin-top:0.3rem;">현재 수행 임무: "<strong>${player.role}</strong>" (아래 목록에서 세부 지침 변경)</div>
@@ -1404,7 +1404,7 @@ async function shareResult() {
   try {
     const card = document.getElementById('manager-result-card');
     if (card && typeof html2canvas === 'function' && navigator.canShare) {
-      const canvas = await html2canvas(card, { backgroundColor: '#0f172a', scale: 2 });
+      const canvas = await html2canvas(card, { backgroundColor: '#ffffff', scale: 2 });
       const blob = await new Promise(r => canvas.toBlob(r, 'image/png'));
       if (blob) {
         const file = new File([blob], 'k-tactics-card.png', { type: 'image/png' });
@@ -1435,7 +1435,7 @@ function downloadCardPNG() {
   const card = document.getElementById('manager-result-card');
   
   html2canvas(card, {
-    backgroundColor: '#0f172a',
+    backgroundColor: '#ffffff',
     scale: 2
   }).then(canvas => {
     const link = document.createElement('a');
@@ -1459,14 +1459,14 @@ function switchTab(tabName) {
   if (tabName === 'locker') {
     if (tacticsView) tacticsView.style.display = 'none';
     if (lockerView) lockerView.style.display = 'block';
-    if (btnTactics) { btnTactics.classList.remove('active'); btnTactics.style.background = 'rgba(30, 41, 59, 0.8)'; btnTactics.style.color = '#fff'; btnTactics.style.boxShadow = 'none'; }
+    if (btnTactics) { btnTactics.classList.remove('active'); btnTactics.style.background = 'var(--surface-sunken)'; btnTactics.style.color = 'var(--text-primary)'; btnTactics.style.boxShadow = 'none'; }
     if (btnLocker) { btnLocker.classList.add('active'); btnLocker.style.background = 'var(--accent-cyan)'; btnLocker.style.color = '#000'; btnLocker.style.boxShadow = '0 0 15px var(--accent-cyan-glow)'; }
     renderLockerRoom('ALL');
   } else {
     if (tacticsView) tacticsView.style.display = 'grid';
     if (lockerView) lockerView.style.display = 'none';
     if (btnTactics) { btnTactics.classList.add('active'); btnTactics.style.background = 'var(--accent-emerald)'; btnTactics.style.color = '#000'; btnTactics.style.boxShadow = '0 0 15px var(--accent-emerald-glow)'; }
-    if (btnLocker) { btnLocker.classList.remove('active'); btnLocker.style.background = 'rgba(30, 41, 59, 0.8)'; btnLocker.style.color = '#fff'; btnLocker.style.boxShadow = 'none'; }
+    if (btnLocker) { btnLocker.classList.remove('active'); btnLocker.style.background = 'var(--surface-sunken)'; btnLocker.style.color = 'var(--text-primary)'; btnLocker.style.boxShadow = 'none'; }
   }
 }
 
@@ -1495,27 +1495,27 @@ function renderLockerRoom(filterPos = 'ALL') {
     
     card.innerHTML = `
       <div style="display: flex; justify-content: space-between; align-items: center;">
-        <span style="background: rgba(255,255,255,0.08); color: ${posColor}; border: 1px solid ${posColor}; padding: 0.2rem 0.6rem; border-radius: 4px; font-weight: 800; font-size: 0.75rem;">${data.pos}</span>
+        <span style="background: var(--surface-sunken); color: ${posColor}; border: 1px solid ${posColor}; padding: 0.2rem 0.6rem; border-radius: 4px; font-weight: 800; font-size: 0.75rem;">${data.pos}</span>
         <span style="font-size: 0.75rem; color: var(--text-secondary);">나이: ${data.age}</span>
       </div>
       
       <div style="display: flex; align-items: center; gap: 0.8rem; margin: 0.4rem 0;">
-        <div style="width: 52px; height: 52px; border-radius: 50%; background: linear-gradient(135deg, #1e293b, #334155); border: 2px solid ${posColor}; display: flex; align-items: center; justify-content: center; font-size: 1.6rem; box-shadow: 0 4px 12px rgba(0,0,0,0.4);">
+        <div style="width: 52px; height: 52px; border-radius: 50%; background: linear-gradient(135deg, #eef2f7, #dbe3ec); border: 2px solid ${posColor}; display: flex; align-items: center; justify-content: center; font-size: 1.6rem; box-shadow: 0 4px 12px rgba(15,23,42,0.12);">
           ${data.pos.includes('GK') ? '🧤' : (data.pos.includes('FW') ? '⚡' : (data.pos.includes('DF') ? '🛡️' : '🧭'))}
         </div>
         <div>
-          <div style="font-size: 1.15rem; font-weight: 800; color: #fff;">${name}</div>
+          <div style="font-size: 1.15rem; font-weight: 800; color: var(--text-primary);">${name}</div>
           <div style="font-size: 0.72rem; color: var(--accent-cyan);">2026 월드컵 공식 출전 멤버</div>
         </div>
       </div>
       
-      <div style="background: rgba(0,0,0,0.4); padding: 0.7rem; border-radius: 6px; font-size: 0.8rem; color: var(--text-primary); display: flex; flex-direction: column; gap: 0.3rem;">
+      <div style="background: var(--surface-sunken); padding: 0.7rem; border-radius: 6px; font-size: 0.8rem; color: var(--text-primary); display: flex; flex-direction: column; gap: 0.3rem;">
         <div style="display: flex; justify-content: space-between;"><span>공식 출전:</span> <strong>${data.mp}경기 (${data.min}분)</strong></div>
         <div style="display: flex; justify-content: space-between;"><span>선발 횟수:</span> <strong>${data.starts}회</strong></div>
         <div style="display: flex; justify-content: space-between;"><span>공격포인트:</span> <strong style="color: var(--accent-rose);">${data.gls}골 ${data.ast}도움</strong></div>
       </div>
       
-      <button style="margin-top: auto; width: 100%; padding: 0.6rem; background: rgba(255,255,255,0.05); border: 1px solid var(--glass-border); border-radius: 6px; color: #fff; font-weight: 700; font-size: 0.8rem; cursor: pointer; transition: background 0.2s;">
+      <button style="margin-top: auto; width: 100%; padding: 0.6rem; background: var(--surface-sunken); border: 1px solid var(--glass-border); border-radius: 6px; color: var(--text-primary); font-weight: 700; font-size: 0.8rem; cursor: pointer; transition: background 0.2s;">
         📊 심층 스카우팅 리포트 열기
       </button>
     `;
@@ -1527,7 +1527,7 @@ function renderLockerRoom(filterPos = 'ALL') {
 
 function filterLocker(pos, btnEl) {
   document.querySelectorAll('.locker-filter-btn').forEach(b => {
-    b.style.background = 'rgba(255,255,255,0.05)';
+    b.style.background = 'var(--surface-sunken)';
     b.style.color = 'var(--text-secondary)';
     b.style.borderColor = 'var(--glass-border)';
   });
@@ -1596,7 +1596,7 @@ function initPenaltyShootoutUI() {
   selectorsEl.innerHTML = topKickers.map((p, idx) => `
     <div class="pk-kicker-card ${idx < 5 ? 'selected' : ''}" id="pk-card-${p.id}" onclick="togglePkKicker('${p.id}', '${p.name}')">
       <div style="font-size: 1.1rem;">${p.avatar}</div>
-      <div style="font-weight: 800; font-size: 0.78rem; color: #fff; margin-top: 2px;">${p.name}</div>
+      <div style="font-weight: 800; font-size: 0.78rem; color: var(--text-primary); margin-top: 2px;">${p.name}</div>
       <div style="font-size: 0.68rem; color: var(--accent-amber); margin-top: 2px;">침착성 ${typeof SQUAD_STATS_2026 !== 'undefined' && SQUAD_STATS_2026[p.name] ? SQUAD_STATS_2026[p.name].composure : 78}</div>
       <span class="pk-order-badge" id="pk-order-${p.id}" style="font-size: 0.65rem; color: var(--accent-cyan); display: ${idx < 5 ? 'block' : 'none'}; font-weight: 800;">#${idx + 1} 키커</span>
     </div>
@@ -1649,7 +1649,7 @@ function startPenaltyShootout() {
       if (oppGoal) oppPk++;
       
       logEl.innerHTML += `
-        <div style="padding: 0.35rem; background: rgba(0,0,0,0.3); border-radius: 4px; border-left: 3px solid ${korGoal ? 'var(--accent-emerald)' : 'var(--accent-rose)'};">
+        <div style="padding: 0.35rem; background: var(--surface-sunken); border-radius: 4px; border-left: 3px solid ${korGoal ? 'var(--accent-emerald)' : 'var(--accent-rose)'};">
           <strong>#${round + 1} ${kicker.name}:</strong> ${korGoal ? '⚽ 골 성공!!' : '❌ 골키퍼 선방 / 실축!'} vs <strong>${state.opponent}:</strong> ${oppGoal ? '⚽ 성공' : '❌ 실축!'} (현재 ${korPk}:${oppPk})
         </div>
       `;
