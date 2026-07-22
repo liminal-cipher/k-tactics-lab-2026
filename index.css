@@ -1084,14 +1084,14 @@ body.glow-success {
 
 /* Manager Result Card (Viral Shareable Card) */
 .manager-result-card {
-  background: linear-gradient(135deg, #ffffff, #ecfdf5);
+  background: linear-gradient(135deg, #0f1c2e, #0a2a20);
   border: 2px solid var(--accent-emerald);
   border-radius: var(--radius-md);
   padding: 1.5rem;
   text-align: center;
   position: relative;
   overflow: hidden;
-  box-shadow: 0 10px 30px rgba(15, 23, 42, 0.12);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.45), inset 0 0 44px rgba(16, 185, 129, 0.07);
   margin-bottom: 1.25rem;
 }
 

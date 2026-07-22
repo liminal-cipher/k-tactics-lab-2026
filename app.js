@@ -1598,7 +1598,7 @@ async function shareResult() {
   try {
     const card = document.getElementById('manager-result-card');
     if (card && typeof html2canvas === 'function' && navigator.canShare) {
-      const canvas = await html2canvas(card, { backgroundColor: '#ffffff', scale: 2 });
+      const canvas = await html2canvas(card, { backgroundColor: '#0e1626', scale: 2 });
       const blob = await new Promise(r => canvas.toBlob(r, 'image/png'));
       if (blob) {
         const file = new File([blob], 'k-tactics-card.png', { type: 'image/png' });
@@ -1629,7 +1629,7 @@ function downloadCardPNG() {
   const card = document.getElementById('manager-result-card');
   
   html2canvas(card, {
-    backgroundColor: '#ffffff',
+    backgroundColor: '#0e1626',
     scale: 2
   }).then(canvas => {
     const link = document.createElement('a');
@@ -1703,7 +1703,7 @@ function renderLockerRoom(filterPos = 'ALL') {
       </div>
       
       <div style="display: flex; align-items: center; gap: 0.8rem; margin: 0.4rem 0;">
-        <div style="width: 52px; height: 52px; border-radius: 50%; background: linear-gradient(135deg, #eef2f7, #dbe3ec); border: 2px solid ${posColor}; display: flex; align-items: center; justify-content: center; font-size: 1.6rem; box-shadow: 0 4px 12px rgba(15,23,42,0.12);">
+        <div style="width: 52px; height: 52px; border-radius: 50%; background: linear-gradient(135deg, #16223a, #0e1626); border: 2px solid ${posColor}; display: flex; align-items: center; justify-content: center; font-size: 1.6rem; box-shadow: 0 4px 12px rgba(0,0,0,0.4);">
           ${data.pos.includes('GK') ? '🧤' : (data.pos.includes('FW') ? '⚡' : (data.pos.includes('DF') ? '🛡️' : '🧭'))}
         </div>
         <div>
