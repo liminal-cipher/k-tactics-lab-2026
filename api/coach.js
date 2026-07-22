@@ -37,7 +37,7 @@ function rateLimited(ip) {
 const FORMATIONS = ['4-3-3', '3-5-2', '4-2-3-1', '4-4-2'];
 const DIAL_OPTIONS = {
   tempo: ['build', 'standard', 'direct'],
-  route: ['halfspace', 'nopassback', 'kangin'],
+  route: ['halfspace', 'wing', 'longball'],
   press: ['tenback', 'region', 'high'],
   mentality: ['lock', 'balance', 'attack'],
 };
@@ -84,7 +84,7 @@ const STYLE =
 // echoing raw codes like "direct" into Korean replies.
 const DIAL_KO = {
   tempo: { build: '지공 빌드업', standard: '표준 템포', direct: '다이렉트 역습' },
-  route: { halfspace: '하프스페이스', nopassback: 'U자 백패스 금지', kangin: '이강인 프리롤' },
+  route: { halfspace: '중앙 하프스페이스 침투', wing: '측면 오버랩', longball: '다이렉트 롱볼' },
   press: { tenback: '텐백 저지선', region: '중원 지역방어', high: '게겐프레싱' },
   mentality: { lock: '잠그기', balance: '균형', attack: '닥공' },
 };
@@ -104,6 +104,7 @@ function summarizeState(state) {
     s.opponentBriefing ? `상대 브리핑: ${String(s.opponentBriefing).slice(0, 400)}` : '',
     `팀 지표: 공격 ${stats.attack ?? '?'} / 중원 ${stats.midfield ?? '?'} / 수비 ${stats.defense ?? '?'} / 체력 ${stats.stamina ?? '?'}`,
     `전술 다이얼: 템포 ${dialKo('tempo', dials.tempo)}, 루트 ${dialKo('route', dials.route)}, 압박 ${dialKo('press', dials.press)}, 성향 ${dialKo('mentality', dials.mentality)}`,
+    `특수 지침: U자 백패스 금지 ${dials.nopassback ? 'ON' : 'OFF'}, 이강인 프리롤(해줘축구) ${dials.kangin ? 'ON' : 'OFF'}`,
     lineup.length ? `선발 XI: ${lineup.join(', ')}` : '',
     typeof s.vibeScore === 'number' ? `팬 지지율: ${s.vibeScore}%` : '',
   ].filter(Boolean).join('\n');

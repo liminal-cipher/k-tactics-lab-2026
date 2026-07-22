@@ -201,9 +201,9 @@
             <div class="tactic-box">
               <span class="tactic-label">⚽ 공격 루트 (Route)</span>
               <div class="tactic-btns">
-                <button class="btn-tactic active" id="btn-route-halfspace" onclick="setTacticalDial('route', 'halfspace')">하프스페이스</button>
-                <button class="btn-tactic" id="btn-route-nopassback" onclick="setTacticalDial('route', 'nopassback')">U자 백패스 금지</button>
-                <button class="btn-tactic" id="btn-route-kangin" onclick="setTacticalDial('route', 'kangin')">이강인 프리롤</button>
+                <button class="btn-tactic active" id="btn-route-halfspace" onclick="setTacticalDial('route', 'halfspace')">중앙 침투</button>
+                <button class="btn-tactic" id="btn-route-wing" onclick="setTacticalDial('route', 'wing')">측면 오버랩</button>
+                <button class="btn-tactic" id="btn-route-longball" onclick="setTacticalDial('route', 'longball')">다이렉트 롱볼</button>
               </div>
             </div>
             <div class="tactic-box">
@@ -220,6 +220,13 @@
                 <button class="btn-tactic" id="btn-mentality-lock" onclick="setTacticalDial('mentality', 'lock')">잠그기 (굳히기)</button>
                 <button class="btn-tactic active" id="btn-mentality-balance" onclick="setTacticalDial('mentality', 'balance')">균형 (밸런스)</button>
                 <button class="btn-tactic" id="btn-mentality-attack" onclick="setTacticalDial('mentality', 'attack')">닥공 (추격 올인)</button>
+              </div>
+            </div>
+            <div class="tactic-box tactic-box-reform">
+              <span class="tactic-label">🇰🇷 감독 특별 지침 (토글)</span>
+              <div class="tactic-btns">
+                <button class="btn-tactic btn-toggle" id="toggle-nopassback" aria-pressed="false" onclick="toggleTactic('nopassback')">🚫 U자 백패스 금지</button>
+                <button class="btn-tactic btn-toggle" id="toggle-kangin" aria-pressed="false" onclick="toggleTactic('kangin')">🎯 이강인 프리롤</button>
               </div>
             </div>
           </div>
