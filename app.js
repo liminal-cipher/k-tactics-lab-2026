@@ -387,11 +387,11 @@ function checkBizarrePositioning(p1, p2) {
 
   if (strikerInBack) {
     const spot = strikerInBack.pos === 'GK' ? '골문' : '최후방 수비';
-    pushCoachMessage(`🚨 <strong>[AI 코치 비상 경보] 감독님 제정신이십니까?!</strong><br>월드클래스 공격수 <strong>${strikerInBack.name} 선수를 ${spot}(${strikerInBack.pos})에 박아두다니...</strong> 축구 역사상 전례가 없는 역대급 기행입니다! 팬들이 복장 터져서 쓰러집니다!!`, true);
+    pushCoachMessage(`🚨 <strong>[AI 코치 긴급 경보]</strong><br>월드클래스 공격수 <strong>${strikerInBack.name} 선수를 ${spot}(${strikerInBack.pos})에 두는 배치</strong>는 공격 자원을 통째로 사장시킵니다. 팬들도 크게 술렁이고 있어요. 재고를 권합니다!`, true);
     triggerScreenShake();
     pushChatComment(`${strikerInBack.name}을 왜 수비에 둬?! 감독 제정신이냐 당장 경질해라!!`, 'hater');
   } else if (keeperUpFront) {
-    pushCoachMessage(`🚨 <strong>[AI 코치 파멸 경보] ${keeperUpFront.name} 골키퍼가 최전방 스트라이커(${keeperUpFront.pos})?!</strong><br>골문은 누가 지키나요?! 이건 예능 축구도 아니고 파멸 그 자체입니다!! 매 경기 10실점 확정입니다!!`, true);
+    pushCoachMessage(`🚨 <strong>[AI 코치 긴급 경보]</strong><br>${keeperUpFront.name} 골키퍼를 최전방 스트라이커(${keeperUpFront.pos})로 올리면 골문이 비어 실점 위험이 급격히 커집니다. 원래 자리로 되돌리는 걸 권합니다!`, true);
     triggerScreenShake();
     pushChatComment('골키퍼를 공격수로 쓰네 ㅋㅋㅋ 골문 텅텅 비었다 패망각 ㅋㅋㅋ', 'hater');
   } else {
