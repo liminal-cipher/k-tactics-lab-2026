@@ -105,7 +105,7 @@ function summarizeState(state) {
     `팀 지표: 공격 ${stats.attack ?? '?'} / 중원 ${stats.midfield ?? '?'} / 수비 ${stats.defense ?? '?'} / 체력 ${stats.stamina ?? '?'}`,
     `전술 다이얼: 템포 ${dialKo('tempo', dials.tempo)}, 루트 ${dialKo('route', dials.route)}, 압박 ${dialKo('press', dials.press)}, 성향 ${dialKo('mentality', dials.mentality)}`,
     lineup.length ? `선발 XI: ${lineup.join(', ')}` : '',
-    typeof s.vibeScore === 'number' ? `팬 여론(지지율): ${s.vibeScore}%` : '',
+    typeof s.vibeScore === 'number' ? `팬 지지율: ${s.vibeScore}%` : '',
   ].filter(Boolean).join('\n');
 }
 
