@@ -724,39 +724,39 @@ body.glow-success {
 
 /* Position-specific color coding for Player Cards */
 .player-card.card-att {
-  border-color: rgba(244, 63, 94, 0.45);
+  border-color: rgba(225, 29, 72, 0.5);
 }
 .player-card.card-att .player-pos-badge {
-  background: rgba(244, 63, 94, 0.2);
-  color: var(--accent-rose);
-  border-color: var(--accent-rose);
+  background: var(--accent-rose);
+  color: #fff;
+  border-color: #fff;
 }
 
 .player-card.card-mid {
-  border-color: rgba(16, 185, 129, 0.45);
+  border-color: rgba(5, 150, 105, 0.5);
 }
 .player-card.card-mid .player-pos-badge {
-  background: rgba(16, 185, 129, 0.2);
-  color: var(--accent-emerald);
-  border-color: var(--accent-emerald);
+  background: var(--accent-emerald);
+  color: #fff;
+  border-color: #fff;
 }
 
 .player-card.card-def {
-  border-color: rgba(6, 182, 212, 0.45);
+  border-color: rgba(8, 145, 178, 0.5);
 }
 .player-card.card-def .player-pos-badge {
-  background: rgba(6, 182, 212, 0.2);
-  color: var(--accent-cyan);
-  border-color: var(--accent-cyan);
+  background: var(--accent-cyan);
+  color: #fff;
+  border-color: #fff;
 }
 
 .player-card.card-gk {
-  border-color: rgba(245, 158, 11, 0.45);
+  border-color: rgba(217, 119, 6, 0.5);
 }
 .player-card.card-gk .player-pos-badge {
-  background: rgba(245, 158, 11, 0.2);
-  color: var(--accent-amber);
-  border-color: var(--accent-amber);
+  background: var(--accent-amber);
+  color: #fff;
+  border-color: #fff;
 }
 
 /* Mobile Click-to-Swap Active Selection state */
@@ -770,15 +770,18 @@ body.glow-success {
 
 .player-pos-badge {
   position: absolute;
-  top: -8px;
-  left: -6px;
-  background: var(--bg-secondary);
-  color: var(--accent-emerald);
-  font-size: 0.6rem;
+  top: -9px;
+  left: -7px;
+  background: var(--accent-emerald);
+  color: #fff;
+  font-size: 0.62rem;
   font-weight: 800;
-  padding: 0.1rem 0.35rem;
+  letter-spacing: 0.02em;
+  padding: 0.12rem 0.42rem;
   border-radius: var(--radius-sm);
-  border: 1px solid var(--glass-border);
+  border: 1.5px solid #fff;
+  box-shadow: 0 2px 5px rgba(15, 23, 42, 0.35);
+  z-index: 2;
 }
 
 .player-avatar {

@@ -170,6 +170,16 @@ function startHeroScenario() {
   );
 }
 
+// Row breakdown per formation, top to bottom (attack line first, GK last).
+// Each array sums to 11 and matches that formation's squadData ordering, so
+// the pitch renders the real shape (e.g. 4-2-3-1 = ST / 3 AM / 2 DM / 4 DF / GK).
+const FORMATION_ROWS = {
+  '4-3-3':   [3, 3, 4, 1],
+  '3-5-2':   [2, 5, 3, 1],
+  '4-2-3-1': [1, 3, 2, 4, 1],
+  '4-4-2':   [2, 4, 4, 1]
+};
+
 // --- Render Pitch & Players (with Drag & Drop) ---
 function renderPitch(formation) {
   const grid = document.getElementById('pitch-players-grid');
@@ -177,13 +187,15 @@ function renderPitch(formation) {
   
   const players = squadData[formation] || squadData['4-3-3'];
   
-  // Arrange in 4 rows: Forward, Midfield, Defense, Goalkeeper
-  const fwd = players.slice(0, formation === '3-5-2' ? 2 : (formation === '4-2-3-1' ? 1 : 3));
-  const mid = players.slice(fwd.length, fwd.length + (formation === '3-5-2' ? 5 : (formation === '4-2-3-1' ? 5 : 3)));
-  const def = players.slice(fwd.length + mid.length, players.length - 1);
-  const gk = [players[players.length - 1]];
-  
-  const rows = [fwd, mid, def, gk];
+  // Group players into formation lines using the per-formation row map
+  // (falls back to a generic att/mid/def/GK split for any unknown formation).
+  const rowSizes = FORMATION_ROWS[formation] || [3, 3, 4, 1];
+  const rows = [];
+  let cursor = 0;
+  for (const size of rowSizes) {
+    rows.push(players.slice(cursor, cursor + size));
+    cursor += size;
+  }
   
   rows.forEach((rowPlayers, rowIndex) => {
     const rowDiv = document.createElement('div');
@@ -1470,6 +1482,15 @@ function switchTab(tabName) {
   }
 }
 
+// FBref stores age as "years-days" (e.g. "34-005" = 34 years, 5 days into the
+// current year of age). Fans read plain years more easily, so we surface
+// "만 34세" while keeping the exact raw value untouched in the dataset.
+function formatAge(raw) {
+  if (!raw) return '-';
+  const years = String(raw).split('-')[0];
+  return `만 ${years}세`;
+}
+
 function renderLockerRoom(filterPos = 'ALL') {
   const grid = document.getElementById('locker-grid');
   if (!grid || typeof SQUAD_STATS_2026 === 'undefined') return;
@@ -1496,7 +1517,7 @@ function renderLockerRoom(filterPos = 'ALL') {
     card.innerHTML = `
       <div style="display: flex; justify-content: space-between; align-items: center;">
         <span style="background: var(--surface-sunken); color: ${posColor}; border: 1px solid ${posColor}; padding: 0.2rem 0.6rem; border-radius: 4px; font-weight: 800; font-size: 0.75rem;">${data.pos}</span>
-        <span style="font-size: 0.75rem; color: var(--text-secondary);">나이: ${data.age}</span>
+        <span style="font-size: 0.75rem; color: var(--text-secondary);">나이: ${formatAge(data.age)}</span>
       </div>
       
       <div style="display: flex; align-items: center; gap: 0.8rem; margin: 0.4rem 0;">
@@ -1547,7 +1568,7 @@ function openScoutingModal(name, data, posColor) {
   document.getElementById('scout-pos-badge').textContent = data.pos;
   document.getElementById('scout-pos-badge').style.borderColor = posColor;
   document.getElementById('scout-pos-badge').style.color = posColor;
-  document.getElementById('scout-age').textContent = `나이: ${data.age}`;
+  document.getElementById('scout-age').textContent = `나이: ${formatAge(data.age)}`;
   
   document.getElementById('scout-val-mp').textContent = `${data.mp}경기`;
   document.getElementById('scout-val-min').textContent = `${data.min}분`;
