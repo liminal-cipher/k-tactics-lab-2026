@@ -37,7 +37,7 @@
       <button class="tab-btn active" id="tab-btn-tactics" onclick="switchTab('tactics')" style="padding: 0.5rem 1.3rem; font-size: 0.88rem; font-weight: 800; border-radius: var(--radius-full); background: var(--accent-emerald); color: #000; border: 2px solid var(--accent-emerald); cursor: pointer; transition: all 0.3s; display: flex; align-items: center; gap: 0.4rem; box-shadow: 0 0 12px var(--accent-emerald-glow);">
         ⚽ 전술 지휘 보드
       </button>
-      <button class="tab-btn" id="tab-btn-locker" onclick="switchTab('locker')" style="padding: 0.5rem 1.3rem; font-size: 0.88rem; font-weight: 800; border-radius: var(--radius-full); background: rgba(30, 41, 59, 0.8); color: #fff; border: 2px solid var(--glass-border); cursor: pointer; transition: all 0.3s; display: flex; align-items: center; gap: 0.4rem;">
+      <button class="tab-btn" id="tab-btn-locker" onclick="switchTab('locker')" style="padding: 0.5rem 1.3rem; font-size: 0.88rem; font-weight: 800; border-radius: var(--radius-full); background: var(--surface-sunken); color: var(--text-primary); border: 2px solid var(--glass-border); cursor: pointer; transition: all 0.3s; display: flex; align-items: center; gap: 0.4rem;">
         🚪 선수단 락커룸
       </button>
     </nav>
@@ -99,7 +99,7 @@
         </div>
         
         <!-- Ultra-slim minimalistic 3px progress bar -->
-        <div class="vibe-progress-bg" style="height: 3px; margin-bottom: 0.6rem; background: rgba(255,255,255,0.06);">
+        <div class="vibe-progress-bg" style="height: 3px; margin-bottom: 0.6rem; background: var(--surface-sunken-2);">
           <div class="vibe-progress-bar" id="vibe-progress-bar" style="width: 50%; height: 100%; transition: width 0.4s ease, background 0.4s ease;"></div>
         </div>
 
@@ -221,16 +221,16 @@
         <span class="widget-badge">2026 분석실</span>
       </div>
       
-      <div class="coach-card" style="flex: 1; min-height: 0; display: flex; flex-direction: column; justify-content: space-between; gap: 0.8rem; background: rgba(0, 0, 0, 0.35); border: 1px solid var(--glass-border); padding: 1rem; border-radius: var(--radius-md);">
-        <div class="coach-header" style="display: flex; align-items: center; gap: 0.8rem; border-bottom: 1px solid rgba(255,255,255,0.08); padding-bottom: 0.6rem; flex-shrink: 0;">
-          <div class="coach-avatar" style="width: 44px; height: 44px; font-size: 1.4rem; background: rgba(6, 182, 212, 0.15); border: 1px solid var(--accent-cyan); border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">🤖</div>
+      <div class="coach-card" style="flex: 1; min-height: 0; display: flex; flex-direction: column; justify-content: space-between; gap: 0.8rem; background: transparent; border: 1px solid var(--glass-border); padding: 1rem; border-radius: var(--radius-md);">
+        <div class="coach-header" style="display: flex; align-items: center; gap: 0.8rem; border-bottom: 1px solid var(--glass-border); padding-bottom: 0.6rem; flex-shrink: 0;">
+          <div class="coach-avatar" style="width: 44px; height: 44px; font-size: 1.4rem; background: rgba(8, 145, 178, 0.12); border: 1px solid var(--accent-cyan); border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">🤖</div>
           <div style="min-width: 0;">
-            <div style="font-size: 0.95rem; font-weight: 800; color: #fff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">수석 코치 Coach V</div>
+            <div style="font-size: 0.95rem; font-weight: 800; color: var(--text-primary);">수석 코치 Coach V</div>
             <div style="font-size: 0.72rem; color: var(--accent-cyan);">실시간 전술 모니터링 활성화</div>
           </div>
         </div>
-        
-        <div class="coach-msg-box" id="coach-messages" style="flex: 1; min-height: 0; overflow-y: auto; background: rgba(0,0,0,0.45); padding: 0.8rem; border-radius: 6px; border: 1px solid rgba(255,255,255,0.05); display: flex; flex-direction: column; gap: 0.8rem;">
+
+        <div class="coach-msg-box" id="coach-messages" style="flex: 1; min-height: 0; overflow-y: auto; background: var(--surface-sunken); padding: 0.8rem; border-radius: 6px; border: 1px solid var(--glass-border); display: flex; flex-direction: column; gap: 0.8rem;">
           <!-- Default initial greeting -->
           <div class="coach-msg-bubble">
             <strong>🤖 Coach V:</strong><br>
@@ -239,15 +239,15 @@
         </div>
         
         <form class="coach-input-row" onsubmit="return submitCoachChat(event)" style="display: flex; gap: 0.4rem; flex-shrink: 0;">
-          <input id="coach-input" type="text" maxlength="500" autocomplete="off" placeholder="Coach V에게 전술 질문… (예: 스페인전 어떻게 막죠?)" style="flex: 1; min-width: 0; padding: 0.55rem 0.75rem; background: rgba(0,0,0,0.45); border: 1px solid var(--glass-border); border-radius: 6px; color: #fff; font-size: 0.82rem;">
+          <input id="coach-input" type="text" maxlength="500" autocomplete="off" placeholder="Coach V에게 전술 질문… (예: 스페인전 어떻게 막죠?)" style="flex: 1; min-width: 0; padding: 0.55rem 0.75rem; background: var(--bg-secondary); border: 1px solid var(--glass-border); border-radius: 6px; color: var(--text-primary); font-size: 0.82rem;">
           <button type="submit" style="padding: 0.55rem 0.9rem; background: var(--accent-cyan); color: #000; border: none; border-radius: 6px; font-weight: 800; cursor: pointer; font-size: 0.82rem; white-space: nowrap;">전송</button>
         </form>
 
-        <div class="coach-actions" style="display: flex; flex-direction: column; gap: 0.5rem; padding-top: 0.5rem; border-top: 1px solid rgba(255,255,255,0.08); flex-shrink: 0;">
-          <button class="btn-coach-action" onclick="requestAiTacticalAdvice('mexico')" style="width: 100%; text-align: left; padding: 0.6rem 0.9rem; background: rgba(6, 182, 212, 0.15); border: 1px solid var(--accent-cyan); color: #fff; border-radius: 6px; font-weight: 700; cursor: pointer; transition: all 0.2s; font-size: 0.82rem;">
+        <div class="coach-actions" style="display: flex; flex-direction: column; gap: 0.5rem; padding-top: 0.5rem; border-top: 1px solid var(--glass-border); flex-shrink: 0;">
+          <button class="btn-coach-action" onclick="requestAiTacticalAdvice('mexico')" style="width: 100%; text-align: left; padding: 0.6rem 0.9rem; background: rgba(8, 145, 178, 0.1); border: 1px solid var(--accent-cyan); color: var(--text-primary); border-radius: 6px; font-weight: 700; cursor: pointer; transition: all 0.2s; font-size: 0.82rem;">
             ⚡ 멕시코/남아공 공략 전술 추천
           </button>
-          <button class="btn-coach-action" onclick="requestAiTacticalAdvice('balance')" style="width: 100%; text-align: left; padding: 0.6rem 0.9rem; background: rgba(16, 185, 129, 0.15); border: 1px solid var(--accent-emerald); color: #fff; border-radius: 6px; font-weight: 700; cursor: pointer; transition: all 0.2s; font-size: 0.82rem;">
+          <button class="btn-coach-action" onclick="requestAiTacticalAdvice('balance')" style="width: 100%; text-align: left; padding: 0.6rem 0.9rem; background: rgba(5, 150, 105, 0.1); border: 1px solid var(--accent-emerald); color: var(--text-primary); border-radius: 6px; font-weight: 700; cursor: pointer; transition: all 0.2s; font-size: 0.82rem;">
             🛡️ 현재 스쿼드 밸런스 진단
           </button>
         </div>
@@ -262,7 +262,7 @@
       
       <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem; border-bottom: 1px solid var(--glass-border); padding-bottom: 1.2rem;">
         <div>
-          <h2 style="font-size: 1.5rem; font-weight: 900; color: #fff; display: flex; align-items: center; gap: 0.6rem;">
+          <h2 style="font-size: 1.5rem; font-weight: 900; color: var(--text-primary); display: flex; align-items: center; gap: 0.6rem;">
             <span>🚪 2026 월드컵 본선 출전 20인 공식 선수단 락커룸</span>
             <span style="font-size: 0.75rem; background: rgba(16, 185, 129, 0.15); color: var(--accent-emerald); border: 1px solid var(--accent-emerald); padding: 0.2rem 0.6rem; border-radius: 4px;">2026 WC 출전 20인 (FBref 기반)</span>
           </h2>
@@ -318,24 +318,24 @@
       </div>
 
       <!-- Section 1: FBref-based standard stats -->
-      <div style="margin-top: 1rem; background: rgba(15, 23, 42, 0.7); border: 1px solid var(--glass-border); border-radius: 10px; padding: 1.2rem;">
+      <div style="margin-top: 1rem; background: var(--surface-sunken); border: 1px solid var(--glass-border); border-radius: 10px; padding: 1.2rem;">
         <h4 style="font-size: 0.95rem; font-weight: 800; color: var(--accent-cyan); margin-bottom: 0.8rem; display: flex; align-items: center; gap: 0.4rem;">
           <span>✅ 2026 WC 출전 기록 (FBref 기반 표준 스탯)</span>
         </h4>
         <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 0.8rem; font-size: 0.85rem;">
-          <div style="background: rgba(255,255,255,0.03); padding: 0.6rem; border-radius: 6px;">
+          <div style="background: var(--surface-sunken); padding: 0.6rem; border-radius: 6px;">
             <span style="color: var(--text-secondary); display: block; font-size: 0.75rem;">출전 경기 수 (MP)</span>
-            <strong id="scout-val-mp" style="font-size: 1.1rem; color: #fff;">3경기</strong>
+            <strong id="scout-val-mp" style="font-size: 1.1rem; color: var(--text-primary);">3경기</strong>
           </div>
-          <div style="background: rgba(255,255,255,0.03); padding: 0.6rem; border-radius: 6px;">
+          <div style="background: var(--surface-sunken); padding: 0.6rem; border-radius: 6px;">
             <span style="color: var(--text-secondary); display: block; font-size: 0.75rem;">출전 시간 (Min)</span>
-            <strong id="scout-val-min" style="font-size: 1.1rem; color: #fff;">270분</strong>
+            <strong id="scout-val-min" style="font-size: 1.1rem; color: var(--text-primary);">270분</strong>
           </div>
-          <div style="background: rgba(255,255,255,0.03); padding: 0.6rem; border-radius: 6px;">
+          <div style="background: var(--surface-sunken); padding: 0.6rem; border-radius: 6px;">
             <span style="color: var(--text-secondary); display: block; font-size: 0.75rem;">선발 출전 (Starts)</span>
-            <strong id="scout-val-starts" style="font-size: 1.1rem; color: #fff;">3회</strong>
+            <strong id="scout-val-starts" style="font-size: 1.1rem; color: var(--text-primary);">3회</strong>
           </div>
-          <div style="background: rgba(255,255,255,0.03); padding: 0.6rem; border-radius: 6px;">
+          <div style="background: var(--surface-sunken); padding: 0.6rem; border-radius: 6px;">
             <span style="color: var(--text-secondary); display: block; font-size: 0.75rem;">공격포인트 (G+A)</span>
             <strong id="scout-val-ga" style="font-size: 1.1rem; color: var(--accent-rose);">1골 1도움</strong>
           </div>
@@ -343,7 +343,7 @@
       </div>
 
       <!-- Section 2: Derived rating dimensions (from per-90 FBref stats, scripts/parse_stats.py) -->
-      <div style="margin-top: 1.2rem; background: rgba(30, 41, 59, 0.6); border: 1px solid var(--glass-border); border-radius: 10px; padding: 1.2rem;">
+      <div style="margin-top: 1.2rem; background: var(--surface-sunken-2); border: 1px solid var(--glass-border); border-radius: 10px; padding: 1.2rem;">
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.8rem;">
           <h4 style="font-size: 0.95rem; font-weight: 800; color: var(--accent-amber); display: flex; align-items: center; gap: 0.4rem;">
             <span>🔬 4대 파생 능력치 (per-90 스탯 산출)</span>
@@ -356,17 +356,17 @@
         </p>
 
         <div style="display: flex; flex-direction: column; gap: 0.6rem; font-size: 0.85rem;">
-          <div style="display: flex; justify-content: space-between; padding: 0.5rem; background: rgba(0,0,0,0.2); border-radius: 6px;">
+          <div style="display: flex; justify-content: space-between; padding: 0.5rem; background: var(--surface-sunken); border-radius: 6px;">
             <span style="color: var(--text-primary);">공격력 / 수비력</span>
-            <span style="color: #fff; font-weight: 700;"><span id="scout-adv-attack">-</span> / <span id="scout-adv-defense">-</span></span>
+            <span style="color: var(--text-primary); font-weight: 700;"><span id="scout-adv-attack">-</span> / <span id="scout-adv-defense">-</span></span>
           </div>
-          <div style="display: flex; justify-content: space-between; padding: 0.5rem; background: rgba(0,0,0,0.2); border-radius: 6px;">
+          <div style="display: flex; justify-content: space-between; padding: 0.5rem; background: var(--surface-sunken); border-radius: 6px;">
             <span style="color: var(--text-primary);">중원 장악 / 체력</span>
-            <span style="color: #fff; font-weight: 700;"><span id="scout-adv-midfield">-</span> / <span id="scout-adv-stamina">-</span></span>
+            <span style="color: var(--text-primary); font-weight: 700;"><span id="scout-adv-midfield">-</span> / <span id="scout-adv-stamina">-</span></span>
           </div>
-          <div style="display: flex; justify-content: space-between; padding: 0.5rem; background: rgba(0,0,0,0.2); border-radius: 6px;">
+          <div style="display: flex; justify-content: space-between; padding: 0.5rem; background: var(--surface-sunken); border-radius: 6px;">
             <span style="color: var(--text-primary);">슈팅 결정력 / 침착성</span>
-            <span style="color: #fff; font-weight: 700;"><span id="scout-adv-shooting">-</span> / <span id="scout-adv-composure">-</span></span>
+            <span style="color: var(--text-primary); font-weight: 700;"><span id="scout-adv-shooting">-</span> / <span id="scout-adv-composure">-</span></span>
           </div>
         </div>
       </div>
@@ -374,7 +374,7 @@
       <!-- Section 3: AI Chief Coach Note -->
       <div style="margin-top: 1.2rem; background: rgba(6, 182, 212, 0.1); border-left: 4px solid var(--accent-cyan); padding: 1rem; border-radius: 4px;">
         <div style="font-weight: 800; color: var(--accent-cyan); font-size: 0.85rem; margin-bottom: 0.3rem;">🤖 Coach V 스카우팅 리포트</div>
-        <p style="font-size: 0.8rem; color: #fff; line-height: 1.4;">
+        <p style="font-size: 0.8rem; color: var(--text-primary); line-height: 1.4;">
           "2026 월드컵 본선에서 대한민국 국가대표팀으로 실전 출전한 선수입니다. FBref per-90 스탯을 4대 능력치로 변환한 지표를 기준으로, 현재 포지션에서의 전술 롤 적합도를 평가합니다."
         </p>
       </div>
@@ -411,7 +411,7 @@
       </div>
 
       <!-- Penalty Shootout Trigger / Interactive Box (When Match Ends in Draw) -->
-      <div class="pk-shootout-container" id="pk-shootout-container" style="display: none; margin-bottom: 1.2rem; background: rgba(15, 23, 42, 0.85); border: 2px solid var(--accent-amber); border-radius: 10px; padding: 1.2rem;">
+      <div class="pk-shootout-container" id="pk-shootout-container" style="display: none; margin-bottom: 1.2rem; background: var(--surface-sunken); border: 2px solid var(--accent-amber); border-radius: 10px; padding: 1.2rem;">
         <div style="text-align: center; margin-bottom: 1rem;">
           <h4 id="pk-header-title" style="font-size: 1.2rem; font-weight: 900; color: var(--accent-amber); margin-bottom: 0.3rem;">⚽ 90분 정규시간 동점 종료! 승부차기(PK) 돌입!</h4>
           <p style="font-size: 0.82rem; color: var(--text-secondary);">1번부터 5번까지 PK 키커를 지정하고 최종 승부를 가리십시오.</p>
@@ -463,13 +463,13 @@
   </div>
 
   <!-- ================= HERO INTRO MODAL (남아공전 재도전 온보딩) ================= -->
-  <div id="hero-intro-modal" style="position: fixed; inset: 0; z-index: 10000; background: rgba(5,8,18,0.92); backdrop-filter: blur(6px); display: flex; align-items: center; justify-content: center; padding: 1.5rem;">
-    <div style="max-width: 560px; width: 100%; background: linear-gradient(160deg, rgba(15,23,42,0.98), rgba(30,41,59,0.98)); border: 1px solid var(--glass-border); border-radius: 16px; padding: 2rem; box-shadow: 0 20px 60px rgba(0,0,0,0.6); text-align: center;">
+  <div id="hero-intro-modal" style="position: fixed; inset: 0; z-index: 10000; background: rgba(15,23,42,0.5); backdrop-filter: blur(6px); display: flex; align-items: center; justify-content: center; padding: 1.5rem;">
+    <div style="max-width: 560px; width: 100%; background: linear-gradient(160deg, #ffffff, #f1f5f9); border: 1px solid var(--glass-border); border-radius: 16px; padding: 2rem; box-shadow: 0 24px 60px rgba(15,23,42,0.28); text-align: center;">
       <div style="font-size: 0.78rem; font-weight: 800; color: var(--accent-rose); letter-spacing: 0.1em; margin-bottom: 0.6rem;">2026 북중미 월드컵 · 조별리그 최종전</div>
-      <h2 style="font-size: 1.65rem; font-weight: 900; color: #fff; line-height: 1.35; margin-bottom: 1rem;">비기기만 하면 32강이었다.<br>그런데 <span style="color: var(--accent-rose);">남아공에 0-1</span>로 졌다.</h2>
+      <h2 style="font-size: 1.65rem; font-weight: 900; color: var(--text-primary); line-height: 1.35; margin-bottom: 1rem;">비기기만 하면 32강이었다.<br>그런데 <span style="color: var(--accent-rose);">남아공에 0-1</span>로 졌다.</h2>
       <p style="font-size: 0.92rem; color: var(--text-secondary); line-height: 1.65; margin-bottom: 1.6rem;">
         손흥민은 벤치에 앉았고, 전술은 없었다. 황금세대와 꿀조를 받고도 조별리그 탈락. 그날 온 국민이 외쳤다.<br>
-        <strong style="color:#fff;">"내가 감독이었다면 달랐다."</strong><br>
+        <strong style="color: var(--text-primary);">"내가 감독이었다면 달랐다."</strong><br>
         이제 그 경기를, 당신이 다시 지휘한다.
       </p>
       <button onclick="startHeroScenario()" style="width: 100%; padding: 0.9rem; background: var(--accent-rose); color: #fff; border: none; border-radius: 10px; font-size: 1.05rem; font-weight: 900; cursor: pointer; box-shadow: 0 8px 24px rgba(244,63,94,0.35);">⚽ 그 남아공전을 다시 지휘하기</button>
