@@ -72,28 +72,56 @@
     <!-- LEFT PANEL: Vibe Meter, Stats Radar & Live Chat (No Clutter!) -->
     <aside class="glass-panel panel-left" id="panel-left">
       
-      <!-- Team Balance Stats Box (Primary Tactical Core!) -->
-      <section class="stats-box" id="section-stats">
-        <div class="widget-header-box">
-          <span class="widget-title">📊 실시간 팀 밸런스 진단</span>
-          <span class="widget-badge">FBref 기반</span>
-        </div>
-        
-        <div class="stat-row">
-          <div class="stat-header"><span>공격 파괴력 (슈팅·득점 기여)</span> <span id="stat-val-attack" style="color: var(--accent-rose);">75</span></div>
-          <div class="stat-bar-bg"><div class="stat-bar-fill fill-attack" id="stat-bar-attack" style="width: 75%;"></div></div>
-        </div>
-        <div class="stat-row">
-          <div class="stat-header"><span>측면 수비 안정도 (풀백 방어)</span> <span id="stat-val-defense" style="color: var(--accent-cyan);">60</span></div>
-          <div class="stat-bar-bg"><div class="stat-bar-fill fill-defense" id="stat-bar-defense" style="width: 60%;"></div></div>
-        </div>
-        <div class="stat-row">
-          <div class="stat-header"><span>중원 장악 및 탈압박 능력</span> <span id="stat-val-midfield" style="color: var(--accent-emerald);">80</span></div>
-          <div class="stat-bar-bg"><div class="stat-bar-fill fill-midfield" id="stat-bar-midfield" style="width: 80%;"></div></div>
-        </div>
-        <div class="stat-row">
-          <div class="stat-header"><span>후반전 체력 유지력 (Stamina)</span> <span id="stat-val-stamina" style="color: var(--accent-amber);">70</span></div>
-          <div class="stat-bar-bg"><div class="stat-bar-fill fill-stamina" id="stat-bar-stamina" style="width: 70%;"></div></div>
+      <!-- Tactical Dials Console (moved from the bottom deck) — collapsible, default open -->
+      <section class="rail-block collapsible" id="rail-dials">
+        <button type="button" class="rail-block-head collapse-head" onclick="toggleCollapse(this)" aria-expanded="true">
+          <span class="widget-title">🕹️ 감독 전술 콘솔</span>
+          <span class="rail-head-right"><span class="widget-badge">4 다이얼 · 2 토글</span><span class="chev">▾</span></span>
+        </button>
+        <div class="collapse-body">
+          <div class="tactical-controls-console" id="tactical-controls-console">
+            <div class="tactical-grid-4">
+              <div class="tactic-box">
+                <span class="tactic-label">⚡ 전개 템포 (Tempo)</span>
+                <div class="tactic-btns">
+                  <button class="btn-tactic" id="btn-tempo-build" onclick="setTacticalDial('tempo', 'build')">지공 빌드업</button>
+                  <button class="btn-tactic active" id="btn-tempo-standard" onclick="setTacticalDial('tempo', 'standard')">표준 템포</button>
+                  <button class="btn-tactic" id="btn-tempo-direct" onclick="setTacticalDial('tempo', 'direct')">다이렉트 역습</button>
+                </div>
+              </div>
+              <div class="tactic-box">
+                <span class="tactic-label">⚽ 공격 루트 (Route)</span>
+                <div class="tactic-btns">
+                  <button class="btn-tactic active" id="btn-route-halfspace" onclick="setTacticalDial('route', 'halfspace')">중앙 침투</button>
+                  <button class="btn-tactic" id="btn-route-wing" onclick="setTacticalDial('route', 'wing')">측면 오버랩</button>
+                  <button class="btn-tactic" id="btn-route-longball" onclick="setTacticalDial('route', 'longball')">다이렉트 롱볼</button>
+                </div>
+              </div>
+              <div class="tactic-box">
+                <span class="tactic-label">🔥 압박 라인 <em class="tactic-hint">어디서 끊나 · 수비 위치</em></span>
+                <div class="tactic-btns">
+                  <button class="btn-tactic" id="btn-press-tenback" onclick="setTacticalDial('press', 'tenback')">텐백 저지선</button>
+                  <button class="btn-tactic active" id="btn-press-region" onclick="setTacticalDial('press', 'region')">중원 지역방어</button>
+                  <button class="btn-tactic" id="btn-press-high" onclick="setTacticalDial('press', 'high')">게겐프레싱</button>
+                </div>
+              </div>
+              <div class="tactic-box">
+                <span class="tactic-label">🧭 경기 성향 <em class="tactic-hint">얼마나 전진하나 · 리스크</em></span>
+                <div class="tactic-btns">
+                  <button class="btn-tactic" id="btn-mentality-lock" onclick="setTacticalDial('mentality', 'lock')">잠그기 (굳히기)</button>
+                  <button class="btn-tactic active" id="btn-mentality-balance" onclick="setTacticalDial('mentality', 'balance')">균형 (밸런스)</button>
+                  <button class="btn-tactic" id="btn-mentality-attack" onclick="setTacticalDial('mentality', 'attack')">닥공 (추격 올인)</button>
+                </div>
+              </div>
+              <div class="tactic-box tactic-box-reform">
+                <span class="tactic-label">🇰🇷 감독 특별 지침 (토글)</span>
+                <div class="tactic-btns">
+                  <button class="btn-tactic btn-toggle" id="toggle-nopassback" aria-pressed="false" onclick="toggleTactic('nopassback')">🚫 U자 백패스 금지</button>
+                  <button class="btn-tactic btn-toggle" id="toggle-kangin" aria-pressed="false" onclick="toggleTactic('kangin')">🎯 이강인 프리롤</button>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
       </section>
 
@@ -173,62 +201,36 @@
         </div>
       </div>
 
-      <!-- Bottom Control Sandbox (Tabbed Toggle: Bench Squad vs 4 Tactical Dials) -->
-      <div class="bottom-tab-container" id="bottom-tab-container">
-        <div class="bottom-tab-header">
-          <button class="btn-bottom-tab active" id="tab-btn-bench" onclick="switchBottomTab('bench')">🔄 교체 대기 벤치 멤버 (선수 클릭/드래그 교체)</button>
-          <button class="btn-bottom-tab" id="tab-btn-console" onclick="switchBottomTab('tactics')">🕹️ 감독 4대 핵심 전술 지침 콘솔 (템포·루트·압박·성향)</button>
+      <!-- Team-balance HUD strip: glanceable 4-bar readout under the pitch -->
+      <section class="team-hud" id="section-stats">
+        <span class="hud-title">📊 팀 밸런스 <em>FBref</em></span>
+        <div class="hud-cell">
+          <div class="hud-top"><span class="hud-lab">공격</span><span class="hud-val" id="stat-val-attack" style="color: var(--accent-rose);">75</span></div>
+          <div class="hud-bar-bg"><div class="hud-bar fill-attack" id="stat-bar-attack" style="width: 75%;"></div></div>
         </div>
+        <div class="hud-cell">
+          <div class="hud-top"><span class="hud-lab">수비</span><span class="hud-val" id="stat-val-defense" style="color: var(--accent-cyan);">60</span></div>
+          <div class="hud-bar-bg"><div class="hud-bar fill-defense" id="stat-bar-defense" style="width: 60%;"></div></div>
+        </div>
+        <div class="hud-cell">
+          <div class="hud-top"><span class="hud-lab">중원</span><span class="hud-val" id="stat-val-midfield" style="color: var(--accent-emerald);">80</span></div>
+          <div class="hud-bar-bg"><div class="hud-bar fill-midfield" id="stat-bar-midfield" style="width: 80%;"></div></div>
+        </div>
+        <div class="hud-cell">
+          <div class="hud-top"><span class="hud-lab">체력</span><span class="hud-val" id="stat-val-stamina" style="color: var(--accent-amber);">70</span></div>
+          <div class="hud-bar-bg"><div class="hud-bar fill-stamina" id="stat-bar-stamina" style="width: 70%;"></div></div>
+        </div>
+      </section>
 
-        <!-- Bench Squad Container (Tab 1) -->
-        <div class="bench-container tab-pane active" id="bench-container">
+      <!-- Bench drawer: collapsible so it stops eating pitch height -->
+      <div class="bottom-tab-container bench-drawer collapsible collapsed" id="bottom-tab-container">
+        <button type="button" class="bench-drawer-head collapse-head" id="tab-btn-bench" onclick="toggleCollapse(this)" aria-expanded="false">
+          <span>🔄 교체 대기 벤치 <span class="bench-count">9명</span></span>
+          <span class="bench-drawer-hint">선수 클릭·드래그로 교체 · 클릭하여 접기/펼치기 <span class="chev">▾</span></span>
+        </button>
+        <div class="collapse-body bench-container" id="bench-container">
           <div class="bench-grid" id="bench-grid">
             <!-- Populated by app.js -->
-          </div>
-        </div>
-
-        <!-- Tactical Controls Console (Tab 2) -->
-        <div class="tactical-controls-console tab-pane" id="tactical-controls-console" style="display: none;">
-          <div class="tactical-grid-4">
-            <div class="tactic-box">
-              <span class="tactic-label">⚡ 전개 템포 (Tempo)</span>
-              <div class="tactic-btns">
-                <button class="btn-tactic" id="btn-tempo-build" onclick="setTacticalDial('tempo', 'build')">지공 빌드업</button>
-                <button class="btn-tactic active" id="btn-tempo-standard" onclick="setTacticalDial('tempo', 'standard')">표준 템포</button>
-                <button class="btn-tactic" id="btn-tempo-direct" onclick="setTacticalDial('tempo', 'direct')">다이렉트 역습</button>
-              </div>
-            </div>
-            <div class="tactic-box">
-              <span class="tactic-label">⚽ 공격 루트 (Route)</span>
-              <div class="tactic-btns">
-                <button class="btn-tactic active" id="btn-route-halfspace" onclick="setTacticalDial('route', 'halfspace')">중앙 침투</button>
-                <button class="btn-tactic" id="btn-route-wing" onclick="setTacticalDial('route', 'wing')">측면 오버랩</button>
-                <button class="btn-tactic" id="btn-route-longball" onclick="setTacticalDial('route', 'longball')">다이렉트 롱볼</button>
-              </div>
-            </div>
-            <div class="tactic-box">
-              <span class="tactic-label">🔥 압박 강도 (Pressing)</span>
-              <div class="tactic-btns">
-                <button class="btn-tactic" id="btn-press-tenback" onclick="setTacticalDial('press', 'tenback')">텐백 저지선</button>
-                <button class="btn-tactic active" id="btn-press-region" onclick="setTacticalDial('press', 'region')">중원 지역방어</button>
-                <button class="btn-tactic" id="btn-press-high" onclick="setTacticalDial('press', 'high')">게겐프레싱</button>
-              </div>
-            </div>
-            <div class="tactic-box">
-              <span class="tactic-label">🛡️ 경기 성향 (Mentality)</span>
-              <div class="tactic-btns">
-                <button class="btn-tactic" id="btn-mentality-lock" onclick="setTacticalDial('mentality', 'lock')">잠그기 (굳히기)</button>
-                <button class="btn-tactic active" id="btn-mentality-balance" onclick="setTacticalDial('mentality', 'balance')">균형 (밸런스)</button>
-                <button class="btn-tactic" id="btn-mentality-attack" onclick="setTacticalDial('mentality', 'attack')">닥공 (추격 올인)</button>
-              </div>
-            </div>
-            <div class="tactic-box tactic-box-reform">
-              <span class="tactic-label">🇰🇷 감독 특별 지침 (토글)</span>
-              <div class="tactic-btns">
-                <button class="btn-tactic btn-toggle" id="toggle-nopassback" aria-pressed="false" onclick="toggleTactic('nopassback')">🚫 U자 백패스 금지</button>
-                <button class="btn-tactic btn-toggle" id="toggle-kangin" aria-pressed="false" onclick="toggleTactic('kangin')">🎯 이강인 프리롤</button>
-              </div>
-            </div>
           </div>
         </div>
       </div>
@@ -236,13 +238,13 @@
     </section>
 
     <!-- RIGHT PANEL: Embedded AI Chief Tactical Coach -->
-    <aside class="sidebar-right glass-panel" id="panel-right" style="display: flex; flex-direction: column; gap: 0.8rem; overflow-y: auto;">
-      <div class="widget-header-box">
+    <aside class="sidebar-right glass-panel collapsible" id="panel-right" style="display: flex; flex-direction: column; gap: 0.8rem; overflow-y: auto;">
+      <button type="button" class="rail-block-head collapse-head" onclick="toggleCollapse(this)" aria-expanded="true">
         <span class="widget-title">🤖 AI 수석 코치 'Coach V'</span>
-        <span class="widget-badge">2026 분석실</span>
-      </div>
-      
-      <div class="coach-card" style="flex: 1; min-height: 0; display: flex; flex-direction: column; justify-content: space-between; gap: 0.8rem; background: transparent; border: 1px solid var(--glass-border); padding: 1rem; border-radius: var(--radius-md);">
+        <span class="rail-head-right"><span class="widget-badge">2026 분석실</span><span class="chev">▾</span></span>
+      </button>
+
+      <div class="coach-card collapse-body" style="flex: 1; min-height: 0; display: flex; flex-direction: column; justify-content: space-between; gap: 0.8rem; background: transparent; border: 1px solid var(--glass-border); padding: 1rem; border-radius: var(--radius-md);">
         <div class="coach-msg-box" id="coach-messages" style="flex: 1; min-height: 84px; overflow-y: auto; background: var(--surface-sunken); padding: 0.7rem; border-radius: 8px; border: 1px solid var(--glass-border); display: flex; flex-direction: column; gap: 0.7rem;">
           <!-- Default initial greeting -->
           <div class="coach-msg-bubble">

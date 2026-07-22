@@ -1655,3 +1655,111 @@ body.glow-success {
   border-color: var(--accent-rose); box-shadow: 0 3px 10px rgba(255, 91, 116, 0.35);
 }
 .tactic-box-reform { border-color: rgba(246, 201, 69, 0.28); }
+
+/* ==========================================================================
+   Stage 2 layout re-arch: bottom team-HUD, right-rail dials, bench drawer,
+   collapsible Coach V, un-clipped 5-row pitch. (Overrides earlier rules.)
+   ========================================================================== */
+
+/* --- Grid: rail rows rebalanced (railtop = Coach V, railbot = dials + chat) --- */
+#view-tactics.main-container {
+  grid-template-rows: minmax(0, 1fr) minmax(0, 1.15fr);
+}
+
+/* --- Generic collapse machinery (Coach V, dials, bench drawer) --- */
+.collapse-head {
+  display: flex; align-items: center; justify-content: space-between; gap: 0.5rem;
+  width: 100%; cursor: pointer; text-align: left;
+  background: transparent; border: none; padding: 0; margin: 0; color: inherit; font: inherit;
+}
+.collapse-head .chev {
+  display: inline-block; color: var(--text-muted); font-size: 0.8rem;
+  transition: transform 0.25s ease;
+}
+.collapsible.collapsed .collapse-head .chev { transform: rotate(-90deg); }
+.collapsible.collapsed > .collapse-body { display: none !important; }
+.rail-head-right { display: flex; align-items: center; gap: 0.5rem; }
+
+/* Rail section head (Coach V + dials share this look) */
+.rail-block { display: flex; flex-direction: column; min-height: 0; }
+.rail-block-head {
+  padding-bottom: 0.5rem; margin-bottom: 0.55rem;
+  border-bottom: 1px solid var(--glass-border);
+}
+.rail-block-head:hover .widget-title { color: #fff; }
+#panel-right.collapsed { flex: 0 0 auto !important; }
+
+/* --- Team-balance HUD strip (glanceable, under the pitch) --- */
+.team-hud {
+  display: flex; align-items: center; gap: 0.75rem;
+  background: var(--glass-bg); border: 1px solid var(--glass-border);
+  border-radius: 12px; padding: 0.5rem 0.9rem; flex-shrink: 0;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.25);
+}
+.team-hud .hud-title {
+  font-family: var(--font-display); font-size: 0.72rem; font-weight: 800;
+  color: var(--text-secondary); white-space: nowrap;
+  display: flex; align-items: center; gap: 0.35rem;
+}
+.team-hud .hud-title em {
+  font-style: normal; font-size: 0.56rem; font-weight: 800; color: var(--accent-cyan);
+  border: 1px solid rgba(6, 182, 212, 0.4); background: rgba(6, 182, 212, 0.12);
+  padding: 0.05rem 0.38rem; border-radius: 99px; letter-spacing: 0.04em;
+}
+.team-hud .hud-cell { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 0.22rem; }
+.team-hud .hud-top { display: flex; align-items: baseline; justify-content: space-between; gap: 0.3rem; }
+.team-hud .hud-lab { font-size: 0.72rem; font-weight: 700; color: var(--text-secondary); }
+.team-hud .hud-val { font-family: var(--font-display); font-size: 0.98rem; font-weight: 800; line-height: 1; }
+.team-hud .hud-bar-bg { height: 6px; background: var(--surface-sunken-2); border-radius: 99px; overflow: hidden; }
+.team-hud .hud-bar { height: 100%; border-radius: 99px; transition: width 0.5s ease; }
+
+/* --- Bench drawer (collapsible) --- */
+.bench-drawer { gap: 0 !important; }
+.bench-drawer-head {
+  padding: 0.15rem 0.1rem; font-size: 0.78rem; font-weight: 800; color: var(--text-secondary);
+}
+.bench-drawer-head:hover { color: var(--text-primary); }
+.bench-drawer .collapse-body { margin-top: 0.5rem; }
+.bench-count {
+  font-size: 0.66rem; color: var(--accent-cyan); font-weight: 800;
+  background: rgba(6, 182, 212, 0.12); border: 1px solid rgba(6, 182, 212, 0.35);
+  padding: 0.02rem 0.42rem; border-radius: 99px; margin-left: 0.35rem;
+}
+.bench-drawer-hint {
+  display: flex; align-items: center; gap: 0.45rem;
+  font-size: 0.66rem; font-weight: 600; color: var(--text-muted); white-space: nowrap;
+}
+
+/* --- Right-rail dials: compact single column, no double frame --- */
+#panel-left .tactical-controls-console {
+  padding: 0; background: transparent; border: none; margin-top: 0;
+}
+#panel-left .tactical-grid-4 { grid-template-columns: 1fr; gap: 0.5rem; }
+#panel-left .tactic-box { padding: 0.5rem 0.55rem; gap: 0.32rem; }
+#panel-left .btn-tactic { font-size: 0.7rem; padding: 0.34rem 0.2rem; }
+.tactic-label { display: flex; flex-direction: column; gap: 1px; }
+.tactic-hint {
+  font-style: normal; font-size: 0.6rem; font-weight: 600;
+  color: var(--text-muted); letter-spacing: 0;
+}
+
+/* --- Pitch: reclaim height so 5-row shapes (4-2-3-1) never clip.
+       Cards are sized compactly so five rows always fit the field plane. --- */
+#panel-center .pitch-container { flex: 1 1 300px; min-height: 300px !important; }
+.pitch-field {
+  inset: 18px 24px 44px;
+  transform: rotateX(15deg); transform-origin: center 74%;
+}
+.pitch-players-grid { inset: 6px 26px 58px; gap: 0; }
+.pitch-players-grid .player-card { width: 76px; padding: 0.2rem 0.24rem 0.24rem; }
+.pitch-players-grid .player-avatar {
+  width: 27px; height: 27px; font-size: 0.82rem;
+  margin-top: 0.2rem; margin-bottom: 0.05rem;
+}
+.pitch-players-grid .player-name { font-size: 0.63rem; line-height: 1.05; }
+.pitch-players-grid .player-role-tag { font-size: 0.46rem; margin-top: 0.06rem; padding: 0.04rem 0.18rem; }
+.pitch-players-grid .player-rating { font-size: 0.78rem; top: 3px; left: 6px; }
+.pitch-players-grid .player-pos-badge { font-size: 0.48rem; top: 3px; right: 5px; padding: 0.05rem 0.24rem; }
+
+/* --- Left rail (railbot) holds dials over chat; keep chat from over-growing --- */
+#panel-left #section-live-chat { flex: 1 1 auto; min-height: 120px; }
