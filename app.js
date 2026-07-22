@@ -767,6 +767,16 @@ function setTacticalDial(category, val) {
   updateStats();
 }
 
+// Generic collapse toggle for rail sections + the bench drawer.
+// The clicked head button's parent carries `.collapsible`; toggling `.collapsed`
+// hides its `.collapse-body` (see CSS). Keeps every panel restorable in place.
+function toggleCollapse(headBtn) {
+  const section = headBtn && headBtn.parentElement;
+  if (!section) return;
+  const collapsed = section.classList.toggle('collapsed');
+  headBtn.setAttribute('aria-expanded', String(!collapsed));
+}
+
 function switchBottomTab(tabName) {
   const benchBox = document.getElementById('bench-container');
   const tacticsBox = document.getElementById('tactical-controls-console');
