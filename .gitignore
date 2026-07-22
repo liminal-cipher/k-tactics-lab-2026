@@ -9,3 +9,6 @@
 
 # Vercel build/dev output
 .vercel
+
+# Python bytecode (scripts/parse_stats.py runs)
+__pycache__/
