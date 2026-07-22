@@ -12,9 +12,11 @@ const state = {
   subActions: [], // [ { time: '60m', playerOut: '황인범', playerIn: '오현규' } ]
   dials: {
     tempo: 'standard', // 'build' | 'standard' | 'direct'
-    route: 'halfspace', // 'halfspace' | 'nopassback' | 'kangin'
+    route: 'halfspace', // 'halfspace' | 'wing' | 'longball' (attacking approach axis)
     press: 'region', // 'tenback' | 'region' | 'high'
-    mentality: 'balance' // 'lock' | 'balance' | 'attack'
+    mentality: 'balance', // 'lock' | 'balance' | 'attack'
+    nopassback: false, // 🚫 U자 백패스 금지 (signature reform toggle)
+    kangin: false // 🎯 이강인 프리롤 / 해줘축구 (high-risk star-reliance toggle)
   },
   halfTimeScore: { kor: 0, opp: 1 },
   finalScore: { kor: 2, opp: 1 },
@@ -711,9 +713,31 @@ function selectOpponent(opp) {
   updateStats();
 }
 
+// Signature reform toggles (KR-specific): U자 백패스 금지, 이강인 프리롤.
+// Kept OUT of the shared Route dial so Route stays a coherent spatial axis
+// (and the AI opponent never has to pick "이강인 프리롤").
+function toggleTactic(name) {
+  state.dials[name] = !state.dials[name];
+  const on = state.dials[name];
+  const btn = document.getElementById(`toggle-${name}`);
+  if (btn) { btn.classList.toggle('on', on); btn.setAttribute('aria-pressed', String(on)); }
+  SFX.ui(); if (name === 'nopassback' && on) SFX.cheer();
+  if (name === 'nopassback') {
+    pushCoachMessage(on
+      ? `🚫 <strong>[U자 백패스 전면 금지]</strong><br>후방 횡·백패스를 막고 무조건 전방 전진 패스만! U자형 빌드업을 폐기 — 팬 지지율이 대폭 상승합니다!`
+      : `↩️ U자 백패스 허용으로 되돌렸습니다. (후방 안정성↑, 대신 팬 지지율엔 아쉬움)`, false);
+  } else if (name === 'kangin') {
+    pushCoachMessage(on
+      ? `🎯 <strong>[이강인 프리롤 — 해줘축구 승부수]</strong><br>이강인에게 공격 전권을 부여합니다. 화력은 크게 오르지만, 스타 의존 논란으로 팬 지지율엔 부담이 됩니다.`
+      : `↩️ 이강인 프리롤을 해제하고 공격을 고르게 분담합니다.`, false);
+  }
+  recalculateVibe();
+  updateStats();
+}
+
 function setTacticalDial(category, val) {
   state.dials[category] = val;
-  if (category === 'route' && val === 'nopassback') SFX.cheer(); else SFX.ui();
+  SFX.ui();
 
   // Update button UI
   const parent = document.getElementById(`btn-${category}-${val}`)?.closest('.tactic-btns');
@@ -728,8 +752,9 @@ function setTacticalDial(category, val) {
     if (val === 'direct') pushCoachMessage(`⚡ <strong>[템포 변경: 다이렉트 고속 역습]</strong><br>전방으로 빠른 수직 패스를 투입합니다! 체력 소모가 다소 크지만 상대 수비 뒷공간을 단숨에 찢을 수 있습니다.`);
     else if (val === 'build') pushCoachMessage(`🐢 <strong>[템포 변경: 지공 세밀 빌드업]</strong><br>중원에서 점유율을 쥐고 차근차근 상대 수비를 흔듭니다. 패스 성공률과 중원 장악 지수가 상승합니다.`);
   } else if (category === 'route') {
-    if (val === 'halfspace') pushCoachMessage(`🎯 <strong>[공격 루트: 하프스페이스 침투]</strong><br>상대 풀백과 센터백 사이의 하프스페이스 틈새를 집중 타격합니다. 결정적 슈팅 기회가 극대화됩니다!`);
-    else if (val === 'nopassback') pushCoachMessage(`🚫 <strong>[공격 루트: U자 백패스 전면 금지]</strong><br>후방 횡패스를 엄격히 제한하고 무조건 전방으로 전진 패스만 허용합니다! 팬 지지율이 대폭 상승합니다!`, false);
+    if (val === 'halfspace') pushCoachMessage(`🎯 <strong>[공격 루트: 중앙 하프스페이스 침투]</strong><br>상대 풀백과 센터백 사이 하프스페이스 틈새를 집중 타격합니다. 결정적 슈팅 기회가 극대화됩니다!`);
+    else if (val === 'wing') pushCoachMessage(`↔️ <strong>[공격 루트: 측면 오버랩]</strong><br>풀백을 전진시켜 측면을 허물고 크로스로 공략합니다. 화력은 오르지만 측면 뒷공간이 열릴 수 있습니다.`);
+    else if (val === 'longball') pushCoachMessage(`🚀 <strong>[공격 루트: 다이렉트 롱볼]</strong><br>중원을 생략하고 전방으로 길게 찔러 수비 뒷공간을 직선으로 노립니다. 높은 수비 라인 상대에 특히 효과적입니다.`);
   } else if (category === 'press') {
     if (val === 'high') pushCoachMessage(`🔥 <strong>[압박 강도: 초고강도 게겐프레싱]</strong><br>전방에서 공을 빼앗기자마자 5초 내에 다시 에워쌉니다! 강력한 수비 지수를 얻지만 후반전 체력 급감에 주의하세요!`, true);
     else if (val === 'tenback') pushCoachMessage(`🚌 <strong>[압박 강도: 텐백 2층 버스 저지선]</strong><br>페널티 박스 앞에 10명이 촘촘히 섭니다. 실점 확률을 극단적으로 낮추지만 공격 전개가 단조로워집니다.`);
@@ -779,9 +804,12 @@ function recalculateVibe() {
   if (state.dials.tempo === 'direct') baseScore += 5;            // thrilling pace (+5)
   else if (state.dials.tempo === 'build') baseScore -= 4;        // slow U-shape buildup (-4)
 
-  if (state.dials.route === 'nopassback') baseScore += 8;        // the signature "사이다" fix (+8)
-  else if (state.dials.route === 'halfspace') baseScore += 3;    // smart, quietly liked (+3)
-  else if (state.dials.route === 'kangin') baseScore -= 2;       // "해줘축구" star-reliance the traumatized public distrusts (-2)
+  if (state.dials.route === 'halfspace') baseScore += 3;         // smart central penetration (+3)
+  else if (state.dials.route === 'wing') baseScore += 2;         // wide overlaps & crosses (+2)
+  else if (state.dials.route === 'longball') baseScore += 1;     // direct long balls (+1)
+
+  if (state.dials.nopassback) baseScore += 8;                    // signature "사이다" U-turn ban (+8)
+  if (state.dials.kangin) baseScore -= 3;                        // "해줘축구" star-reliance the public distrusts (-3)
 
   if (state.dials.press === 'high') baseScore += 6;              // energetic gegenpress (+6)
   else if (state.dials.press === 'tenback') baseScore -= 12;     // boring 2-tier bus (-12)
@@ -797,10 +825,12 @@ function recalculateVibe() {
   } else if (state.opponent === 'ESP') {
     if (state.dials.tempo === 'build') matchupDelta -= 8;         // Spain dominates possession
     if (state.dials.press === 'tenback') matchupDelta -= 6;
-    if (state.dials.route === 'nopassback') matchupDelta += 6;
+    if (state.dials.nopassback) matchupDelta += 6;               // ban the U-turn Spain feeds on
+    if (state.dials.route === 'longball') matchupDelta += 4;     // bypass their high press/line
   } else if (state.opponent === 'RSA') {
     if (state.dials.mentality === 'attack' && state.dials.press === 'high') matchupDelta -= 6;
     if (state.currentFormation === '3-5-2' || state.dials.press === 'region') matchupDelta += 5;
+    if (state.dials.route === 'wing') matchupDelta -= 4;         // vacated flanks vs their physical counters
   }
   
   // 4. Lineup integrity — computed LIVE from the current board (not accumulated),
@@ -902,7 +932,14 @@ function updateStats() {
     
     if (state.dials.mentality === 'attack') { avgAtt += 8; avgDef -= 6; }
     else if (state.dials.mentality === 'lock') { avgDef += 9; avgAtt -= 7; }
-    
+
+    // Attacking route now moves the balance readout too (fixes the old "route changes nothing visible")
+    if (state.dials.route === 'halfspace') { avgAtt += 4; avgMid += 2; }
+    else if (state.dials.route === 'wing') { avgAtt += 4; avgDef -= 4; }
+    else if (state.dials.route === 'longball') { avgAtt += 3; avgMid -= 4; }
+    if (state.dials.nopassback) { avgAtt += 3; avgMid += 3; }
+    if (state.dials.kangin) { avgAtt += 5; avgDef -= 4; }
+
     state.stats.attack = Math.min(100, Math.max(30, avgAtt));
     state.stats.defense = Math.min(100, Math.max(30, avgDef));
     state.stats.midfield = Math.min(100, Math.max(30, avgMid));
@@ -923,8 +960,8 @@ function updateStats() {
 function activeFanTags() {
   const tags = ['general'];
   const d = state.dials || {};
-  if (d.route === 'nopassback') tags.push('nopassback');
-  if (d.route === 'kangin') tags.push('kangin');
+  if (d.nopassback) tags.push('nopassback');
+  if (d.kangin) tags.push('kangin');
   if (d.route === 'halfspace') tags.push('halfspace');
   if (d.tempo === 'direct') tags.push('directTempo');
   if (d.tempo === 'build') tags.push('buildTempo');
@@ -1052,7 +1089,7 @@ function runFirstHalf() {
       
       // Calculate half-time score & stamina drain based on dials
       let korGoals = 0; let oppGoals = 1;
-      if (state.dials.route === 'halfspace' || state.dials.route === 'nopassback') korGoals += 1;
+      if (state.dials.route === 'halfspace' || state.dials.nopassback) korGoals += 1;
       if (state.dials.press === 'high' || state.dials.press === 'tenback') oppGoals = 0;
       state.halfTimeScore = { kor: korGoals, opp: oppGoals };
       
@@ -1136,8 +1173,11 @@ function secondHalfLambdas() {
   else if (state.dials.mentality === 'lock') { lamKor *= 0.82; lamOpp *= 0.80; }
   if (state.dials.press === 'high') lamOpp *= 0.88;
   else if (state.dials.press === 'tenback') { lamOpp *= 0.75; lamKor *= 0.88; }
-  if (state.dials.route === 'nopassback') lamKor *= 1.08;
-  else if (state.dials.route === 'halfspace') lamKor *= 1.10;
+  if (state.dials.route === 'halfspace') lamKor *= 1.10;
+  else if (state.dials.route === 'wing') lamKor *= 1.07;
+  else if (state.dials.route === 'longball') { lamKor *= 1.06; lamOpp *= 1.03; }
+  if (state.dials.nopassback) lamKor *= 1.08;
+  if (state.dials.kangin) { lamKor *= 1.08; lamOpp *= 1.04; } // star magic, but over-reliance opens gaps
 
   // Stamina after first-half drain: tired legs score less, concede more.
   const st = Object.values(state.staminaState);
@@ -1161,7 +1201,7 @@ function secondHalfLambdas() {
 // ==========================================================================
 function scriptedCounterPlan() {
   const s = state.stats;
-  const cd = { tempo: 'standard', route: 'kangin', press: 'region', mentality: 'balance' };
+  const cd = { tempo: 'standard', route: 'wing', press: 'region', mentality: 'balance' };
   let counterFormation = '4-4-2';
   if (s.attack >= 82) { cd.press = 'high'; cd.mentality = 'lock'; counterFormation = '4-2-3-1'; }
   if (s.defense <= 60) { cd.mentality = 'attack'; cd.tempo = 'direct'; }
@@ -1193,7 +1233,7 @@ function opponentModifiers() {
 const OPPONENT_VOCAB = {
   formations: ['4-3-3', '3-5-2', '4-2-3-1', '4-4-2'],
   tempo: ['build', 'standard', 'direct'],
-  route: ['halfspace', 'nopassback', 'kangin'],
+  route: ['halfspace', 'wing', 'longball'],
   press: ['tenback', 'region', 'high'],
   mentality: ['lock', 'balance', 'attack']
 };
@@ -1371,7 +1411,7 @@ function showFinalResult() {
   if (kor > opp) {
     SFX.goal();
     styleName = `🔥 '몬테카를로 승률 ${sim.winPct}% 적중!' ${state.opponent} 완파 명장`;
-    desc = `U자형 백패스를 과감히 폐기하고 ${state.dials.route === 'halfspace' ? '하프스페이스 침투' : '다이렉트 역습'}와 후반 승부수를 적중시켰습니다! 최종 스코어 ${kor}:${opp} 극적 승리! 팬 지지율 ${state.vibeScore}% 달성!`;
+    desc = `${state.dials.nopassback ? 'U자형 백패스를 과감히 폐기하고 ' : ''}${state.dials.route === 'halfspace' ? '하프스페이스 중앙 침투' : state.dials.route === 'wing' ? '측면 오버랩' : '다이렉트 롱볼'}와 후반 승부수를 적중시켰습니다! 최종 스코어 ${kor}:${opp} 극적 승리! 팬 지지율 ${state.vibeScore}% 달성!`;
     stage = "월드컵 8강/4강 진출! 🇰🇷✨";
   } else if (kor === opp) {
     styleName = `⚡ '끈적한 실리주의 밸런스 마스터' 귀중한 승점 확보`;
@@ -1482,6 +1522,10 @@ function syncDialButtons() {
     const parent = btn.closest('.tactic-btns');
     if (parent) parent.querySelectorAll('.btn-tactic').forEach(b => b.classList.remove('active'));
     btn.classList.add('active');
+  });
+  ['nopassback', 'kangin'].forEach(name => {
+    const btn = document.getElementById(`toggle-${name}`);
+    if (btn) { btn.classList.toggle('on', !!state.dials[name]); btn.setAttribute('aria-pressed', String(!!state.dials[name])); }
   });
 }
 
