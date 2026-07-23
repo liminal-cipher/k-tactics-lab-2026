@@ -231,11 +231,42 @@ document.addEventListener('DOMContentLoaded', () => {
   updateStats();
   updateVibeMeter();
   startLiveChatStream();
+  applyPitchView(readPitchViewPref() === 'flat');
   if (challenge) {
     dismissHeroIntro();       // a shared challenge link skips the hero onboarding
     announceChallenge(challenge);
   }
 });
+
+// --- Pitch view mode: broadcast tilt vs flat top-down board ---
+// The stadium cam tilts the grass for atmosphere, which makes the shape harder
+// to read, so the tilt can be switched off and the choice is remembered.
+// localStorage throws on a file:// opaque origin, so every access is guarded
+// and the broadcast cam simply stays the default when storage is unavailable.
+const PITCH_VIEW_KEY = 'ktl.pitchView';
+
+function readPitchViewPref() {
+  try { return localStorage.getItem(PITCH_VIEW_KEY); } catch (e) { return null; }
+}
+
+function applyPitchView(flat) {
+  const container = document.getElementById('pitch-container');
+  const btn = document.getElementById('btn-pitch-view');
+  if (container) container.classList.toggle('flat-view', flat);
+  if (btn) {
+    btn.classList.toggle('flat-on', flat);
+    // The label names the mode you are in, not the one you would switch to.
+    btn.textContent = flat ? '📐 평면 보기' : '🎥 중계 캠';
+  }
+}
+
+function togglePitchView() {
+  const container = document.getElementById('pitch-container');
+  if (!container) return;
+  const flat = !container.classList.contains('flat-view');
+  applyPitchView(flat);
+  try { localStorage.setItem(PITCH_VIEW_KEY, flat ? 'flat' : 'cam'); } catch (e) { /* file:// */ }
+}
 
 // --- Hero onboarding: re-coach the real 2026 RSA(남아공) match ---
 function dismissHeroIntro() {
