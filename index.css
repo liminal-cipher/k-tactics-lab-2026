@@ -92,11 +92,20 @@ body {
   70% { transform: translate(3px, 1px) rotate(-1deg); }
   80% { transform: translate(-1px, -1px) rotate(1deg); }
   90% { transform: translate(1px, 2px) rotate(0deg); }
-  100% { transform: translate(1px, -2px) rotate(-1deg); }
+  /* The last frame MUST settle level. Anything else is the tilt the board is
+     left sitting at once the animation stops. */
+  100% { transform: translate(0, 0) rotate(0deg); }
 }
 
-body.shake-danger {
-  animation: shake 0.5s cubic-bezier(0.36, 0.07, 0.19, 0.97) both;
+/* One-shot impact effect. No fill mode: the moment it ends the body goes back
+   to its own transform instead of freezing on the final keyframe. */
+body.shake-fx {
+  animation: shake 0.5s cubic-bezier(0.36, 0.07, 0.19, 0.97);
+}
+
+/* Persistent mood tint, separate from the shake so an angry fanbase can keep
+   the red wash without the board staying knocked askew. */
+body.mood-danger {
   background-image:
     radial-gradient(circle at 50% 50%, rgba(225, 29, 72, 0.14) 0%, transparent 70%);
 }
