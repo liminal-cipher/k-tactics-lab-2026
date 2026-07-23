@@ -2044,35 +2044,3 @@ body.glow-success {
 .res-xai-table td.xai-dim { color: var(--text-muted); }
 .res-xai-table tr.xai-total td { border-bottom: none; border-top: 1.5px solid rgba(255, 255, 255, 0.3); font-weight: 800; color: var(--text-primary); }
 .res-xai-note { margin-top: 0.45rem; font-size: 0.62rem; color: var(--text-muted); line-height: 1.5; }
-
-/* ==========================================================================
-   Pitch view mode. The stadium cam tilts the grass for broadcast atmosphere,
-   but that same tilt costs readability when you are actually reading the
-   shape, and until now there was no way back to a flat board. This toggle
-   flattens the plane; it loads last so it wins over the stage overrides.
-   ========================================================================== */
-.btn-viewmode {
-  background: var(--surface-sunken);
-  border: 1px solid var(--glass-border);
-  color: var(--text-secondary);
-  padding: 0.3rem 0.6rem;
-  border-radius: var(--radius-sm);
-  font-weight: 600;
-  font-size: 0.72rem;
-  white-space: nowrap;
-  cursor: pointer;
-  transition: all 0.2s ease;
-}
-.btn-viewmode:hover { background: var(--surface-sunken-2); color: var(--text-primary); }
-.btn-viewmode.flat-on {
-  background: var(--accent-cyan);
-  border-color: var(--accent-cyan);
-  color: #04121b;
-  font-weight: 800;
-}
-.pitch-container.flat-view { perspective: none; }
-.pitch-container.flat-view .pitch-field {
-  transform: none;
-  /* The tilt carried its own drop shadow to fake depth; flat needs less. */
-  box-shadow: inset 0 0 45px rgba(0, 0, 0, 0.3), 0 14px 26px rgba(0, 0, 0, 0.35);
-}
