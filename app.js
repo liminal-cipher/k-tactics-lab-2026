@@ -1095,6 +1095,18 @@ function pushChatComment(text, type = 'normal', customUser = null) {
   box.scrollTop = box.scrollHeight;
 }
 
+// Broadcast score bug in the header. It is the most visible surface on the
+// board, so it tracks the live score and phase instead of sitting on the
+// pre-match placeholder for the whole match.
+function updateScorebug(kor, opp, phase) {
+  const k = document.getElementById('sb-score-kor');
+  const o = document.getElementById('sb-score-opp');
+  const p = document.getElementById('sb-phase');
+  if (k && kor !== null) k.textContent = kor;
+  if (o && opp !== null) o.textContent = opp;
+  if (p && phase) p.innerHTML = `<span class="sb-dot"></span>${phase}`;
+}
+
 // --- Run Simulation & Match Commentary Engine (2-Phase Turn System) ---
 function runSimulation() {
   if (state.matchPhase === 0) {
@@ -1116,6 +1128,7 @@ function runSimulation() {
     document.getElementById('match-phase-status').innerHTML = `<span>⚽ <strong style="color: var(--accent-cyan);">0' 경기 전 셋업</strong> (포메이션, 교체 및 전술 지침 설정 완료 후 전반 가동)</span>`;
     document.getElementById('match-phase-actions').innerHTML = '';
     setOppChip(false); // collapse the chip back once the match is over
+    updateScorebug(0, 0, 'SET-UP');
     renderPitch(state.currentFormation);
     pushCoachMessage(`🔄 <strong>[새 경기 준비 완료]</strong><br>선수단 체력이 회복되었고 상대 스카우팅이 초기화되었습니다. 포메이션과 전술 지침을 다듬은 뒤 <strong>[▶ 경기 시뮬레이션]</strong>으로 재도전하십시오!`);
   }
@@ -1130,6 +1143,7 @@ function runFirstHalf() {
   btn.innerHTML = `<span>⏳ 전반전 (0~45분) AI 가동 중...</span>`;
   SFX.whistle();
   setOppChip(true); // reveal the live status + half-time controls
+  updateScorebug(0, 0, "1H · LIVE");
 
   // AI opponent manager scouts our XI and picks counter-tactics (async, non-blocking).
   // Sets a scripted fallback synchronously so the sim always has a plan by 2nd half.
@@ -1157,7 +1171,8 @@ function runFirstHalf() {
       if (state.dials.route === 'halfspace' || state.dials.nopassback) korGoals += 1;
       if (state.dials.press === 'high' || state.dials.press === 'tenback') oppGoals = 0;
       state.halfTimeScore = { kor: korGoals, opp: oppGoals };
-      
+      updateScorebug(korGoals, oppGoals, "HALF-TIME 45'");
+
       // Drain stamina of pitch players
       const pitchList = squadData[state.currentFormation] || [];
       pitchList.forEach(p => {
@@ -1411,6 +1426,7 @@ function runSecondHalf() {
   const pkBox = document.getElementById('pk-shootout-container');
   
   modal.classList.add('active');
+  updateScorebug(null, null, "2H · LIVE");
   liveCast.style.display = 'flex';
   resultCard.style.display = 'none';
   actions.style.display = 'none';
@@ -1522,6 +1538,7 @@ function toggleXaiDetail() {
 // (covers both the regular result path and the draw -> PK path).
 function markMatchFinished() {
   state.matchPhase = 2;
+  updateScorebug(state.finalScore.kor, state.finalScore.opp, "FULL-TIME 90'");
   const btn = document.getElementById('btn-run-simulation');
   btn.innerHTML = `<span>🔄 다시 처음부터</span>`;
   btn.style.background = 'var(--accent-cyan)';
@@ -1567,7 +1584,7 @@ function showFinalResult() {
     SFX.goal();
     styleName = `🔥 '몬테카를로 승률 ${sim.winPct}% 적중!' ${state.opponent} 완파 명장`;
     desc = `${state.dials.nopassback ? 'U자형 백패스를 과감히 폐기하고 ' : ''}${state.dials.route === 'halfspace' ? '하프스페이스 중앙 침투' : state.dials.route === 'wing' ? '측면 오버랩' : '다이렉트 롱볼'}와 후반 승부수를 적중시켰습니다! 최종 스코어 ${kor}:${opp} 극적 승리! 팬 지지율 ${state.vibeScore}% 달성!`;
-    stage = "월드컵 8강/4강 진출! 🇰🇷✨";
+    stage = "월드컵 8강/4강 진출! 🏆✨";
   } else if (kor === opp) {
     styleName = `⚡ '끈적한 실리주의 밸런스 마스터' 귀중한 승점 확보`;
     desc = `${state.opponent} 강호의 거센 공격을 수비 밸런스와 체력 안배로 막아냈습니다. 최종 스코어 ${kor}:${opp} 무승부! 조별리그 자력 진출 발판 마련!`;
@@ -1684,6 +1701,23 @@ function syncDialButtons() {
   });
 }
 
+// html2canvas measures a whitespace-delimited run as one box, which is wrong for
+// Korean (no spaces inside a run) and stacks the glyphs on top of each other.
+// Any explicit letter-spacing switches it to per-glyph positioning, so the clone
+// gets a hairline value that is invisible at 2x but lays the text out correctly.
+function captureResultCard() {
+  const card = document.getElementById('manager-result-card');
+  return html2canvas(card, {
+    backgroundColor: '#0e1626',
+    scale: 2,
+    onclone: doc => {
+      const st = doc.createElement('style');
+      st.textContent = '#manager-result-card, #manager-result-card * { letter-spacing: 0.01px; }';
+      doc.head.appendChild(st);
+    }
+  });
+}
+
 async function shareResult() {
   const styleName = (document.getElementById('res-style-name')?.textContent || 'K-Tactics 감독 명함').trim();
   const url = buildChallengeURL();
@@ -1694,7 +1728,7 @@ async function shareResult() {
   try {
     const card = document.getElementById('manager-result-card');
     if (card && typeof html2canvas === 'function' && navigator.canShare) {
-      const canvas = await html2canvas(card, { backgroundColor: '#0e1626', scale: 2 });
+      const canvas = await captureResultCard();
       const blob = await new Promise(r => canvas.toBlob(r, 'image/png'));
       if (blob) {
         const file = new File([blob], 'k-tactics-card.png', { type: 'image/png' });
@@ -1722,17 +1756,26 @@ async function shareResult() {
 
 // --- Download Viral Shareable Card as PNG (html2canvas) ---
 function downloadCardPNG() {
-  const card = document.getElementById('manager-result-card');
-  
-  html2canvas(card, {
-    backgroundColor: '#0e1626',
-    scale: 2
-  }).then(canvas => {
+  // Rendering the card takes a few seconds, so the button reports progress
+  // instead of looking dead.
+  const btn = document.querySelector('.btn-download');
+  const label = btn ? btn.querySelector('span') : null;
+  const original = label ? label.textContent : '';
+  if (btn) { btn.disabled = true; }
+  if (label) { label.textContent = '🖼️ 명함 카드 생성 중...'; }
+  const restore = () => {
+    if (btn) btn.disabled = false;
+    if (label) label.textContent = original;
+  };
+
+  captureResultCard().then(canvas => {
     const link = document.createElement('a');
     link.download = `K-Tactics_2026_내감독명함_${Date.now()}.png`;
     link.href = canvas.toDataURL('image/png');
     link.click();
+    restore();
   }).catch(err => {
+    restore();
     alert('이미지 생성 중 오류가 발생했습니다. 다시 시도해 주세요!');
   });
 }
@@ -1941,19 +1984,23 @@ function startPenaltyShootout() {
   let round = 0;
   
   const interval = setInterval(() => {
-    if (round < 5) {
-      const kicker = selectedPkKickers[round] || { name: `한국 ${round + 1}번 키커` };
+    // After the 5 regulation kicks a level score goes to sudden death, so the
+    // shootout can never be declared a "win" while the score is still tied.
+    const suddenDeath = round >= 5;
+    if (!suddenDeath || korPk === oppPk) {
+      const kicker = selectedPkKickers[round % Math.max(1, selectedPkKickers.length)]
+        || { name: `한국 ${round + 1}번 키커` };
       const baseComp = typeof SQUAD_STATS_2026 !== 'undefined' && SQUAD_STATS_2026[kicker.name] ? SQUAD_STATS_2026[kicker.name].composure : 78;
-      
+
       const korGoal = Math.random() * 100 < (baseComp + 5);
       const oppGoal = Math.random() * 100 < 75;
-      
+
       if (korGoal) korPk++;
       if (oppGoal) oppPk++;
-      
+
       logEl.innerHTML += `
         <div style="padding: 0.35rem; background: var(--surface-sunken); border-radius: 4px; border-left: 3px solid ${korGoal ? 'var(--accent-emerald)' : 'var(--accent-rose)'};">
-          <strong>#${round + 1} ${kicker.name}:</strong> ${korGoal ? '⚽ 골 성공!!' : '❌ 골키퍼 선방 / 실축!'} vs <strong>${state.opponent}:</strong> ${oppGoal ? '⚽ 성공' : '❌ 실축!'} (현재 ${korPk}:${oppPk})
+          <strong>${suddenDeath ? `서든데스 #${round + 1}` : `#${round + 1}`} ${kicker.name}:</strong> ${korGoal ? '⚽ 골 성공!!' : '❌ 골키퍼 선방 / 실축!'} vs <strong>${state.opponent}:</strong> ${oppGoal ? '⚽ 성공' : '❌ 실축!'} (현재 ${korPk}:${oppPk})
         </div>
       `;
       logEl.scrollTop = logEl.scrollHeight;
@@ -1963,7 +2010,8 @@ function startPenaltyShootout() {
       btn.disabled = false;
       btn.style.display = 'none';
       
-      const korWin = korPk >= oppPk;
+      const korWin = korPk > oppPk;
+      updateScorebug(null, null, `PK ${korPk}-${oppPk} 종료`);
       logEl.innerHTML += `
         <div style="margin-top: 0.6rem; padding: 0.6rem; background: ${korWin ? 'rgba(16,185,129,0.2)' : 'rgba(244,63,94,0.2)'}; border: 1px solid ${korWin ? 'var(--accent-emerald)' : 'var(--accent-rose)'}; border-radius: 6px; text-align: center; font-weight: 900; color: ${korWin ? 'var(--accent-emerald)' : 'var(--accent-rose)'};">
           🏆 최종 PK 스코어 ${korPk} : ${oppPk} — ${korWin ? '대한민국 승부차기 극적 승리!! 8강 진출!' : '아쉬운 PK 석패... 훌륭한 명승부였습니다.'}
@@ -1980,7 +2028,7 @@ function startPenaltyShootout() {
         
         document.getElementById('res-style-name').textContent = korWin ? "🔥 'PK 혈투 끝에 승리한 강철 심장' 승부차기 명장" : "🎲 '아쉬운 PK 석패' 불굴의 투혼 지휘관";
         document.getElementById('res-desc').textContent = `90분 정규시간 ${state.finalScore.kor}:${state.finalScore.opp} 동점 이후 승부차기에서 ${selectedPkKickers.map(k=>k.name).join(', ')} 키커들의 활약으로 ${korPk}:${oppPk} 최종 승부를 가렸습니다.`;
-        document.getElementById('res-val-stage').textContent = korWin ? "월드컵 8강/16강 통과! 🇰🇷✨" : "월드컵 16강 명승부 ⚽";
+        document.getElementById('res-val-stage').textContent = korWin ? "월드컵 8강/16강 통과! 🏆✨" : "월드컵 16강 명승부 ⚽";
       }, 3500);
     }
   }, 1000);
