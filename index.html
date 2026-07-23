@@ -38,7 +38,7 @@
     <!-- Broadcast score bug -->
     <div class="scorebug" id="scorebug">
       <span class="sb-team"><span class="sb-dotk"></span><span class="sb-abbr sb-kor">KOR</span></span>
-      <span class="sb-score">0 <i>:</i> 1</span>
+      <span class="sb-score" id="sb-score"><span id="sb-score-kor">0</span> <i>:</i> <span id="sb-score-opp">0</span></span>
       <span class="sb-team"><span class="sb-abbr sb-opp" id="fixture-opp">MEX</span><span class="sb-doto"></span></span>
       <span class="sb-phase" id="sb-phase"><span class="sb-dot"></span>SET-UP</span>
     </div>
@@ -189,7 +189,7 @@
               </div>
             </div>
             <div class="tactic-box tactic-box-reform">
-              <span class="tactic-label">🇰🇷 감독 특수 지침 <em class="tactic-hint">켜고 끄는 스위치</em></span>
+              <span class="tactic-label">🎖️ 감독 특수 지침 <em class="tactic-hint">켜고 끄는 스위치</em></span>
               <div class="tactic-btns">
                 <button class="btn-tactic btn-toggle" id="toggle-nopassback" aria-pressed="false" onclick="toggleTactic('nopassback')">🚫 U자 백패스 금지</button>
                 <button class="btn-tactic btn-toggle" id="toggle-kangin" aria-pressed="false" onclick="toggleTactic('kangin')">🎯 이강인 프리롤</button>
@@ -437,7 +437,7 @@
         <div class="result-stats-grid">
           <div class="result-stat-item">
             <span class="result-stat-label">예상 월드컵 성적</span>
-            <span class="result-stat-value" id="res-val-stage" style="color: var(--accent-emerald);">8강 진출! 🇰🇷</span>
+            <span class="result-stat-value" id="res-val-stage" style="color: var(--accent-emerald);">8강 진출! 🏆</span>
           </div>
           <div class="result-stat-item">
             <span class="result-stat-label">팬 지지율</span>
