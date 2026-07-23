@@ -451,19 +451,19 @@
 
         <!-- XAI: 승부 요인 TOP 3 (항상 표시) + λ 분해 상세 (접이식) -->
         <div class="res-xai" id="res-xai" style="display: none;">
-          <div class="res-xai-head">⚡ 승부 요인 TOP 3 <em>(1,000회 시뮬 기대득점 기여도)</em></div>
+          <div class="res-xai-head">⚡ 승부 요인 TOP 3 <span class="xai-info" style="font-style: normal; cursor: help; opacity: 0.75;" title="1,000회 시뮬레이션 평균으로 각 전술 선택이 바꾼 기대 득점입니다. 예: +0.10골 = 그 선택이 평균 0.10골을 벌어줬다는 뜻 (요인을 뺐을 때와의 차이)">ℹ️</span></div>
           <div class="res-xai-top3" id="res-xai-top3"></div>
-          <button type="button" class="res-xai-toggle" id="res-xai-toggle" onclick="toggleXaiDetail()">📐 상세 분석 (λ 분해) 펼치기 ▾</button>
+          <button type="button" class="res-xai-toggle" id="res-xai-toggle" onclick="toggleXaiDetail()">📐 상세 분석 펼치기 ▾</button>
           <div class="res-xai-detail" id="res-xai-detail" style="display: none;"></div>
         </div>
       </div>
 
       <div style="display: flex; gap: 0.75rem; margin-top: 1rem;" id="sim-modal-actions" style="display: none;">
         <button class="btn-share" onclick="shareResult()">
-          <span>📤 텍스트/링크 바이럴 공유</span>
+          <span>📤 공유하기</span>
         </button>
         <button class="btn-download" onclick="downloadCardPNG()">
-          <span>📥 명함 카드 PNG 다운로드</span>
+          <span>📥 명함 카드 저장</span>
         </button>
       </div>
     </div>
