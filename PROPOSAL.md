@@ -283,19 +283,19 @@ Coach V 채팅·사전 분석과 AI 상대 감독의 카운터 전술 결정만 
 
 ## 7. 참고 문헌 및 언론 출처 (References & Media Citations)
 
-본 서비스의 핵심 과제 도출 및 전술 밸런스 설계는 다음의 국내 언론 보도를 기초로 하여 검증 및 도출되었습니다. 본문 내 인용(In-text Citation)과 참고문헌은 모두 미국심리학회(APA 7th Edition) 인용 양식을 따르며, 하이퍼링크를 통해 실제 기사 원문을 바로 확인할 수 있습니다.
+본문 내 인용과 아래 목록은 미국심리학회(APA 7th Edition) 양식을 따릅니다. 각 보도가 어느 쟁점의 근거인지는 1.1의 본문 인용 위치로 확인할 수 있습니다.
 
-1. **U자형 빌드업 및 단조로운 공격 전개 문제 (Build-up & Offensive Tactics Dilemma):**
-   - **([MBC, 2026a](https://imnews.imbc.com/replay/2026/nwdesk/article/6833724_37004.html)):** MBC News. (2026, June 26). _[Repeated stubbornness, repeated defeat... "Korean football lost two years"](https://imnews.imbc.com/replay/2026/nwdesk/article/6833724_37004.html)_. MBC News Desk.
-   - **([Hankook Ilbo, 2026](https://www.hankookilbo.com/news/article/A2026062608010004313)):** Hankook Ilbo. (2026, June 26). _[Hong Myung-bo "Baffled by this performance" Coach also doesn't know the cause of the 'South Africa poor match'](https://www.hankookilbo.com/news/article/A2026062608010004313)_. Hankook Ilbo.
+Financial News. (2026, June 25). *"Too poor to be true" Hong Myung-bo's team, 0-1 crushing defeat to South Africa: Crisis of elimination*. https://www.fnnews.com/news/202606251312188929
 
-2. **풀백(윙백) 수비 불안 및 자동문 밸런스 문제 (Defensive Balance & Fullback Vulnerability):**
-   - **([Korea Daily, 2026](https://www.koreadaily.com/article/20260625003112534)):** Korea Daily. (2026, June 25). _[Humiliating loss to South Africa's manager... Hong Myung-bo's disastrous Son Heung-min substitution gamble, flanks relentlessly exploited](https://www.koreadaily.com/article/20260625003112534)_. Korea Daily.
-   - **([Financial News, 2026](https://www.fnnews.com/news/202606251312188929)):** Financial News. (2026, June 25). _["Too poor to be true" Hong Myung-bo's team, 0-1 crushing defeat to South Africa... Crisis of elimination [2026 World Cup]](https://www.fnnews.com/news/202606251312188929)_. Financial News.
+Hankook Ilbo. (2026, June 26). *Hong Myung-bo "Baffled by this performance": Coach also doesn't know the cause of the "South Africa poor match"*. https://www.hankookilbo.com/news/article/A2026062608010004313
 
-3. **스타 선수 의존도 심화 및 플랜 B 조커 부재 ('Stargazing' & Plan B Dilemma):**
-   - **([MBC, 2026b](https://imnews.imbc.com/news/2026/sports/article/6832790_36946.html)):** MBC. (2026, June 25). _[[Breaking] Hong Myung-bo's team loses 0-1 to South Africa, 3rd in group... 'Round of 32 unclear'](https://imnews.imbc.com/news/2026/sports/article/6832790_36946.html)_. MBC.
-   - **([Kyeonggi Ilbo, 2026](https://www.kyeonggi.com/article/20260626580030)):** Kyeonggi Ilbo. (2026, June 26). _[Hong Myung-bo "Defeat against South Africa is due to Monterrey heat" [2026 World Cup]](https://www.kyeonggi.com/article/20260626580030)_. Kyeonggi Ilbo.
+Korea Daily. (2026, June 25). *Humiliating loss to South Africa's manager: Hong Myung-bo's disastrous Son Heung-min substitution gamble, flanks relentlessly exploited*. https://www.koreadaily.com/article/20260625003112534
+
+Kyeonggi Ilbo. (2026, June 26). *Hong Myung-bo: "Defeat against South Africa is due to Monterrey heat"*. https://www.kyeonggi.com/article/20260626580030
+
+MBC. (2026a, June 26). *Repeated stubbornness, repeated defeat: "Korean football lost two years"*. MBC News Desk. https://imnews.imbc.com/replay/2026/nwdesk/article/6833724_37004.html
+
+MBC. (2026b, June 25). *[Breaking] Hong Myung-bo's team loses 0-1 to South Africa, 3rd in group: "Round of 32 unclear"*. https://imnews.imbc.com/news/2026/sports/article/6832790_36946.html
 
 ---
 
