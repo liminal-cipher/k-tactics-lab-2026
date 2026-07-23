@@ -1546,7 +1546,7 @@ function toggleXaiDetail() {
   if (!detailEl || !btn) return;
   const open = detailEl.style.display !== 'none';
   detailEl.style.display = open ? 'none' : 'block';
-  btn.textContent = open ? '📐 상세 분석 (λ 분해) 펼치기 ▾' : '📐 상세 분석 접기 ▴';
+  btn.textContent = open ? '📐 상세 분석 펼치기 ▾' : '📐 상세 분석 접기 ▴';
   SFX.ui();
 }
 
@@ -1728,7 +1728,9 @@ function captureResultCard() {
     scale: 2,
     onclone: doc => {
       const st = doc.createElement('style');
-      st.textContent = '#manager-result-card, #manager-result-card * { letter-spacing: 0.01px; }';
+      // Hide the hover-only info icon in the exported card: a tooltip cue makes
+      // no sense on a static PNG.
+      st.textContent = '#manager-result-card, #manager-result-card * { letter-spacing: 0.01px; } #manager-result-card .xai-info { display: none; }';
       doc.head.appendChild(st);
     }
   });
