@@ -70,7 +70,7 @@
 - `data/fan_comments_2026.js`: 경기 상태로 **태깅된** 댓글 뱅크(정적 자산). 태그 예: `sonBenched`, `nopassback`, `highPress`, `tenback`, `fatigue`, `strongAttack`, `pre/half/full`.
 - 런타임 `activeFanTags(state)`가 라이브 상태에서 활성 태그를 뽑고 `pickFanComment()`가 매칭 후보에서 선택한다(60% 상황 매칭, 그 외 일반). LLM 호출 0회.
 - `scripts/gen_fan_comments.py`(오프라인, 선택)로 뱅크를 확장·갱신한다. 이 스크립트만 LLM을 쓰며 런타임에는 관여하지 않는다.
-- 감정 앵커: 실제 2026 월드컵 남아공전(비기면 통과인데 1-0 패), 손흥민 벤치, 홍명보 전술 부재, U자 백패스 논란을 댓글에 녹였다.
+- 감정 앵커: 실제 2026 월드컵 남아공전(비기면 통과인데 1-0 패), 손흥민 벤치, 언론이 지적한 '전술 부재' 논란, U자 백패스 논란을 댓글에 녹였다.
 
 ## 7. 서버리스 프록시 & 프로덕션 (`api/coach.js`, `vercel.json`)
 
