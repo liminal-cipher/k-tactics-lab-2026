@@ -1694,9 +1694,17 @@ function applyChallengeFromURL() {
 }
 
 function announceChallenge(challenge) {
-  // Reflect decoded opponent + dials in the control UI.
+  // Reflect decoded opponent + dials + formation in the control UI.
   if (typeof selectOpponent === 'function' && state.opponent) selectOpponent(state.opponent);
   if (typeof syncDialButtons === 'function') syncDialButtons();
+  // The restore path bypasses setFormation (it would push a coach quote and
+  // overwrite stat presets), so move the formation button highlight by hand.
+  const formIds = { '4-3-3': 'btn-form-433', '3-5-2': 'btn-form-352', '4-2-3-1': 'btn-form-4231', '4-4-2': 'btn-form-442' };
+  const formBtn = document.getElementById(formIds[state.currentFormation] || '');
+  if (formBtn) {
+    document.querySelectorAll('.btn-formation').forEach(b => b.classList.remove('active'));
+    formBtn.classList.add('active');
+  }
   const s = challenge.score || {};
   const target = (typeof s.k === 'number' && typeof s.o === 'number')
     ? `상대 감독의 기록은 <strong>${s.k}:${s.o}</strong> (지지율 ${challenge.vibe ?? '?'}%)입니다. ` : '';
