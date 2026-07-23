@@ -955,8 +955,10 @@ function updateVibeMeter() {
   if (headerBar) headerBar.style.width = `${state.vibeScore}%`;
   if (bar) bar.style.width = `${state.vibeScore}%`;
 
-  if (body) body.classList.remove('shake-danger', 'glow-success');
-  
+  // Shake only on the way INTO the danger band, not on every stat refresh.
+  const wasDanger = body ? body.classList.contains('mood-danger') : false;
+  if (body) body.classList.remove('mood-danger', 'glow-success');
+
   if (state.vibeScore >= 80) {
     if (scoreVal) scoreVal.style.color = 'var(--accent-emerald)';
     if (headerVal) headerVal.style.color = 'var(--accent-emerald)';
@@ -978,15 +980,29 @@ function updateVibeMeter() {
     if (headerVal) headerVal.style.color = 'var(--accent-rose)';
     if (bar) bar.style.backgroundColor = 'var(--accent-rose)';
     if (statusText) statusText.textContent = `🚨 "이럴 거면 왜 감독했나?!" U자형 백패스와 자동문 수비에 팬들이 분노하고 있습니다!`;
-    if (body) body.classList.add('shake-danger');
+    if (body) {
+      body.classList.add('mood-danger');
+      if (!wasDanger) triggerScreenShake();
+    }
   }
 }
 
+// One-shot impact shake. It has to clear its own class: leaving it on freezes
+// the board at the animation's last frame, so a single bad call used to leave
+// the whole page tilted for the rest of the session, win or lose.
 function triggerScreenShake() {
   const body = document.getElementById('body-tag');
-  body.classList.remove('shake-danger');
-  void body.offsetWidth; // trigger reflow
-  body.classList.add('shake-danger');
+  if (!body) return;
+  const clear = e => {
+    // animationend bubbles, so ignore anything a child element fired.
+    if (e.target !== body || e.animationName !== 'shake') return;
+    body.classList.remove('shake-fx');
+    body.removeEventListener('animationend', clear);
+  };
+  body.classList.remove('shake-fx');
+  void body.offsetWidth; // reflow, so a repeat trigger restarts the animation
+  body.addEventListener('animationend', clear);
+  body.classList.add('shake-fx');
 }
 
 // --- Update Stats UI based on Real Benchmark Data ---
