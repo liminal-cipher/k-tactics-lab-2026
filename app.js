@@ -1746,7 +1746,10 @@ function showFinalResult() {
   } else {
     styleName = `🎲 '아쉬운 석패' 고군분투 열정 지휘관`;
     desc = `후반 체력 저하와 상대의 파상공세를 극복하지 못하고 ${kor}:${opp}로 아쉽게 패배했습니다. ${state.vibeScore >= 60 ? `그래도 팬 지지율은 ${state.vibeScore}%로 남아 전술의 방향성은 인정받았습니다.` : `팬 지지율도 ${state.vibeScore}%까지 내려앉았습니다.`} 아래 승부 요인 TOP 3에서 패인을 확인해 보세요.`;
-    stage = "조별리그 1승 1무 1패 (토너먼트 도전) 🔥";
+    // A loss repeats the real record: 1승 2패, 3rd in the group. The old text
+    // said 1승 1무 1패, which is what a DRAW would have produced (and would have
+    // qualified: the intro modal's whole premise is "비기기만 하면 32강").
+    stage = "조별리그 1승 2패 · 조 3위 (32강행 불투명) 🔥";
   }
 
   const distLine = `📊 1,000회 몬테카를로: 승 ${sim.winPct}% · 무 ${sim.drawPct}% · 패 ${sim.losePct}% (기대 득점 ${sim.avgKor != null ? sim.avgKor.toFixed(2) : '-'} : ${sim.avgOpp != null ? sim.avgOpp.toFixed(2) : '-'})`;

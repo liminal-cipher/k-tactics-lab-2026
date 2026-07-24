@@ -13,7 +13,7 @@
 
 2026년 국제축구연맹(FIFA) 북중미 월드컵 본선 무대를 치르며, 대한민국 축구 국가대표팀의 경기력과 전술에 대한 국민적 관심과 열기가 고조되고 있습니다. 그러나 실전 본선 무대 및 최근 국제 대회 과정에서 국내 언론 보도와 축구 커뮤니티에서는 다음과 같은 **3대 핵심 전술적 쟁점(Tactical Dilemmas)** 이 반복적으로 지적되었습니다.
 
-1. **단조로운 빌드업 패턴 (U자형 빌드업 논란):** 공격 전개가 센터백, 수비형 미드필더, 좌우 풀백 사이의 횡패스와 백패스에 갇혀 경로가 알파벳 'U'자를 그린다는 'U자형 빌드업'은 2024년 홍명보호 출범 직후부터 언론이 써 온 표현입니다 ([Interfootball, 2024](https://sports.news.nate.com/view/20240905n41102)). 이번 월드컵 본선에서도 감독 스스로 "절대 한 가지 전술을 가지고는 될 수 없다"고 말했지만 9경기 연속 같은 스리백 전술을 고수했고, 남아공전에서는 뒤진 상황에서도 공격 전환에 실패하는 경직성을 노출했습니다 ([MBC, 2026a](https://imnews.imbc.com/replay/2026/nwdesk/article/6833724_37004.html)). 이 졸전에 대해서는 감독 스스로도 "왜 이런 경기력이 나왔는지 당황스럽다"며 원인을 특정하지 못했습니다 ([Hankook Ilbo, 2026](https://www.hankookilbo.com/news/article/A2026062608010004313)).
+1. **단조로운 빌드업 패턴 (U자형 빌드업 논란):** 공격 전개가 센터백과 좌우 풀백 사이의 횡패스에 갇혀 경로가 알파벳 'U'자를 그리는 문제는 홍명보호 출범 시점부터 지적됐고, 감독 본인이 먼저 꺼낸 주제였습니다. 부임 직후 워크숍에서 그는 "상대를 몰아놓고 공격하게 되면 우리가 U자형 플레이를 하게 된다"며 이것이 약팀에게 역습으로 지는 원인이라고 짚었고, 울산에서의 3년을 근거로 "나름대로 조금은 방법을 찾아가고 있다"고 밝혔습니다. 그러나 2024년 9월 5일 부임 첫 경기인 팔레스타인전(0-0)에서 한국은 팔레스타인의 두 줄 수비에 막혀 중원으로 패스를 넣지 못했고, 매체는 "U자 빌드업의 형태가 자주 나왔다"고 적었습니다 ([Interfootball, 2024](https://sports.news.nate.com/view/20240905n41102)). 밀집 수비를 뚫는 해답은 그 경기에서 나오지 않았고, 2년 뒤 본선에서도 감독 스스로 "절대 한 가지 전술을 가지고는 될 수 없다"고 말했지만 직전 10경기 중 9경기에서 같은 스리백을 가동했고, 남아공전에서는 뒤진 상황에서도 공격 전환에 실패하는 경직성을 노출했습니다 ([MBC, 2026a](https://imnews.imbc.com/replay/2026/nwdesk/article/6833724_37004.html)). 이 졸전에 대해서는 감독 스스로도 "왜 이런 경기력이 나왔는지 당황스럽다"며 원인을 특정하지 못했습니다 ([Hankook Ilbo, 2026](https://www.hankookilbo.com/news/article/A2026062608010004313)).
 2. **스리백 측면(윙백) 수비 밸런스 불안:** 대회 내내 고수한 스리백은 윙백이 공수를 오가는 구조라, 윙백이 공격에 가담한 뒤 생기는 뒷공간이 반복 공략된다는 지적이 축구 커뮤니티에서 이어졌습니다. 실제로 본선에서 브라질전과 코트디부아르전 모두 허술한 수비를 드러냈고 ([MBC, 2026a](https://imnews.imbc.com/replay/2026/nwdesk/article/6833724_37004.html)), 남아공전에서도 슈팅 수 8대 13으로 밀리다 후반 18분 마세코에게 결승골을 허용했습니다 ([Financial News, 2026a](https://www.fnnews.com/news/202606251312188929)).
 3. **스타 선수 개인 기량 의존 ('해줘 축구' 논란):** 체계적인 플랜 B 없이 손흥민 등 스타의 개인 기량에 기대는 경기 운영은 팬들 사이에서 '해줘 축구'로 불려 왔습니다. 정작 탈락 기로의 최종전에서는 손흥민을 벤치에 앉히는 변칙 승부수를 던졌지만 ([Financial News, 2026b](https://www.fnnews.com/news/202606251055226408)), 후반 교체 투입 카드는 효과를 내지 못했고 선발 원톱 오현규는 고립됐으며 ([Korea Daily, 2026](https://www.koreadaily.com/article/20260625003112534)), 결국 남아공에 0-1로 완패하며 조 3위로 밀렸습니다 ([MBC, 2026b](https://imnews.imbc.com/news/2026/sports/article/6832790_36946.html); [Kyeonggi Ilbo, 2026](https://www.kyeonggi.com/article/20260626580030)).
 
@@ -219,15 +219,17 @@ Coach V 채팅·사전 분석과 AI 상대 감독의 카운터 전술 결정만 
    ├─► 웹 브라우저 접속 (별도 설치/로그인 없음)
    ├─► 히어로 온보딩 모달: "비기면 32강이었는데 남아공에 0-1로 졌다" 제시
    └─► [⚽ 그 남아공전을 다시 지휘하기] 또는 [자유 모드로 시작] 선택
-           │  (초기 상태: 포메이션 4-3-3, 여론 지지율 ~55%, Coach V 인사말)
+           │  (시나리오 시작 직후: 포메이션 4-3-3, 상대 남아공, 여론 68%, Coach V 브리핑)
            ▼
 [단계 2: 경기 전 국면 ①② 전술 결단 및 즉각적 피드백 체험]
    │
    ├─► 국면 ① 공격: 🎖️ 감독 특수 지침에서 'U자 백패스 금지' 토글 ON
-   │     └─► (결과) 여론 +8, 공격 지표 +6, λ 배수 ×1.08, 중계창 환호 댓글
+   │     └─► (결과) 여론 +8, 공격 +3·중원 +3, λ 배수 ×1.08, 중계창 환호 댓글
    │
    ├─► 국면 ② 밸런스: '압박 강도'를 '게겐프레싱'으로 전환
-   │     └─► (결과) 수비 지표 +7·여론 +6, 단 후반 체력 −8 트레이드오프 확인
+   │     └─► (결과) 수비 +7, 단 후반 체력 −8 트레이드오프 확인
+   │     └─► 여론은 다이얼 값 +6이 아니라 실제로 +1만 오름
+   │           (남아공 상대에서는 '중원 지역방어'에 붙던 상성 +5를 반납하므로)
    │
    └─► 상대국(멕시코/스페인/남아공) 선택에 따라 같은 전술의 평가가 뒤집힘
          (예: 스페인 상대 U자 금지 +6 vs 멕시코 상대 게겐프레싱 −10)
@@ -269,7 +271,7 @@ Coach V 채팅·사전 분석과 AI 상대 감독의 카운터 전술 결정만 
            ▼
 [단계 6: 결과 소장, 바이럴 공유, 재도전 루프]
    │
-   ├─► [명함 카드 저장] (PNG, html2canvas, scale 2)
+   ├─► [명함 카드 저장] (결과 카드를 2배 해상도 PNG로 저장)
    ├─► [공유하기] Web Share → 클립보드 폴백 + "이 전술 이겨봐" 도전 링크(URL 인코딩)
    └─► [🔄 다시 처음부터] → 체력 회복·스카우팅 초기화, XAI가 짚어준 패인을 반영해 즉시 재도전
 ```
@@ -286,7 +288,7 @@ Financial News. (2026b, June 25). *Hong Myung-bo's team benches Son Heung-min, h
 
 Hankook Ilbo. (2026, June 26). *Hong Myung-bo "Baffled by this performance": Coach also doesn't know the cause of the "South Africa poor match"*. https://www.hankookilbo.com/news/article/A2026062608010004313
 
-Interfootball. (2024, September 5). *[IN POINT] Coach Hong Myung-bo, who said he "found the solution to the U-shaped build-up," struggles against Palestine's two-line defense: Play centered on switching flanks*. Nate Sports. https://sports.news.nate.com/view/20240905n41102
+Interfootball. (2024, September 5). *[IN POINT] Coach Hong Myung-bo, who said he was "finding a way" out of the U-shaped build-up, struggles against Palestine's two-line defense: Play reduced to switching flanks*. Nate Sports. https://sports.news.nate.com/view/20240905n41102
 
 Korea Daily. (2026, June 25). *"Korean football? They only know Seol Ki-hyeon": Hong Myung-bo humiliated by South Africa's manager, Son Heung-min substitution card a dismal failure*. https://www.koreadaily.com/article/20260625003112534
 
