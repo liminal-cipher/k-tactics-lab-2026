@@ -12,9 +12,9 @@
 
 2026년 국제축구연맹(FIFA) 북중미 월드컵 본선 무대를 치르며, 대한민국 축구 국가대표팀의 경기력과 전술에 대한 국민적 관심과 열기가 고조되고 있습니다. 그러나 실전 본선 무대 및 최근 국제 대회 과정에서 국내 언론 보도와 축구 커뮤니티에서는 다음과 같은 **3대 핵심 전술적 쟁점(Tactical Dilemmas)** 이 반복적으로 지적되었습니다.
 
-1. **단조로운 빌드업 패턴 (U자형 빌드업 논란):** 공격 전개 시 중앙 지역을 통과하는 전진 패스나 탈압박 시도 대신, 센터백, 수비형 미드필더, 좌우 풀백 사이에서만 공을 돌리는 형태. 이로 인해 경로가 알파벳 'U'자를 그리며 중앙 공격이 실종되고 무의미한 면피용 백패스만 반복되는 졸전이 발생했습니다 ([MBC, 2026a](https://imnews.imbc.com/replay/2026/nwdesk/article/6833724_37004.html); [Hankook Ilbo, 2026](https://www.hankookilbo.com/news/article/A2026062608010004313)).
-2. **측면 수비(풀백/윙백) 밸런스 불안:** 스리백 및 풀백 운용 과정에서 공격 가담 시 발생한 뒷공간을 신속히 커버하지 못해 상대(남아공 등) 풀백의 적극적인 오버래핑에 휘둘리며 집중 공략 대상이 되었습니다 ([Korea Daily, 2026](https://www.koreadaily.com/article/20260625003112534); [Financial News, 2026](https://www.fnnews.com/news/202606251312188929)).
-3. **스타 선수 개인 기량 의존 ('해줘 축구' 논란):** 체계적인 팀 전술과 플랜 B 조커 부재로 인해 손흥민 등 스타 선수에게 의존하다, 정작 중요한 경기에서 이들을 벤치로 내린 변칙 전술마저 실패하며 남아공에 0-1 완패를 당하는 무기력함을 노출했습니다 ([MBC, 2026b](https://imnews.imbc.com/news/2026/sports/article/6832790_36946.html); [Kyeonggi Ilbo, 2026](https://www.kyeonggi.com/article/20260626580030)).
+1. **단조로운 빌드업 패턴 (U자형 빌드업 논란):** 공격 전개가 센터백, 수비형 미드필더, 좌우 풀백 사이의 횡패스와 백패스에 갇혀 경로가 알파벳 'U'자를 그린다는 'U자형 빌드업'은 2024년 홍명보호 출범 직후부터 언론이 써 온 표현입니다 ([Interfootball, 2024](https://sports.news.nate.com/view/20240905n41102)). 이번 월드컵 본선에서도 감독 스스로 "절대 한 가지 전술을 가지고는 될 수 없다"고 말했지만 9경기 연속 같은 스리백 전술을 고수했고, 남아공전에서는 뒤진 상황에서도 공격 전환에 실패하는 경직성을 노출했습니다 ([MBC, 2026a](https://imnews.imbc.com/replay/2026/nwdesk/article/6833724_37004.html)). 이 졸전에 대해서는 감독 스스로도 "왜 이런 경기력이 나왔는지 당황스럽다"며 원인을 특정하지 못했습니다 ([Hankook Ilbo, 2026](https://www.hankookilbo.com/news/article/A2026062608010004313)).
+2. **스리백 측면(윙백) 수비 밸런스 불안:** 대회 내내 고수한 스리백은 윙백이 공수를 오가는 구조라, 윙백이 공격에 가담한 뒤 생기는 뒷공간이 반복 공략된다는 지적이 축구 커뮤니티에서 이어졌습니다. 실제로 본선에서 브라질전과 코트디부아르전 모두 허술한 수비를 드러냈고 ([MBC, 2026a](https://imnews.imbc.com/replay/2026/nwdesk/article/6833724_37004.html)), 남아공전에서도 슈팅 수 8대 13으로 밀리다 후반 18분 마세코에게 결승골을 허용했습니다 ([Financial News, 2026a](https://www.fnnews.com/news/202606251312188929)).
+3. **스타 선수 개인 기량 의존 ('해줘 축구' 논란):** 체계적인 플랜 B 없이 손흥민 등 스타의 개인 기량에 기대는 경기 운영은 팬들 사이에서 '해줘 축구'로 불려 왔습니다. 정작 탈락 기로의 최종전에서는 손흥민을 벤치에 앉히는 변칙 승부수를 던졌지만 ([Financial News, 2026b](https://www.fnnews.com/news/202606251055226408)), 후반 교체 투입 카드는 효과를 내지 못했고 선발 원톱 오현규는 고립됐으며 ([Korea Daily, 2026](https://www.koreadaily.com/article/20260625003112534)), 결국 남아공에 0-1로 완패하며 조 3위로 밀렸습니다 ([MBC, 2026b](https://imnews.imbc.com/news/2026/sports/article/6832790_36946.html); [Kyeonggi Ilbo, 2026](https://www.kyeonggi.com/article/20260626580030)).
 
 이 쟁점들에 대해 대중이 취할 수 있는 행동은 지금까지 관전과 텍스트 비평뿐이었습니다. 반대편에는 Football Manager 같은 전문 시뮬레이션이 있지만, 이들은 시즌 운영과 수백 개의 설정을 전제로 하는 도구여서 '그 경기의 그 장면'에 대해 할 말이 있는 사람이 곧바로 들어가기는 어렵습니다. 본 서비스는 선택지를 **4대 전술 다이얼 × 3안과 특수 지침 토글 2종** 으로 한정하고, 저장 파일도 시즌 진행도 없이 단 한 경기만 다룹니다. 대신 모든 선택은 바꾸는 즉시 팀 지표와 여론 수치의 변화로 되돌아옵니다. 학습 곡선이 있어야 할 자리를 **즉각적인 인과 피드백** 으로 대체한 것이 본 서비스의 접근입니다.
 
@@ -58,20 +58,20 @@
 본 서비스는 페이지 간 이동 시 발생하는 몰입도 저하를 방지하기 위해, 한 화면 안에서 전술 설정·실시간 피드백·시뮬레이션이 유기적으로 이루어지는 **'매치데이 브로드캐스트 보드(Match-Day Broadcast Board)'** 레이아웃으로 구현되었습니다. 축구 중계 화면의 문법(스코어버그, 기울인 스타디움 캠, 선수 카드)을 차용해 **경기장을 화면의 주인공**으로 두고, 보조 정보는 우측 3탭 레일과 접이식 칩으로 정리했습니다. 상단 탭으로 [전술 보드]와 [락커룸] 뷰를 전환합니다.
 
 ```text
-+-----------------------------------------------------------------------------------+
-| [슬림 브로드캐스트 헤더] ⚽ 타이틀 | KOR 0:0 RSA 스코어버그 | 팬 지지율 바 | ▶ 경기 시뮬레이션 |
-+--------------------------------------------------------------+--------------------+
-| [중앙: 매치데이 스테이지]                                     | [우측: 3탭 레일]    |
-|  - 포메이션 4종 + 상대국 선택 스트립 (멕시코/스페인/남아공,   |  [🔄벤치|🤖코치V|💬채팅] |
-|    국기 인라인 SVG)                                          |                    |
-|  - 기울인 스타디움 캠 피치: FBref 레이팅 FUT 카드 11인        |  탭1: 벤치 9인 카드 |
-|    (포지션별 컬러, 체력 게이지, 드래그/클릭 교체)             |   (드래그/클릭 교체) |
-|    · 우상단: 🤖 AI 상대 감독 접이식 칩                        |  탭2: Coach V 채팅  |
-|      (경기 상태 중계·하프타임 교체 예약, 기본 접힘)           |   (LLM, 폴백 무중단) |
-|  - 팀 밸런스 HUD: 공격/수비/중원/체력 4바 (피치 하단 슬림)    |  탭3: 팬 여론 중계  |
-|  - 상시 전술 덱: 4대 다이얼(템포·루트·압박·성향)              |   (지지율 바+댓글)  |
-|    + 🎖️ 감독 특수 지침 토글 2종 (U자금지·이강인)             |                    |
-+--------------------------------------------------------------+--------------------+
++--------------------------------------------------------------------------------------------+
+| [슬림 브로드캐스트 헤더] ⚽ 타이틀 | KOR 0:0 RSA 스코어버그 | 팬 지지율 바 | ▶ 경기 시뮬레이션  |
++----------------------------------------------------------+---------------------------------+
+| [중앙: 매치데이 스테이지]                                  | [우측: 3탭 레일]                 |
+|  - 포메이션 4종 + 상대국 선택 스트립 (멕시코/스페인/남아공,  | [🔄벤치|🤖코치V|💬채팅]         |
+|    국기 인라인 SVG)                                       |                                 |
+|  - 기울인 스타디움 캠 피치: FBref 레이팅 FUT 카드 11인      | 탭1: 벤치 9인 카드               |
+|    (포지션별 컬러, 체력 게이지, 드래그/클릭 교체)           |  (드래그/클릭 교체)              |
+|    · 우상단: 🤖 AI 상대 감독 접이식 칩                    | 탭2: Coach V 채팅                |
+|      (경기 상태 중계·하프타임 교체 예약, 기본 접힘)         |  (LLM, 폴백 무중단)              |
+|  - 팀 밸런스 HUD: 공격/수비/중원/체력 4바 (피치 하단 슬림)  | 탭3: 팬 여론 중계                |
+|  - 상시 전술 덱: 4대 다이얼(템포·루트·압박·성향)            |  (지지율 바+댓글)                |
+|    + 🎖️ 감독 특수 지침 토글 2종 (U자금지·이강인)           |                                 |
++----------------------------------------------------------+---------------------------------+
 ```
 
 ### 3.1 영역별 구성 명세
@@ -285,15 +285,19 @@ Coach V 채팅·사전 분석과 AI 상대 감독의 카운터 전술 결정만 
 
 본문 내 인용과 아래 목록은 미국심리학회(APA 7th Edition) 양식을 따릅니다. 각 보도가 어느 쟁점의 근거인지는 1.1의 본문 인용 위치로 확인할 수 있습니다.
 
-Financial News. (2026, June 25). *"Too poor to be true" Hong Myung-bo's team, 0-1 crushing defeat to South Africa: Crisis of elimination*. https://www.fnnews.com/news/202606251312188929
+Financial News. (2026a, June 25). *"Too poor to be true" Hong Myung-bo's team, 0-1 crushing defeat to South Africa: Crisis of elimination*. https://www.fnnews.com/news/202606251312188929
+
+Financial News. (2026b, June 25). *Hong Myung-bo's team benches Son Heung-min, holds South Africa 0-0 in the first half [World Cup 24si]*. https://www.fnnews.com/news/202606251055226408
 
 Hankook Ilbo. (2026, June 26). *Hong Myung-bo "Baffled by this performance": Coach also doesn't know the cause of the "South Africa poor match"*. https://www.hankookilbo.com/news/article/A2026062608010004313
 
-Korea Daily. (2026, June 25). *Humiliating loss to South Africa's manager: Hong Myung-bo's disastrous Son Heung-min substitution gamble, flanks relentlessly exploited*. https://www.koreadaily.com/article/20260625003112534
+Interfootball. (2024, September 5). *[IN POINT] Coach Hong Myung-bo, who said he "found the solution to the U-shaped build-up," struggles against Palestine's two-line defense: Play centered on switching flanks*. Nate Sports. https://sports.news.nate.com/view/20240905n41102
+
+Korea Daily. (2026, June 25). *"Korean football? They only know Seol Ki-hyeon": Hong Myung-bo humiliated by South Africa's manager, Son Heung-min substitution card a dismal failure*. https://www.koreadaily.com/article/20260625003112534
 
 Kyeonggi Ilbo. (2026, June 26). *Hong Myung-bo: "Defeat against South Africa is due to Monterrey heat"*. https://www.kyeonggi.com/article/20260626580030
 
-MBC. (2026a, June 26). *Repeated stubbornness, repeated defeat: "Korean football lost two years"*. MBC News Desk. https://imnews.imbc.com/replay/2026/nwdesk/article/6833724_37004.html
+MBC. (2026a, June 29). *Repeated stubbornness, repeated defeat: "Korean football lost two years"*. MBC News Desk. https://imnews.imbc.com/replay/2026/nwdesk/article/6833724_37004.html
 
 MBC. (2026b, June 25). *[Breaking] Hong Myung-bo's team loses 0-1 to South Africa, 3rd in group: "Round of 32 unclear"*. https://imnews.imbc.com/news/2026/sports/article/6832790_36946.html
 
