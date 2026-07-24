@@ -1607,17 +1607,32 @@ function showFinalResult() {
     stage = "월드컵 16강 진출! ⚽";
   } else {
     styleName = `🎲 '아쉬운 석패' 고군분투 열정 지휘관`;
-    desc = `후반 체력 저하와 상대의 파상공세를 극복하지 못하고 ${kor}:${opp}로 아쉽게 패배했습니다. 하지만 팬 지지율과 XAI 진단에서는 전술적 당위성을 인정받았습니다.`;
+    desc = `후반 체력 저하와 상대의 파상공세를 극복하지 못하고 ${kor}:${opp}로 아쉽게 패배했습니다. ${state.vibeScore >= 60 ? `그래도 팬 지지율은 ${state.vibeScore}%로 남아 전술의 방향성은 인정받았습니다.` : `팬 지지율도 ${state.vibeScore}%까지 내려앉았습니다.`} 아래 승부 요인 TOP 3에서 패인을 확인해 보세요.`;
     stage = "조별리그 1승 1무 1패 (토너먼트 도전) 🔥";
   }
 
   const distLine = `📊 1,000회 몬테카를로: 승 ${sim.winPct}% · 무 ${sim.drawPct}% · 패 ${sim.losePct}% (기대 득점 ${sim.avgKor != null ? sim.avgKor.toFixed(2) : '-'} : ${sim.avgOpp != null ? sim.avgOpp.toFixed(2) : '-'})`;
 
+  styleName = publicVerdictTitle(kor > opp ? 'win' : kor === opp ? 'draw' : 'loss') || styleName;
+
+  const s = state.stats || {};
+  const balance = Math.round(((s.attack || 0) + (s.defense || 0) + (s.midfield || 0) + (s.stamina || 0)) / 4);
+
   document.getElementById('res-style-name').textContent = styleName;
   document.getElementById('res-desc').textContent = `${desc}\n\n${distLine}`;
   document.getElementById('res-val-stage').textContent = stage;
   document.getElementById('res-val-vibe').textContent = `${state.vibeScore}%`;
-  document.getElementById('res-val-joker').textContent = `${Math.min(95, state.vibeScore + 8)}%`;
+  document.getElementById('res-val-joker').textContent = `${balance}점`;
+}
+
+// The scoreline is one verdict, public opinion is the other. When the two
+// disagree the divergence takes over the manager-card title.
+function publicVerdictTitle(outcome) {
+  const v = state.vibeScore;
+  if (outcome === 'win' && v < 40) return `🥶 '이기고도 경질설' 여론을 잃은 승장`;
+  if (outcome === 'draw' && v < 40) return `🥶 '승점 1점의 대가' 성난 여론에 갇힌 감독`;
+  if (outcome === 'loss' && v >= 70) return `🌱 '졌지만 방향은 옳았다' 지지받는 패장`;
+  return null;
 }
 
 function closeModal() {
@@ -2052,7 +2067,8 @@ function startPenaltyShootout() {
         if (resultCard) resultCard.style.display = 'block';
         if (actions) actions.style.display = 'flex';
         
-        document.getElementById('res-style-name').textContent = korWin ? "🔥 'PK 혈투 끝에 승리한 강철 심장' 승부차기 명장" : "🎲 '아쉬운 PK 석패' 불굴의 투혼 지휘관";
+        const pkTitle = korWin ? "🔥 'PK 혈투 끝에 승리한 강철 심장' 승부차기 명장" : "🎲 '아쉬운 PK 석패' 불굴의 투혼 지휘관";
+        document.getElementById('res-style-name').textContent = publicVerdictTitle(korWin ? 'win' : 'loss') || pkTitle;
         document.getElementById('res-desc').textContent = `90분 정규시간 ${state.finalScore.kor}:${state.finalScore.opp} 동점 이후 승부차기에서 ${selectedPkKickers.map(k=>k.name).join(', ')} 키커들의 활약으로 ${korPk}:${oppPk} 최종 승부를 가렸습니다.`;
         document.getElementById('res-val-stage').textContent = korWin ? "월드컵 8강/16강 통과! 🏆✨" : "월드컵 16강 명승부 ⚽";
       }, 3500);
