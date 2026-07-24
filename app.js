@@ -144,6 +144,113 @@ const roleOptions = {
   gk: ['빛현우 슈퍼세이브', '스위퍼 키퍼', '안정형 수문장']
 };
 
+// Every detailed role is a trade-off, never a free buff: what a role gains in
+// one column it pays for in another, so re-tasking the whole XI into attacking
+// roles hollows out the back line instead of stacking a bonus. The 18 selectable
+// roles and the 33 default descriptors are all defined here, otherwise a
+// formation would be silently advantaged by which labels its starters happen to
+// ship with. Applied in updateStats as a summed team adjustment.
+const ROLE_EFFECTS = {
+  // --- 공격 (선택 가능) ---
+  '인사이드 포워드':    { att: 2, mid: 1, stam: -1 },
+  '컴플리트 포워드':    { att: 1, mid: 2, stam: -2 },
+  '라인 브레이커':      { att: 3, mid: -2 },
+  '전천후 플레이메이커': { att: 1, mid: 3, def: -1 },
+  '크랙 드리블러':      { att: 3, def: -2, stam: -1 },
+  // --- 중원 (선택 가능) ---
+  '박스 투 박스':       { att: 1, mid: 2, stam: -3 },
+  '딥라잉 플레이메이커': { att: 1, mid: 3, def: -1 },
+  '홀딩 미드필더':      { att: -2, def: 3 },
+  '중원 진공청소기':    { def: 2, mid: 2, stam: -2 },
+  '템포 조율사':        { att: -2, mid: 3, stam: 1 },
+  // --- 수비 (선택 가능) ---
+  '인버티드 풀백':      { mid: 3, def: -2 },
+  '파괴자 스토퍼':      { def: 3, mid: -1, stam: -1 },
+  '커버링 센터백':      { att: -1, def: 2, stam: 1 },
+  '클래식 윙백':        { att: 2, mid: 1, def: -2, stam: -1 },
+  '오버래핑 가담':      { att: 3, def: -3 },
+  // --- 골키퍼 (선택 가능) ---
+  '빛현우 슈퍼세이브':   { def: 3, mid: -1 },
+  '스위퍼 키퍼':        { mid: 3, def: -2 },
+  '안정형 수문장':      { def: 2, mid: -1 },
+  // --- 기본 임무 서술 (모달 목록에는 없지만 초기 배치에 쓰임) ---
+  '피지컬 타겟맨':      { att: 2, mid: -1, stam: 1 },
+  '프리롤 마법사':      { att: 2, mid: 2, def: -2 },
+  '원톱 해결사':        { att: 3, mid: -2 },
+  '공격 전권 지휘':     { att: 2, mid: 1, def: -2 },
+  '초광속 침투':        { att: 3, stam: -2 },
+  '침투 포워드':        { att: 2, mid: -1 },
+  '포스트 플레이':      { att: 1, mid: 1, stam: -1 },
+  '측면 플레이메이커':   { att: 1, mid: 2, def: -1 },
+  '인버티드 윙어':      { att: 2, mid: 1, def: -1 },
+  '황소 돌파':          { att: 3, stam: -2 },
+  '타겟 헤더':          { att: 2, mid: -1 },
+  '고속 스프린트':      { att: 2, stam: -2 },
+  '저돌적 윙어':        { att: 3, def: -2 },
+  '왕성한 활동량':      { def: 1, mid: 2, stam: -2 },
+  '빌드업 시가':        { att: -1, mid: 3, def: -1 },
+  '수비 스크린':        { att: -2, def: 3 },
+  '언성 히어로':        { def: 1, mid: 2, stam: -2 },
+  '중원 컨트롤러':      { att: -1, mid: 3, def: -1 },
+  '중원 전진 패스':     { att: 1, mid: 2, def: -1 },
+  '다이내믹 압박':      { def: 2, mid: 1, stam: -3 },
+  '밸런스형 풀백':      { att: 1, mid: 1, def: 1, stam: -2 },
+  '밸런스 풀백':        { att: 1, mid: 1, def: 1, stam: -2 },
+  '좌측 스토퍼':        { def: 2, mid: -1 },
+  '우측 스토퍼':        { def: 2, mid: -1 },
+  '수비 사령관':        { def: 3, mid: -1, stam: -1 },
+  '괴물 수비수':        { def: 3, mid: -1, stam: -1 },
+  '차세대 센터백':      { def: 2, mid: 1, stam: -2 },
+  '스마트 풀백':        { att: -1, mid: 2, def: 1 },
+  '통곡의 벽':          { att: -2, def: 3 },
+  '안정적인 빌드업':    { att: -2, mid: 2, def: 1 },
+  '우측 오버래핑':      { att: 2, def: -2 },
+  '멀티 수비수':        { def: 2, mid: 1, stam: -2 },
+  '수비형 센터백':      { att: -2, def: 3 },
+  // --- 벤치 기본 임무 (교체 투입 시 그대로 따라 들어옴) ---
+  '타겟 스트라이커':    { att: 2, mid: -1, stam: 1 },
+  '돌파형 윙어':        { att: 3, def: -2 },
+  '스피드 윙어':        { att: 2, stam: -2 },
+  '측면 윙어':          { att: 2, mid: 1, def: -2 },
+  '전진형 미드필더':    { att: 1, mid: 2, def: -2 },
+  '다이내믹 미드필더':  { def: 1, mid: 2, stam: -3 },
+  '오버래핑 풀백':      { att: 2, def: -2 },
+  '측면 풀백':          { att: 1, mid: 1, def: 1, stam: -2 },
+  '중앙 수비수':        { def: 3, mid: -1, stam: -1 },
+  '멀티 센터백':        { def: 2, mid: 1, stam: -2 }
+};
+
+function roleSum(list) {
+  const t = { att: 0, def: 0, mid: 0, stam: 0 };
+  (list || []).forEach(p => {
+    const r = ROLE_EFFECTS[p.role];
+    if (!r) return;
+    t.att += r.att || 0; t.def += r.def || 0;
+    t.mid += r.mid || 0; t.stam += r.stam || 0;
+  });
+  return t;
+}
+
+// Captured at load, before any swap or role change can mutate squadData: each
+// formation's shipped task set is the zero point, so the balance readout only
+// moves when the user actually re-tasks someone.
+const DEFAULT_ROLE_SUM = {};
+Object.keys(squadData).forEach(f => { DEFAULT_ROLE_SUM[f] = roleSum(squadData[f]); });
+
+// Half weight, rounded away from zero so a one-point deviation still shows up
+// (plain Math.round turns -0.5 into 0 and would silently swallow it).
+function roleDeviation(pitchList) {
+  const now = roleSum(pitchList);
+  const base = DEFAULT_ROLE_SUM[state.currentFormation] || { att: 0, def: 0, mid: 0, stam: 0 };
+  const half = v => (v < 0 ? -Math.round(-v / 2) : Math.round(v / 2));
+  return {
+    att: half(now.att - base.att),
+    def: half(now.def - base.def),
+    mid: half(now.mid - base.mid),
+    stam: half(now.stam - base.stam)
+  };
+}
+
 // --- AI Coach Witty Quotes ---
 const coachQuotes = {
   default: "감독님! 선수를 <strong>마우스로 끌어(Drag & Drop)</strong> 원하는 위치나 벤치 선수와 교체해보세요. 클릭하면 세부 전술 역할(Role)도 바꿀 수 있습니다!",
@@ -526,16 +633,28 @@ function closeRoleModal() {
   if (modal) modal.classList.remove('active');
 }
 
+const STAT_LABEL = { attack: '공격', defense: '수비', midfield: '중원', stamina: '체력' };
+
 function selectPlayerRole(player, newRole) {
+  const before = { ...state.stats };
   player.role = newRole;
   closeRoleModal();
   renderPitch(state.currentFormation);
   renderBench();
-  
-  pushCoachMessage(`⚙️ <strong>${player.name}</strong> 전술 임무 변경:<br>"<strong>${newRole}</strong>" 임무를 부여받았습니다! 선수가 경기장에서 더 적극적인 롤을 수행합니다!`, false);
 
   recalculateVibe();
   updateStats();
+
+  // Report the actual movement. A role that only renamed a tag would be an
+  // empty promise, so the coach quotes the delta the HUD just took.
+  const moved = Object.keys(STAT_LABEL)
+    .map(k => ({ label: STAT_LABEL[k], d: state.stats[k] - before[k] }))
+    .filter(x => x.d !== 0)
+    .map(x => `${x.label} ${x.d > 0 ? '+' : ''}${x.d}`)
+    .join(' · ');
+
+  pushCoachMessage(`⚙️ <strong>${player.name}</strong> 전술 임무 변경: "<strong>${newRole}</strong>"<br>` +
+    (moved ? `팀 밸런스 <strong>${moved}</strong> 반영되었습니다.` : `팀 밸런스 총합은 그대로입니다 (이전 임무와 상충 구조가 같습니다).`), false);
 }
 
 // --- Formation Switching ---
@@ -1013,10 +1132,20 @@ function updateStats() {
     if (state.dials.nopassback) { avgAtt += 3; avgMid += 3; }
     if (state.dials.kangin) { avgAtt += 5; avgDef -= 4; }
 
-    state.stats.attack = Math.min(100, Math.max(30, avgAtt));
-    state.stats.defense = Math.min(100, Math.max(30, avgDef));
-    state.stats.midfield = Math.min(100, Math.max(30, avgMid));
-    state.stats.stamina = Math.min(100, Math.max(30, avgStam));
+    // Detailed roles, measured as a DEVIATION from the formation's own default
+    // task set. Absolute sums would double-count formation identity, which the
+    // deltas above already express, and would shift every opening board. The
+    // deviation is halved so 11 assignments cannot swamp the dials.
+    const roleDev = roleDeviation(pitchList);
+    avgAtt += roleDev.att;
+    avgDef += roleDev.def;
+    avgMid += roleDev.mid;
+    avgStam += roleDev.stam;
+
+    state.stats.attack = Math.min(100, Math.max(30, Math.round(avgAtt)));
+    state.stats.defense = Math.min(100, Math.max(30, Math.round(avgDef)));
+    state.stats.midfield = Math.min(100, Math.max(30, Math.round(avgMid)));
+    state.stats.stamina = Math.min(100, Math.max(30, Math.round(avgStam)));
   }
 
   ['attack', 'defense', 'midfield', 'stamina'].forEach(stat => {
@@ -1150,6 +1279,15 @@ function runSimulation() {
   }
 }
 
+// The 24' relay line quotes the user's own press setting back at them, so it has
+// to cover all three options. It used to be a two-way check that reported
+// "지역 방어" to anyone who had actually picked 텐백. Labels match the buttons.
+const PRESS_BROADCAST_LABEL = {
+  tenback: '텐백 저지선',
+  region: '중원 지역방어',
+  high: '초고강도 게겐프레싱'
+};
+
 function runFirstHalf() {
   const btn = document.getElementById('btn-run-simulation');
   const statusEl = document.getElementById('match-phase-status');
@@ -1168,7 +1306,7 @@ function runFirstHalf() {
   // Quick 1.5s transition relay
   const steps = [
     `⚽ 0' 킥오프! [vs ${state.opponent}] 전반전 탐색전 가동...`,
-    `⚔️ 24' ${state.opponent} 측면 파상공세 vs 한국 ${state.dials.press === 'high' ? '초고강도 게겐프레싱' : '지역 방어'} 맞불!`,
+    `⚔️ 24' ${state.opponent} 측면 파상공세 vs 한국 ${PRESS_BROADCAST_LABEL[state.dials.press] || '중원 지역방어'} 맞불!`,
     `⏱️ 45' 전반전 종료! 하프타임 라커룸 도달 (체력 방전 및 스코어 연산 중...)`
   ];
   
