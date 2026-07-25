@@ -77,7 +77,20 @@ const STYLE =
   '축구 용어는 하프스페이스, 텐백, 빌드업, 압박처럼 자연스러운 한글 표기만 쓴다. ' +
   '영어 단어와 괄호 원어 병기를 쓰지 않는다. U자형, PK처럼 굳어진 표기는 예외다. ' +
   '이모지나 특수 하이픈 없이 보통 문장부호만 쓴다. ' +
+  '하프스페이스를 반쪽 공간이나 반칙으로 옮겨 쓰지 않는다. ' +
   '번역투를 피하고 자연스러운 구어체로 말한다.';
+
+// Measured failure modes from a 30-call probe of the live endpoint: the model
+// read the 0-100 ability scores as possession percentages ("점유율 55% 이상"),
+// quoted minutes outside a 90-minute match ("전반 65분"), and offered starting
+// XI names as substitutes. The style rules alone did not stop these, so they
+// are stated as hard factual constraints and shared by every mode.
+const GROUNDING =
+  '사실 규칙(반드시 지킬 것): ' +
+  '아래 보드에 적힌 값만 근거로 쓴다. 점유율, 패스 성공률, 슈팅 수처럼 보드에 없는 수치를 지어내지 않는다. ' +
+  '팀 지표는 0~100 능력치 점수이며 퍼센트가 아니다. 백분율로 인용하거나 목표치로 제시하지 않는다. ' +
+  '경기는 전반 0~45분, 후반 45~90분이다. 이 범위 밖의 시각을 말하지 않는다. ' +
+  '선발 XI에 이미 있는 선수를 교체로 투입하라고 제안하지 않는다.';
 
 // Korean display names for dial codes, copied from the index.html buttons.
 // The board summary uses these so the model quotes UI vocabulary instead of
@@ -102,7 +115,7 @@ function summarizeState(state) {
     `포메이션: ${s.formation || '미상'}`,
     `상대: ${s.opponentName || s.opponent || '미상'}${s.opponentStyle ? ` (${s.opponentStyle})` : ''}`,
     s.opponentBriefing ? `상대 브리핑: ${String(s.opponentBriefing).slice(0, 400)}` : '',
-    `팀 지표: 공격 ${stats.attack ?? '?'} / 중원 ${stats.midfield ?? '?'} / 수비 ${stats.defense ?? '?'} / 체력 ${stats.stamina ?? '?'}`,
+    `팀 지표(0~100 능력치 점수, 퍼센트 아님): 공격 ${stats.attack ?? '?'} / 중원 ${stats.midfield ?? '?'} / 수비 ${stats.defense ?? '?'} / 체력 ${stats.stamina ?? '?'}`,
     `전술 다이얼: 템포 ${dialKo('tempo', dials.tempo)}, 루트 ${dialKo('route', dials.route)}, 압박 ${dialKo('press', dials.press)}, 성향 ${dialKo('mentality', dials.mentality)}`,
     `특수 지침: U자 백패스 금지 ${dials.nopassback ? 'ON' : 'OFF'}, 이강인 프리롤(해줘축구) ${dials.kangin ? 'ON' : 'OFF'}`,
     lineup.length ? `선발 XI: ${lineup.join(', ')}` : '',
@@ -118,7 +131,8 @@ function buildSystem(mode, state) {
       '주어진 JSON 스키마에 정확히 맞춰 응답하라. counterFormation과 각 counterDials 값은 반드시 허용된 옵션의 영어 코드 그대로 쓴다.\n' +
       // Do NOT inject the full STYLE here: its no-English rule would fight the
       // English enum values the schema requires. Scope it to reasoning only.
-      'reasoning 필드만 자연스러운 한국어로 쓴다. 축구 용어는 하프스페이스, 텐백, 백패스 금지처럼 한글로 표기하고, JSON에 쓴 영어 코드를 문장에 그대로 옮기지 않는다. 이모지나 특수문자 없이 짧은 단문으로 쓴다.\n\n' +
+      'reasoning 필드만 자연스러운 한국어로 쓴다. 축구 용어는 하프스페이스, 텐백, 백패스 금지처럼 한글로 표기하고, JSON에 쓴 영어 코드를 문장에 그대로 옮기지 않는다. 하프스페이스를 반쪽 공간이나 반칙으로 바꿔 쓰지 않는다. 이모지나 특수문자 없이 짧은 단문으로 쓴다.\n' +
+      GROUNDING + '\n\n' +
       '=== 한국 대표팀 현재 셋업 ===\n' + board
     );
   }
@@ -126,7 +140,7 @@ function buildSystem(mode, state) {
     mode === 'analysis'
       ? '사전 스카우트 리포트처럼 구체적으로: 강점 1, 약점 1, 실전 지시 2가지를 제시하라. 5문장 이내.'
       : '2~3문장으로 짧고 임팩트 있게 답하라.';
-  return `${PERSONA}\n${depth}\n${STYLE}\n\n=== 현재 전술 보드 ===\n${board}`;
+  return `${PERSONA}\n${depth}\n${STYLE}\n${GROUNDING}\n\n=== 현재 전술 보드 ===\n${board}`;
 }
 
 function extractJson(text) {
