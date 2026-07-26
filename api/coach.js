@@ -275,13 +275,40 @@ async function callGroq({ system, user, maxTokens, temperature, schema }) {
   }
 }
 
+// A tokenizer artifact no prompt rule can reach: a letter from an unrelated
+// script lands mid-word, e.g. "하프ス페이스" for 하프스페이스. Measured at 2 of 10
+// replies on gemini-3.5-flash-lite and 0 of 10 on the pinned 3.1-flash-lite,
+// so this is a net, not a workaround. Scope it to LETTERS outside the three
+// scripts Korean copy legitimately mixes (Hangul, Latin, Han); punctuation,
+// emoji, arrows and 물결표 must not trip it or every reply would be retried.
+const FOREIGN_LETTER =
+  /(?:(?![\p{Script=Hangul}\p{Script=Latin}\p{Script=Han}])\p{L})|�/gu;
+
+const hasForeignLetter = t => {
+  FOREIGN_LETTER.lastIndex = 0; // the g flag makes .test() stateful
+  return FOREIGN_LETTER.test(t || '');
+};
+// Only ever removes letters, never structure, so JSON stays parseable.
+const stripForeignLetters = t => String(t || '').replace(FOREIGN_LETTER, '');
+
 async function callLLM(req) {
   let lastFail = { ok: false, noKey: true, status: 'no-key' };
+  let tainted = null; // a usable reply that carries a stray glyph
   for (const provider of [callGroq, callGemini]) {
-    const out = await provider(req);
-    if (out.ok) return out;
-    if (!out.noKey) lastFail = out; // keep the most informative failure
+    // Sampling is stochastic, so one resample clears the artifact in practice.
+    for (let attempt = 0; attempt < 2; attempt++) {
+      const out = await provider(req);
+      if (!out.ok) {
+        if (!out.noKey) lastFail = out; // keep the most informative failure
+        break; // transport failure is the next provider's problem, not a resample
+      }
+      if (!hasForeignLetter(out.text)) return out;
+      tainted = tainted || out;
+    }
   }
+  // Every provider produced a glyph. Serving the board-grounded reply minus the
+  // stray letter beats discarding it for the scripted fallback.
+  if (tainted) return { ...tainted, text: stripForeignLetters(tainted.text) };
   return lastFail;
 }
 
