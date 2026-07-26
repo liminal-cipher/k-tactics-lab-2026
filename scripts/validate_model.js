@@ -40,9 +40,15 @@ global.state = {
   dials: { tempo: 'standard', route: 'halfspace', press: 'region', mentality: 'balance', nopassback: false, kangin: false },
   staminaState: { A: 62, B: 58, C: 65, D: 60, E: 55, F: 63, G: 59, H: 61, I: 64, J: 57, K: 85 },
   opponentPlan: { counterDials: { tempo: 'direct', route: 'wing', press: 'high', mentality: 'lock' } },
-  halfTimeScore: { kor: 0, opp: 1 }
+  halfTimeScore: { kor: 0, opp: 1 },
+  currentFormation: '4-3-3'
 };
+// secondHalfLambdas asks kanginActive whether the freeroll is live, and that
+// reads the pitch. The board above leaves the dial off, so the lookup never
+// changes a multiplier here; the stub only keeps the reference resolvable.
+global.squadData = { '4-3-3': [] };
 eval(extract('OPP_STRENGTH', 'const'));
+eval(extract('kanginActive', 'fn'));
 eval(extract('opponentModifiers', 'fn'));
 eval(extract('secondHalfLambdas', 'fn'));
 eval(extract('poissonSample', 'fn'));
