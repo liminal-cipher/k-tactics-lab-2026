@@ -2165,6 +2165,27 @@ function closeScoutingModal() {
 
 let selectedPkKickers = [];
 
+// Real World Cup shootouts convert near 75%, so that is the baseline for BOTH
+// sides. Composure is a curated stat, not a per-90 derivation, so it only
+// nudges a kicker around that baseline (elite ~82%, weak ~71%) instead of being
+// read as a raw percentage, which used to hand 손흥민 a 99% kick. The opponent
+// moves with their attacking strength for the same reason the rest of the model
+// does, so a shootout is never a free win: weak kickers against Spain are the
+// underdog at ~41%.
+const PK_BASELINE = 75;
+const PK_COMPOSURE_MID = 84;
+
+function pkKickerRate(name) {
+  const s = typeof SQUAD_STATS_2026 !== 'undefined' ? SQUAD_STATS_2026[name] : null;
+  const composure = s ? s.composure : PK_COMPOSURE_MID;
+  return PK_BASELINE + (composure - PK_COMPOSURE_MID) * 0.7;
+}
+
+function pkOpponentRate() {
+  const opp = OPP_STRENGTH[state.opponent] || { att: 75 };
+  return PK_BASELINE + (opp.att - 75) * 0.4;
+}
+
 function initPenaltyShootoutUI() {
   const selectorsEl = document.getElementById('pk-kicker-selectors');
   const logEl = document.getElementById('pk-results-log');
@@ -2187,7 +2208,7 @@ function initPenaltyShootoutUI() {
     <div class="pk-kicker-card ${idx < 5 ? 'selected' : ''}" id="pk-card-${p.id}" onclick="togglePkKicker('${p.id}', '${p.name}')">
       <div style="font-size: 1.1rem;">${p.avatar}</div>
       <div style="font-weight: 800; font-size: 0.78rem; color: var(--text-primary); margin-top: 2px;">${p.name}</div>
-      <div style="font-size: 0.68rem; color: var(--accent-amber); margin-top: 2px;">침착성 ${typeof SQUAD_STATS_2026 !== 'undefined' && SQUAD_STATS_2026[p.name] ? SQUAD_STATS_2026[p.name].composure : 78}</div>
+      <div style="font-size: 0.68rem; color: var(--accent-amber); margin-top: 2px;">성공률 ${pkKickerRate(p.name).toFixed(0)}%</div>
       <span class="pk-order-badge" id="pk-order-${p.id}" style="font-size: 0.65rem; color: var(--accent-cyan); display: ${idx < 5 ? 'block' : 'none'}; font-weight: 800;">#${idx + 1} 키커</span>
     </div>
   `).join('');
@@ -2234,10 +2255,9 @@ function startPenaltyShootout() {
     if (!suddenDeath || korPk === oppPk) {
       const kicker = selectedPkKickers[round % Math.max(1, selectedPkKickers.length)]
         || { name: `한국 ${round + 1}번 키커` };
-      const baseComp = typeof SQUAD_STATS_2026 !== 'undefined' && SQUAD_STATS_2026[kicker.name] ? SQUAD_STATS_2026[kicker.name].composure : 78;
 
-      const korGoal = Math.random() * 100 < (baseComp + 5);
-      const oppGoal = Math.random() * 100 < 75;
+      const korGoal = Math.random() * 100 < pkKickerRate(kicker.name);
+      const oppGoal = Math.random() * 100 < pkOpponentRate();
 
       if (korGoal) korPk++;
       if (oppGoal) oppPk++;
