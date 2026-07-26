@@ -171,7 +171,10 @@ function extractJson(text) {
 // Provider layer. callLLM() walks the chain below; each provider is skipped
 // when its env key is missing, so the active backend is pure deploy config.
 // --------------------------------------------------------------------------
-const GEMINI_MODEL = 'gemini-2.5-flash-lite';
+// Pinned 2.5/2.0 names are closed to new API keys ("no longer available to
+// new users", HTTP 404) even though the models list still advertises them.
+// The floating -latest alias is the only lite tier a fresh key can reach.
+const GEMINI_MODEL = 'gemini-flash-lite-latest';
 const GROQ_MODEL = 'openai/gpt-oss-120b';
 
 async function callGemini({ system, user, maxTokens, temperature, schema }) {
