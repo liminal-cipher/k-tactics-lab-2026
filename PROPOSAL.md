@@ -207,7 +207,7 @@ $$\text{Vibe} = \text{clip}\Big(55 + \Delta\text{Formation} + \sum\Delta\text{Di
 
 ### 5.7 AI 레이어: Coach V & AI 상대 감독 (멀티 프로바이더 LLM 체인)
 
-Coach V 채팅·사전 분석과 AI 상대 감독의 카운터 전술 결정만 실제 LLM을 사용하며, Vercel 서버리스 프록시(`api/coach.js`)가 API 키를 서버에 은닉합니다. `callLLM()` 체인은 **Groq gpt-oss-120b → Google Gemini 2.5 Flash-Lite** 순으로 시도하고, 키가 없는 프로바이더는 건너뛰며, 전부 실패하면 클라이언트가 스크립트 폴백으로 무중단 응답합니다. AI 상대 감독은 구조화 JSON(포메이션·4대 다이얼·근거)으로 응답하되, 클라이언트가 허용된 enum 값인지 검증(`isValidOpponentPlan`)한 뒤에만 시뮬레이션에 반영합니다. LLM이 규격 밖의 값을 반환해도 검증 단계에서 걸러지므로, 시뮬레이션에 들어가는 입력은 항상 5.3의 배수표 안에 있는 값으로 제한됩니다. 승패 연산이 LLM의 출력 품질에 흔들리지 않는 이유입니다.
+Coach V 채팅·사전 분석과 AI 상대 감독의 카운터 전술 결정만 실제 LLM을 사용하며, Vercel 서버리스 프록시(`api/coach.js`)가 API 키를 서버에 은닉합니다. `callLLM()` 체인은 **Groq gpt-oss-120b → Google Gemini 3.1 Flash-Lite** 순으로 시도하고, 키가 없는 프로바이더는 건너뛰며, 전부 실패하면 클라이언트가 스크립트 폴백으로 무중단 응답합니다. AI 상대 감독은 구조화 JSON(포메이션·4대 다이얼·근거)으로 응답하되, 클라이언트가 허용된 enum 값인지 검증(`isValidOpponentPlan`)한 뒤에만 시뮬레이션에 반영합니다. LLM이 규격 밖의 값을 반환해도 검증 단계에서 걸러지므로, 시뮬레이션에 들어가는 입력은 항상 5.3의 배수표 안에 있는 값으로 제한됩니다. 승패 연산이 LLM의 출력 품질에 흔들리지 않는 이유입니다.
 
 ---
 

@@ -46,7 +46,7 @@
 | **Sound FX** | `Web Audio API (실시간 합성)` | 킥오프 휘슬·골 환호·UI 블립을 오디오 파일 없이 브라우저에서 실시간 합성. 에셋 0개라 `file://` 오프라인에서도 동작하며 헤더 🔊 토글로 음소거 가능 |
 | **State & Interaction** | `Native JS State & HTML5 Drag/Touch APIs` | 외부 상태 관리 라이브러리 없이 전역 반응형 State 객체와 HTML5 `dataTransfer` 드래그 앤 드롭 + 클릭 맞교환(Click-to-Swap) 이원화 구현 |
 | **Simulation Engine** | `로컬 Poisson 몬테카를로 (결과 생성에 LLM 미사용)` | 공식 20인 FBref 스탯(`data/squad_stats_2026.js`)에서 λ를 유도해 브라우저 단에서 **1,000회 Poisson 몬테카를로**로 승/무/패 확률분포를 연산. 승패를 만드는 수치는 전부 앱에 고정된 값이라 규칙 기반·검증가능·$0 |
-| **AI Layer** | `멀티 프로바이더 LLM 체인 (서버리스 프록시)` | Coach V 채팅·사전분석·AI 상대감독을 Vercel 서버리스 함수(`api/coach.js`)로 호출. `callLLM()` 체인이 Groq `gpt-oss-120b` → Gemini 2.5 Flash-Lite 순으로 시도하고 전부 실패 시 스크립트 폴백. API 키는 서버에 은닉되어 심사자는 키 없이 사용, 무료 티어라 비용 ≈ $0 |
+| **AI Layer** | `멀티 프로바이더 LLM 체인 (서버리스 프록시)` | Coach V 채팅·사전분석·AI 상대감독을 Vercel 서버리스 함수(`api/coach.js`)로 호출. `callLLM()` 체인이 Groq `gpt-oss-120b` → Gemini 3.1 Flash-Lite 순으로 시도하고 전부 실패 시 스크립트 폴백. API 키는 서버에 은닉되어 심사자는 키 없이 사용, 무료 티어라 비용 ≈ $0 |
 | **Image Export & Share** | `html2canvas v1.4.1 + Web Share API` | 최종 명함 카드를 2배수 고화질 PNG로 캡처하고, 네이티브 공유·클립보드·'도전 링크(URL 인코딩)'로 바이럴 유도 |
 | **Hosting & Deploy** | `Vercel (Static + Serverless Functions)` | 정적 자산은 CDN, AI만 서버리스 함수로. 별도 인프라 관리 없이 무료 티어로 **운영 비용 ≈ $0**. `file://` 오프라인 폴백 보장 |
 
