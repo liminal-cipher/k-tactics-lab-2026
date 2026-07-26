@@ -1,0 +1,111 @@
+<!doctype html>
+<meta charset="utf-8">
+<style>
+  html, body { margin: 0; padding: 0; background: #ffffff; }
+  svg { display: block; }
+  .act    { fill: #f8fafc; stroke: #475569; stroke-width: 2.2; }
+  .out    { fill: #ffffff; stroke: #475569; stroke-width: 2.6; }
+  .out-g  { fill: #ffffff; stroke: #059669; stroke-width: 2.6; }
+  .out-a  { fill: #ffffff; stroke: #d97706; stroke-width: 2.6; }
+  .out-c  { fill: #ffffff; stroke: #0891b2; stroke-width: 2.6; }
+  .num    { fill: #0b1f3a; }
+  text    { font-family: 'Malgun Gothic', 'Noto Sans KR', sans-serif;
+            fill: #1e293b; text-anchor: start; }
+  .hd  { font-size: 25px; font-weight: 700; fill: #0b1f3a; letter-spacing: 1px; }
+  .t1  { font-size: 26px; font-weight: 700; }
+  .t2  { font-size: 21px; fill: #475569; }
+  .n   { font-size: 25px; font-weight: 700; fill: #ffffff; text-anchor: middle; }
+  .lp  { font-size: 21px; fill: #059669; text-anchor: middle; font-weight: 700; }
+  .ar  { stroke: #94a3b8; stroke-width: 3.2; fill: none; }
+  .loop{ stroke: #059669; stroke-width: 3.2; fill: none; stroke-dasharray: 9 6; }
+</style>
+<svg width="1780" height="1075" viewBox="0 0 1780 1075" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <marker id="mg" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#94a3b8"/>
+    </marker>
+    <marker id="ml" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#059669"/>
+    </marker>
+  </defs>
+
+  <text class="hd" x="70"  y="72">감독이 하는 것</text>
+  <text class="hd" x="730" y="72">즉시 돌아오는 것</text>
+  <line x1="70" y1="90" x2="1520" y2="90" stroke="#cbd5e1" stroke-width="2"/>
+
+  <!-- 1. 진입 -->
+  <rect class="act" x="70" y="120" width="600" height="128" rx="12"/>
+  <circle class="num" cx="118" cy="184" r="26"/><text class="n" x="118" y="193">1</text>
+  <text class="t1" x="160" y="172">서비스 진입</text>
+  <text class="t2" x="160" y="207">설치·로그인 없이 접속 →</text>
+  <text class="t2" x="160" y="234">[그 남아공전을 다시 지휘하기]</text>
+  <rect class="out" x="730" y="120" width="790" height="128" rx="12"/>
+  <text class="t1" x="762" y="172">그날의 보드가 그대로 복원</text>
+  <text class="t2" x="762" y="207">4-3-3 · 상대 남아공 · 여론 68 · Coach V 브리핑</text>
+
+  <!-- 2. 전술 다이얼 -->
+  <rect class="act" x="70" y="272" width="600" height="128" rx="12"/>
+  <circle class="num" cx="118" cy="336" r="26"/><text class="n" x="118" y="345">2</text>
+  <text class="t1" x="160" y="324">전술 다이얼 · 특수 지침</text>
+  <text class="t2" x="160" y="359">U자 백패스 금지 ON</text>
+  <text class="t2" x="160" y="386">압박 → 게겐프레싱</text>
+  <rect class="out-g" x="730" y="272" width="790" height="128" rx="12"/>
+  <text class="t1" x="762" y="318">공짜는 없다</text>
+  <text class="t2" x="762" y="353">공격+3 중원+3 · λ ×1.08 · 여론 +8</text>
+  <text class="t2" x="762" y="382">수비+7 이지만 체력 −8, 여론은 +6이 아니라 +1 (상성 반납)</text>
+
+  <!-- 3. 스쿼드 -->
+  <rect class="act" x="70" y="424" width="600" height="128" rx="12"/>
+  <circle class="num" cx="118" cy="488" r="26"/><text class="n" x="118" y="497">3</text>
+  <text class="t1" x="160" y="476">스쿼드 배치 실험</text>
+  <text class="t2" x="160" y="511">드래그 교체 · 세부 임무 지정</text>
+  <text class="t2" x="160" y="538">손흥민을 최후방에 놓아보기</text>
+  <rect class="out-g" x="730" y="424" width="790" height="128" rx="12"/>
+  <text class="t1" x="762" y="470">HUD 4바가 그 자리에서 다시 계산</text>
+  <text class="t2" x="762" y="505">비정상 배치 → AI 코치 긴급 경보 · 배치 −25 · 화면 진동</text>
+  <text class="t2" x="762" y="534">되돌리면 즉시 회복 (벤치에 두면 −18 유지)</text>
+
+  <!-- 4. AI 상대 감독 -->
+  <rect class="act" x="70" y="576" width="600" height="128" rx="12"/>
+  <circle class="num" cx="118" cy="640" r="26"/><text class="n" x="118" y="649">4</text>
+  <text class="t1" x="160" y="628">감독 대 감독</text>
+  <text class="t2" x="160" y="663">Coach V에게 질문 (선택)</text>
+  <text class="t2" x="160" y="690">킥오프 (항상)</text>
+  <rect class="out-a" x="730" y="576" width="790" height="128" rx="12"/>
+  <text class="t1" x="762" y="622">상대가 내 XI를 읽고 카운터를 고른다</text>
+  <text class="t2" x="762" y="657">고른 결과가 f 상대감독 배수로 후반 λ에 반영 · 우회 불가</text>
+  <text class="t2" x="762" y="686">선택은 LLM, 배수는 앱의 고정값</text>
+
+  <!-- 5. 시뮬레이션 -->
+  <rect class="act" x="70" y="728" width="600" height="128" rx="12"/>
+  <circle class="num" cx="118" cy="792" r="26"/><text class="n" x="118" y="801">5</text>
+  <text class="t1" x="160" y="780">2단계 시뮬레이션</text>
+  <text class="t2" x="160" y="815">전반 → 하프타임 조정 → 후반</text>
+  <text class="t2" x="160" y="842">교체·전환 예약</text>
+  <rect class="out-c" x="730" y="728" width="790" height="128" rx="12"/>
+  <text class="t1" x="762" y="774">전반은 우위 지수로 확정, 후반은 1,000회 표집</text>
+  <text class="t2" x="762" y="809">승·무·패 분포 + 최빈 스코어 · 동점이면 승부차기</text>
+  <text class="t2" x="762" y="838">XAI 승부 요인 TOP 3 + λ 분해 표</text>
+
+  <!-- 6. 공유 -->
+  <rect class="act" x="70" y="880" width="600" height="128" rx="12"/>
+  <circle class="num" cx="118" cy="944" r="26"/><text class="n" x="118" y="953">6</text>
+  <text class="t1" x="160" y="932">소장 · 공유 · 재도전</text>
+  <text class="t2" x="160" y="967">명함 카드 저장 / 공유하기</text>
+  <rect class="out" x="730" y="880" width="790" height="128" rx="12"/>
+  <text class="t1" x="762" y="926">감독 명함 PNG + &quot;이 전술 이겨봐&quot; 도전 링크</text>
+  <text class="t2" x="762" y="961">칭호는 승패와 여론이 어긋난 채로 남는다</text>
+  <text class="t2" x="762" y="990">(이기고도 경질설 / 졌지만 방향은 옳았다)</text>
+
+  <line class="ar" x1="670" y1="184" x2="722" y2="184" marker-end="url(#mg)"/>
+  <line class="ar" x1="670" y1="336" x2="722" y2="336" marker-end="url(#mg)"/>
+  <line class="ar" x1="670" y1="488" x2="722" y2="488" marker-end="url(#mg)"/>
+  <line class="ar" x1="670" y1="640" x2="722" y2="640" marker-end="url(#mg)"/>
+  <line class="ar" x1="670" y1="792" x2="722" y2="792" marker-end="url(#mg)"/>
+  <line class="ar" x1="670" y1="944" x2="722" y2="944" marker-end="url(#mg)"/>
+
+  <path class="loop" d="M 1520 944 H 1618 V 336 H 1530" marker-end="url(#ml)"/>
+  <text class="lp" x="1538" y="300" style="text-anchor:start">재도전 루프</text>
+  <text class="t2" x="1538" y="1000" style="fill:#059669">패인을 들고</text>
+  <text class="t2" x="1538" y="1027" style="fill:#059669">같은 보드로</text>
+</svg>
