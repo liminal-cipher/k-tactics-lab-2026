@@ -1354,10 +1354,29 @@ function runFirstHalf() {
     } else {
       clearInterval(interval);
       
-      // Calculate half-time score & stamina drain based on dials
-      let korGoals = 0; let oppGoals = 1;
-      if (state.dials.route === 'halfspace' || state.dials.nopassback) korGoals += 1;
-      if (state.dials.press === 'high' || state.dials.press === 'tenback') oppGoals = 0;
+      // Half-time score. Deterministic on purpose: the premise is re-taking one
+      // specific match, so the situation you inherit must not reroll. But it is
+      // a CALCULATION, not a lookup. The previous version checked four dial
+      // flags and nothing else, so the same half played out against Spain and
+      // South Africa alike, benching the captain changed nothing, and tenback
+      // on its own bought a 1:0 lead worth a ~75% win rate.
+      //
+      // Now each side gets an "edge" = our stat over their opposing stat, plus
+      // the tactical instructions that bear on it. Clearing the threshold puts
+      // the goal in. A par squad (70 attack vs a 70 defence) sits exactly at
+      // 1.00 and still needs the reform route's +0.10 to reach 1.10, so the
+      // press-driven reforms remain the normal way through; raw quality only
+      // carries a half on its own when it is genuinely dominant.
+      const oppStr = OPP_STRENGTH[state.opponent] || { att: 72, def: 72 };
+      const attackEdge = state.stats.attack / oppStr.def
+        + (state.dials.route === 'halfspace' ? 0.10 : state.dials.route === 'wing' ? 0.05 : 0)
+        + (state.dials.nopassback ? 0.08 : 0)
+        + (state.dials.mentality === 'attack' ? 0.06 : state.dials.mentality === 'lock' ? -0.06 : 0);
+      const defenceEdge = state.stats.defense / oppStr.att
+        + (state.dials.press === 'tenback' ? 0.18 : state.dials.press === 'high' ? 0.12 : 0)
+        + (state.dials.mentality === 'lock' ? 0.05 : state.dials.mentality === 'attack' ? -0.05 : 0);
+      const korGoals = attackEdge >= 1.10 ? 1 : 0;
+      const oppGoals = defenceEdge >= 1.05 ? 0 : 1;
       state.halfTimeScore = { kor: korGoals, opp: oppGoals };
       updateScorebug(korGoals, oppGoals, "HALF-TIME 45'");
 
@@ -1390,7 +1409,15 @@ function runFirstHalf() {
       `;
       
       renderPitch(state.currentFormation);
-      pushCoachMessage(`⏸️ <strong>[하프타임 정비 보고 - 전반 ${korGoals}:${oppGoals}]</strong><br>구장 위 선수들의 체력 게이지 바를 확인해 주십시오! 방전된 선수(60% 미만)는 후반 60분 이후 경기력이 급감합니다. <strong>[⏱️ 교체 예약]</strong> 버튼을 누르거나 전술 다이얼을 수정한 뒤 <strong>[🔥 후반전 가동]</strong>을 눌러주십시오!`, true);
+      // Say WHY the half ended this way. The score is computed from two edges,
+      // and a manager who cannot see which one failed cannot fix it.
+      const atkNote = korGoals
+        ? `공격 우위 <strong>${attackEdge.toFixed(2)}</strong>로 기준선 1.10을 넘겨 <strong>한 골 만회</strong>했습니다.`
+        : `공격 우위 <strong>${attackEdge.toFixed(2)}</strong>로 기준선 1.10에 미치지 못해 만회에 실패했습니다. 침투 루트를 바꾸거나 공격 자원을 보강해야 합니다.`;
+      const defNote = oppGoals
+        ? `수비 우위 <strong>${defenceEdge.toFixed(2)}</strong>로 기준선 1.05에 미치지 못해 실점했습니다. 압박 라인을 내리거나 수비를 보강해 보십시오.`
+        : `수비 우위 <strong>${defenceEdge.toFixed(2)}</strong>로 기준선 1.05를 넘겨 <strong>실점을 막았습니다</strong>.`;
+      pushCoachMessage(`⏸️ <strong>[하프타임 정비 보고 - 전반 ${korGoals}:${oppGoals}]</strong><br>${atkNote} ${defNote}<br>구장 위 선수들의 체력 게이지 바를 확인해 주십시오! 방전된 선수(60% 미만)는 후반 60분 이후 경기력이 급감합니다. <strong>[⏱️ 교체 예약]</strong> 버튼을 누르거나 전술 다이얼을 수정한 뒤 <strong>[🔥 후반전 가동]</strong>을 눌러주십시오!`, true);
       triggerScreenShake();
     }
   }, 600);
