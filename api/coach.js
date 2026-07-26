@@ -173,8 +173,14 @@ function extractJson(text) {
 // --------------------------------------------------------------------------
 // Pinned 2.5/2.0 names are closed to new API keys ("no longer available to
 // new users", HTTP 404) even though the models list still advertises them.
-// The floating -latest alias is the only lite tier a fresh key can reach.
-const GEMINI_MODEL = 'gemini-flash-lite-latest';
+// Of what a fresh key can reach, measured on this proxy's own prompts:
+//   3.1-flash-lite  1.1s, 0 hallucinations, 0/10 glyph defects   <- chosen
+//   3.5-flash-lite  1.2s, but emits a stray Thai glyph in 2/10
+//                   ("하프ส페이스"); flash-lite-latest aliases to it
+//   3.5-flash       6.7s median, and every flash tier spends 380+ tokens on
+//                   thinking, which the 400/800 maxOutputTokens budget below
+//                   truncates; 3-flash-preview also 429s on the free tier
+const GEMINI_MODEL = 'gemini-3.1-flash-lite';
 const GROQ_MODEL = 'openai/gpt-oss-120b';
 
 async function callGemini({ system, user, maxTokens, temperature, schema }) {
