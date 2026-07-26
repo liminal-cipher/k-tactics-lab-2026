@@ -6,7 +6,7 @@
 const state = {
   currentFormation: '4-3-3',
   vibeScore: 50,
-  opponent: 'MEX', // 'MEX' | 'ESP' | 'RSA'
+  opponent: 'MEX', // 'MEX' | 'CZE' | 'RSA' — the three 2026 group-stage opponents
   matchPhase: 0, // 0: Pre-match (0'), 1: Half-time (45'), 2: Full-time (90')
   staminaState: {}, // { '손흥민': 85, '황인범': 89 ... }
   subActions: [], // [ { time: '60m', playerOut: '황인범', playerIn: '오현규' } ]
@@ -843,7 +843,7 @@ function selectOpponent(opp) {
   if (activeBtn) activeBtn.classList.add('active');
 
   // Update the broadcast score bug's opponent side.
-  const oppMeta = ({ MEX: ['MEX', '🇲🇽'], ESP: ['ESP', '🇪🇸'], RSA: ['RSA', '🇿🇦'] })[opp] || ['OPP', '🏳️'];
+  const oppMeta = ({ MEX: ['MEX', '🇲🇽'], CZE: ['CZE', '🇨🇿'], RSA: ['RSA', '🇿🇦'] })[opp] || ['OPP', '🏳️'];
   const fxOpp = document.getElementById('fixture-opp'); if (fxOpp) fxOpp.textContent = oppMeta[0];
   const fxFlag = document.getElementById('fixture-opp-flag'); if (fxFlag) fxFlag.textContent = oppMeta[1];
 
@@ -1028,11 +1028,13 @@ function recalculateVibe() {
   if (state.opponent === 'MEX') {
     if (state.dials.press === 'high') matchupDelta -= 10;         // Mexico exploits high press space
     if (state.dials.tempo === 'direct' || state.dials.route === 'halfspace') matchupDelta += 5;
-  } else if (state.opponent === 'ESP') {
-    if (state.dials.tempo === 'build') matchupDelta -= 8;         // Spain dominates possession
-    if (state.dials.press === 'tenback') matchupDelta -= 6;
-    if (state.dials.nopassback) matchupDelta += 6;               // ban the U-turn Spain feeds on
-    if (state.dials.route === 'longball') matchupDelta += 4;     // bypass their high press/line
+  } else if (state.opponent === 'CZE') {
+    // Czechia lined up in the same 3-4-3 we did (FBref, 2026-06-11), so the
+    // flanks cancel each other out and the space is between their three
+    // centre-backs. This is also the one group match we won.
+    if (state.dials.route === 'wing') matchupDelta -= 6;
+    if (state.dials.route === 'halfspace') matchupDelta += 6;
+    if (state.dials.press === 'high') matchupDelta += 4;
   } else if (state.opponent === 'RSA') {
     if (state.dials.mentality === 'attack' && state.dials.press === 'high') matchupDelta -= 6;
     if (state.currentFormation === '3-5-2' || state.dials.press === 'region') matchupDelta += 5;
@@ -1443,9 +1445,13 @@ function bookSubAction(timing) {
 // Second-half goals ~ Poisson(lambda); lambda derived from team stats, dials,
 // post-drain stamina, executed subs, and opponent strength. Aggregated over N runs.
 // ==========================================================================
+// The three 2026 group-stage opponents. Pending a proper FBref derivation these
+// are balance values, but the ordering is anchored to the actual results: all
+// three scored exactly once against us, and Czechia is the only one we scored
+// on (2-1), so its defence is the weakest of the three.
 const OPP_STRENGTH = {
   MEX: { att: 74, def: 72 },
-  ESP: { att: 86, def: 82 },
+  CZE: { att: 68, def: 66 },
   RSA: { att: 66, def: 70 }
 };
 
