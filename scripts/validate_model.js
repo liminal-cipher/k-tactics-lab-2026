@@ -31,12 +31,15 @@ function extract(name, kind) {
   return code;
 }
 
-// Fixed representative board state (default dials vs ESP, halftime 0:1,
+// Fixed representative board state (default dials vs Mexico, halftime 0:1,
 // post-drain stamina). Changing it changes the numbers, not the conclusions.
-global.OPPONENT_PROFILES = { ESP: { name: '스페인' } };
+// This board used to name ESP, which was removed once the opponent list was
+// corrected to the three actual group-stage sides; OPP_STRENGTH['ESP'] then
+// resolved to the fallback and the validator silently graded a phantom team.
+global.OPPONENT_PROFILES = { MEX: { name: '멕시코' } };
 global.state = {
   stats: { attack: 75, defense: 60, midfield: 80, stamina: 70 },
-  opponent: 'ESP',
+  opponent: 'MEX',
   dials: { tempo: 'standard', route: 'halfspace', press: 'region', mentality: 'balance', nopassback: false, kangin: false },
   staminaState: { A: 62, B: 58, C: 65, D: 60, E: 55, F: 63, G: 59, H: 61, I: 64, J: 57, K: 85 },
   opponentPlan: { counterDials: { tempo: 'direct', route: 'wing', press: 'high', mentality: 'lock' } },
