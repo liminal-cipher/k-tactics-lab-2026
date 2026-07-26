@@ -2067,3 +2067,11 @@ body.glow-success {
   }
   .narrow-screen-notice strong { color: var(--accent-cyan); }
 }
+
+/* 이강인 프리롤 토글이 켜져 있지만 그가 선발에 없어 효과가 멈춘 상태.
+   설정은 살아 있으므로 끄지 않고, 효과가 없다는 것만 드러낸다. */
+.btn-toggle.on.inert {
+  opacity: 0.55;
+  filter: grayscale(0.7);
+}
+.btn-toggle.on.inert::before { content: '◐'; }
