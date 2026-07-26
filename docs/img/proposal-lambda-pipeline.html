@@ -1,0 +1,73 @@
+<!doctype html>
+<meta charset="utf-8">
+<style>
+  html, body { margin: 0; padding: 0; background: #ffffff; }
+  svg { display: block; }
+  .bx    { fill: #ffffff; stroke: #475569; stroke-width: 2.2; }
+  .bx-hud{ fill: #ffffff; stroke: #059669; stroke-width: 2.6; }
+  .bx-lam{ fill: #ffffff; stroke: #0891b2; stroke-width: 2.6; }
+  .bx-ai { fill: #ffffff; stroke: #d97706; stroke-width: 2.6; }
+  text   { font-family: 'Malgun Gothic', 'Noto Sans KR', sans-serif;
+           fill: #1e293b; text-anchor: middle; }
+  .t1 { font-size: 26px; font-weight: 700; }
+  .t2 { font-size: 20px; fill: #475569; }
+  .lam{ font-size: 25px; font-weight: 700; fill: #0f172a; }
+  .fl { stroke: #0891b2; stroke-width: 3.4; fill: none; }
+  .up { stroke: #059669; stroke-width: 3.4; fill: none; }
+  .ai { stroke: #d97706; stroke-width: 3.4; fill: none; }
+</style>
+<svg width="1700" height="880" viewBox="0 0 1700 880" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <marker id="mc" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#0891b2"/>
+    </marker>
+    <marker id="mg" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#059669"/>
+    </marker>
+    <marker id="ma" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#d97706"/>
+    </marker>
+  </defs>
+
+  <!-- upward branch: the additive layer the player reads -->
+  <rect class="bx-hud" x="740" y="40" width="330" height="100" rx="12"/>
+  <text class="t1" x="905" y="80">팀 밸런스 HUD</text>
+  <text class="t2" x="905" y="111">가산 · 유저가 읽는 층</text>
+
+  <!-- horizontal data flow -->
+  <rect class="bx" x="60"  y="200" width="290" height="108" rx="12"/>
+  <text class="t1" x="205" y="242">FBref 3개 테이블</text>
+  <text class="t2" x="205" y="274">20인 · 2,970분</text>
+
+  <rect class="bx" x="400" y="200" width="290" height="108" rx="12"/>
+  <text class="t1" x="545" y="242">4대 능력치 변환</text>
+  <text class="t2" x="545" y="274">공식 4개</text>
+
+  <rect class="bx" x="740" y="200" width="330" height="108" rx="12"/>
+  <text class="t1" x="905" y="242">선발 11인 집계</text>
+  <text class="t2" x="905" y="274">포메이션 · 다이얼 · 임무</text>
+
+  <!-- multiplicative layer that decides the result -->
+  <rect class="bx-lam" x="555" y="400" width="700" height="92" rx="12"/>
+  <text class="lam" x="905" y="454">λ = 0.72 × 전력비 × 중원 × 다이얼 × 체력 × 상대감독</text>
+
+  <!-- the single LLM node, feeding INTO the formula -->
+  <rect class="bx-ai" x="1320" y="402" width="290" height="88" rx="12"/>
+  <text class="t1" x="1465" y="439">AI 상대 감독</text>
+  <text class="t2" x="1465" y="469">선택만 LLM · 배수는 앱</text>
+
+  <rect class="bx-lam" x="705" y="575" width="400" height="102" rx="12"/>
+  <text class="t1" x="905" y="615">포아송 1,000회 표집</text>
+  <text class="t2" x="905" y="647">승 · 무 · 패 + 최빈 스코어</text>
+
+  <rect class="bx-lam" x="705" y="755" width="400" height="80" rx="12"/>
+  <text class="t1" x="905" y="802">XAI 요인 분해 TOP 3</text>
+
+  <line class="fl" x1="350"  y1="254" x2="392"  y2="254" marker-end="url(#mc)"/>
+  <line class="fl" x1="690"  y1="254" x2="732"  y2="254" marker-end="url(#mc)"/>
+  <line class="up" x1="905"  y1="200" x2="905"  y2="148" marker-end="url(#mg)"/>
+  <line class="fl" x1="905"  y1="308" x2="905"  y2="392" marker-end="url(#mc)"/>
+  <line class="ai" x1="1320" y1="446" x2="1263" y2="446" marker-end="url(#ma)"/>
+  <line class="fl" x1="905"  y1="492" x2="905"  y2="567" marker-end="url(#mc)"/>
+  <line class="fl" x1="905"  y1="677" x2="905"  y2="747" marker-end="url(#mc)"/>
+</svg>
