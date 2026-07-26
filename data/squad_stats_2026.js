@@ -140,11 +140,11 @@ const OPPONENT_PROFILES = {
     briefing: '💡 카운터 전략: 상대 양측면이 올라올 때 발생하는 넓은 뒷공간을 하프스페이스 침투와 다이렉트 롱볼 템포로 타격하세요!',
     weights: { tempo: 'direct', attackRoute: 'halfspace', press: 'region', mentality: 'attack' }
   },
-  'ESP': {
-    name: '🇪🇸 스페인 (유럽 무적함대)',
-    style: '90분 내내 점유율을 지배하며 하프스페이스 티키타카로 압박하는 강호',
-    briefing: '💡 카운터 전략: 중원을 함부로 열지 말고 지역 방어와 인버티드 풀백으로 공간을 좁힌 뒤, 고속 다이렉트 역습을 노리세요!',
-    weights: { tempo: 'direct', attackRoute: 'nopassback', press: 'region', mentality: 'balance' }
+  'CZE': {
+    name: '🇨🇿 체코 (거울 스리백)',
+    style: '우리와 똑같은 3-4-3으로 맞선 팀(2026-06-11, 2-1 승). 측면이 서로 물려 상쇄되고, 승부는 센터백 셋 사이에서 갈린다',
+    briefing: '💡 카운터 전략: 측면 오버랩은 같은 스리백끼리 맞물려 무뎌집니다. 하프스페이스로 센터백 사이를 파고들고, 고압박으로 빌드업 시작점을 끊으세요!',
+    weights: { tempo: 'standard', attackRoute: 'halfspace', press: 'high', mentality: 'balance' }
   },
   'RSA': {
     name: '🇿🇦 남아공 (조직적인 강호)',
