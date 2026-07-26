@@ -129,7 +129,7 @@ const FAN_COMMENTS_2026 = [
 
   // ---- strong attack ----
   { text: '공격력 지표 미쳤는데?? 이건 대량 득점 각이다', type: 'vip', tags: ['strongAttack'] },
-  { text: '이 라인업 화력이면 스페인도 해볼 만하다!', type: 'vip', tags: ['strongAttack'] },
+  { text: '이 라인업 화력이면 어느 조 1위든 해볼 만하다!', type: 'vip', tags: ['strongAttack'] },
   { text: '공격 밸런스 예술이네 골 폭죽 기대해도 되나', type: 'vip', tags: ['strongAttack'] },
   { text: '이 정도 공격력이면 상대 골키퍼 바쁘겠다 ㅋㅋ', type: 'normal', tags: ['strongAttack'] },
   { text: '화력 하나는 역대급이다 이제 마무리만 잘하면', type: 'normal', tags: ['strongAttack'] },
