@@ -859,6 +859,36 @@ function selectOpponent(opp) {
   updateStats();
 }
 
+// 이강인 프리롤은 그가 실제로 뛸 때만 성립한다. 이 확인이 없으면 그를 벤치에
+// 내려도 공격 +5 와 λ ×1.08 이 그대로 붙는다. 손흥민 벤치 페널티가 보는 것과
+// 같은 목록(squadData[포메이션] = 현재 피치)을 기준으로 판정한다.
+// 토글 값 자체는 지우지 않는다. 다시 선발로 올리면 설정이 그대로 되살아난다.
+function kanginActive() {
+  return !!state.dials.kangin &&
+    (squadData[state.currentFormation] || []).some(p => p.name === '이강인');
+}
+
+// The button stays lit (the setting is intact) but is marked inert while he is
+// off the pitch, so an on-looking toggle with no effect is never a silent lie.
+let kanginWasInert = false;
+function syncKanginButton() {
+  const on = !!state.dials.kangin;
+  const inert = on && !kanginActive();
+  const btn = document.getElementById('toggle-kangin');
+  if (btn) {
+    // Re-assert `on` from state so the button is right no matter which path
+    // set the dial (click, challenge-link restore, or a reset).
+    btn.classList.toggle('on', on);
+    btn.setAttribute('aria-pressed', String(on));
+    btn.classList.toggle('inert', inert);
+    btn.title = inert ? '이강인이 선발에 없어 효과가 적용되지 않습니다' : '';
+  }
+  if (inert && !kanginWasInert) {
+    pushCoachMessage('⚠️ <strong>[이강인 프리롤 대기]</strong><br>이강인이 선발에서 빠져 프리롤 효과가 멈췄습니다. 다시 투입하면 그대로 되살아납니다.', false);
+  }
+  kanginWasInert = inert;
+}
+
 // Signature reform toggles (KR-specific): U자 백패스 금지, 이강인 프리롤.
 // Kept OUT of the shared Route dial so Route stays a coherent spatial axis
 // (and the AI opponent never has to pick "이강인 프리롤").
@@ -985,7 +1015,7 @@ function recalculateVibe() {
   else if (state.dials.route === 'longball') baseScore += 1;     // direct long balls (+1)
 
   if (state.dials.nopassback) baseScore += 8;                    // signature "사이다" U-turn ban (+8)
-  if (state.dials.kangin) baseScore -= 3;                        // "해줘축구" star-reliance the public distrusts (-3)
+  if (kanginActive()) baseScore -= 3;                            // "해줘축구" star-reliance the public distrusts (-3)
 
   if (state.dials.press === 'high') baseScore += 6;              // energetic gegenpress (+6)
   else if (state.dials.press === 'tenback') baseScore -= 12;     // boring 2-tier bus (-12)
@@ -1130,7 +1160,7 @@ function updateStats() {
     else if (state.dials.route === 'wing') { avgAtt += 4; avgDef -= 4; }
     else if (state.dials.route === 'longball') { avgAtt += 3; avgMid -= 4; }
     if (state.dials.nopassback) { avgAtt += 3; avgMid += 3; }
-    if (state.dials.kangin) { avgAtt += 5; avgDef -= 4; }
+    if (kanginActive()) { avgAtt += 5; avgDef -= 4; }
 
     // Detailed roles, measured as a DEVIATION from the formation's own default
     // task set. Absolute sums would double-count formation identity, which the
@@ -1155,6 +1185,10 @@ function updateStats() {
     if (el) el.textContent = val;
     if (bar) bar.style.width = `${val}%`;
   });
+
+  // Every swap and placement change lands here, so this is where the freeroll
+  // toggle learns that 이강인 left the XI.
+  syncKanginButton();
 }
 
 // --- Live Chat Stream Auto Generator ---
@@ -1421,7 +1455,7 @@ function secondHalfLambdas() {
   else if (state.dials.route === 'wing') apply('route-wing', '측면 오버랩', 1.07, 1);
   else if (state.dials.route === 'longball') apply('route-longball', '다이렉트 롱볼', 1.06, 1.03);
   if (state.dials.nopassback) apply('nopassback', 'U자 백패스 금지', 1.08, 1);
-  if (state.dials.kangin) apply('kangin', '이강인 프리롤', 1.08, 1.04); // star magic, but over-reliance opens gaps
+  if (kanginActive()) apply('kangin', '이강인 프리롤', 1.08, 1.04); // star magic, but over-reliance opens gaps
 
   // Stamina after first-half drain: tired legs score less, concede more.
   const st = Object.values(state.staminaState);
@@ -1879,6 +1913,7 @@ function syncDialButtons() {
     const btn = document.getElementById(`toggle-${name}`);
     if (btn) { btn.classList.toggle('on', !!state.dials[name]); btn.setAttribute('aria-pressed', String(!!state.dials[name])); }
   });
+  syncKanginButton();
 }
 
 // html2canvas measures a whitespace-delimited run as one box, which is wrong for
