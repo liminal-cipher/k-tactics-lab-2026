@@ -268,18 +268,14 @@ function roleDeviation(pitchList) {
   };
 }
 
-// --- AI Coach Witty Quotes ---
+// --- AI Coach formation quotes ---
+// Only the three formations with a distinct read get a bespoke line; the
+// generic branch in setFormation covers the rest. (Dial and toggle commentary
+// is generated inline by setTacticalDial/toggleTactic, not here.)
 const coachQuotes = {
-  default: "감독님! 선수를 <strong>마우스로 끌어(Drag & Drop)</strong> 원하는 위치나 벤치 선수와 교체해보세요. 클릭하면 세부 전술 역할(Role)도 바꿀 수 있습니다!",
-  halfspace: "오! 중앙 하프스페이스를 뚫기 시작했습니다! 측면에서 의미 없이 돌던 공이 드디어 상대 위험 지역으로 투입됩니다. (공격력 ↑)",
-  nopassback: "🔥 '무의미한 U자형 백패스 금지' 선언!! 팬들이 '이게 진짜 사이다 축구지!'라며 열광합니다! 지지율 20% 폭등!!",
-  kangin: "🎯 이강인 선수에게 프리롤을 주셨군요! 상대 수비 2~3명이 끌려다니면서 손흥민 선수에게 광활한 공간이 열립니다!",
-  inverted: "🔄 인버티드 풀백 지시! 좌우 풀백이 중앙으로 좁혀 들어와 중원 수적 우위를 만들고, 백패스 남발 문제를 해결합니다!",
-  defensive: "🔒 풀백 쓰리백 스토퍼 전환! 월드컵에서 우리를 울렸던 측면 자동문 수비가 철옹성으로 변했습니다. 실점 걱정 끝!",
-  overlap: "⚡ 좌우 풀백 오버래핑 올인!! 화끈한 닥공이 펼쳐지지만... 후반전 60분이 넘어가면 선수들 체력이 바닥나서 뻗어버릴 수 있습니다!",
-  form352: "🛡️ 3-5-2 포메이션! 중원을 5명으로 꽉 채우고 김민재를 중심에 세워 수비 불안을 원천 봉쇄합니다. 아주 견고한 선택!",
-  form4231: "⚡ 4-2-3-1 포메이션! 이강인을 중앙 공격 메인에 두고 손흥민 원톱 파괴력을 극대화하는 현대적인 꿀조합입니다!",
-  form343: "🔥 3-4-3 포메이션! 2026 본선에서 실제로 들고 나갔던 그 대형입니다. 전방 3인을 그대로 두고 윙백 둘이 측면을 통째로 책임지므로, 공격은 두꺼워지고 뒷공간은 얇아집니다."
+  form352: "🛡️ 3-5-2 전환. 중원을 5명으로 채우고 김민재를 스리백 중심에 세워 수비 불안을 눌러 놓는 선택입니다.",
+  form4231: "⚡ 4-2-3-1 전환. 이강인을 중앙 공격 지휘에 두고 손흥민 원톱의 파괴력을 극대화하는 현대적인 구성입니다.",
+  form343: "🔥 3-4-3 전환. 2026 본선에서 실제로 들고 나갔던 대형입니다. 전방 3인은 두꺼워지고, 측면은 윙백 둘이 통째로 책임집니다."
 };
 
 // --- Fan Live Chat Stream Pool ---

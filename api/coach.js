@@ -74,11 +74,14 @@ const PERSONA =
 // UI labels. Length stays with each mode's depth instruction, not here.
 const STYLE =
   '표현 규칙(반드시 지킬 것): ' +
+  // "자연스러운 구어체" used to be the wording here, and the model read it as
+  // licence for 반말. The register is now stated as its own hard rule.
+  '상대는 감독님이다. 모든 문장을 정중한 존댓말(-합니다, -하세요, -입니다)로 끝낸다. 반말(-한다, -해라, -야)을 절대 쓰지 않는다. ' +
   '축구 용어는 하프스페이스, 텐백, 빌드업, 압박처럼 자연스러운 한글 표기만 쓴다. ' +
   '영어 단어와 괄호 원어 병기를 쓰지 않는다. U자형, PK처럼 굳어진 표기는 예외다. ' +
   '이모지나 특수 하이픈 없이 보통 문장부호만 쓴다. ' +
   '하프스페이스를 반쪽 공간이나 반칙으로 옮겨 쓰지 않는다. ' +
-  '번역투를 피하고 자연스러운 구어체로 말한다.';
+  '번역투를 피하고 자연스러운 문장으로 말한다.';
 
 // Measured failure modes from a 30-call probe of the live endpoint: the model
 // read the 0-100 ability scores as possession percentages ("점유율 55% 이상"),
@@ -135,7 +138,7 @@ function buildSystem(mode, state) {
       '주어진 JSON 스키마에 정확히 맞춰 응답하라. counterFormation과 각 counterDials 값은 반드시 허용된 옵션의 영어 코드 그대로 쓴다.\n' +
       // Do NOT inject the full STYLE here: its no-English rule would fight the
       // English enum values the schema requires. Scope it to reasoning only.
-      'reasoning 필드만 자연스러운 한국어로 쓴다. JSON에 쓴 영어 코드를 문장에 그대로 옮기지 않는다. 이모지나 특수문자 없이 짧은 단문으로 쓴다.\n' +
+      'reasoning 필드만 자연스러운 한국어로 쓴다. JSON에 쓴 영어 코드를 문장에 그대로 옮기지 않는다. 이모지나 특수문자 없이 짧은 단문으로, 정중한 존댓말(-합니다체)로 쓴다.\n' +
       // A negative ban ("반쪽 공간이라 쓰지 마라") did not hold: the model kept
       // literally translating the English enum it had just emitted. Handing it
       // the exact Korean term for each code works where the ban did not.
