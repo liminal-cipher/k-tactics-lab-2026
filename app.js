@@ -375,6 +375,26 @@ function startHeroScenario() {
     `단, 손흥민을 다시 벤치에 내리면 팬 지지율이 폭락합니다.`,
     true
   );
+  showRouteGuide();
+}
+
+// One-shot nudge, hero scenario only: the route dial is where the designed
+// discovery lives (that day's flank-swapping is the default; the reform is
+// one press away). A pulse ring plus a one-line hint, dismissed by the first
+// meaningful interaction anywhere on the board. A nudge, not a gate.
+function showRouteGuide() {
+  const routeBtn = document.getElementById('btn-route-halfspace');
+  const box = routeBtn ? routeBtn.closest('.tactic-box') : null;
+  if (!box || box.classList.contains('guide-pulse')) return;
+  box.classList.add('guide-pulse');
+  const onFirstMove = (e) => {
+    if (!e.target || !e.target.closest) return;
+    if (e.target.closest('.btn-tactic, .btn-formation, .btn-opponent, .player-card, .cta-sim')) {
+      box.classList.remove('guide-pulse');
+      document.removeEventListener('click', onFirstMove, true);
+    }
+  };
+  document.addEventListener('click', onFirstMove, true);
 }
 
 // Row breakdown per formation, top to bottom (attack line first, GK last).
