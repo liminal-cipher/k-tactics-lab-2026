@@ -254,6 +254,15 @@ function roleSum(list) {
 const DEFAULT_ROLE_SUM = {};
 Object.keys(squadData).forEach(f => { DEFAULT_ROLE_SUM[f] = roleSum(squadData[f]); });
 
+// Pristine slot templates (position code + band), also captured at load.
+// Formation switches carry the current XI into these slots; reading bands
+// from the live squadData instead would drift, because a carried player
+// overwrites the entry's type with his own.
+const FORMATION_SLOTS = {};
+Object.keys(squadData).forEach(f => {
+  FORMATION_SLOTS[f] = squadData[f].map(p => ({ pos: p.pos, type: p.type }));
+});
+
 // Half weight, rounded away from zero so a one-point deviation still shows up
 // (plain Math.round turns -0.5 into 0 and would silently swallow it).
 function roleDeviation(pitchList) {
@@ -717,8 +726,36 @@ function selectPlayerRole(player, newRole) {
     (moved ? `팀 밸런스 <strong>${moved}</strong> 반영되었습니다.` : `팀 밸런스 총합은 그대로입니다 (이전 임무와 상충 구조가 같습니다).`), false);
 }
 
+// Keep the manager's squad across formation changes. The new shape only
+// contributes its slot template (positions); the eleven that walk into it are
+// whoever is on the pitch right now. Each slot takes a same-band player first
+// (gk/att/mid/def) and any overflow folds into the nearest remaining band, so
+// e.g. a fourth forward entering a three-forward shape lands in midfield
+// before it ever lands in the back line. Custom roles travel with the player.
+function carrySquadInto(currentXI, template) {
+  const pool = currentXI.slice();
+  const rank = { att: 0, mid: 1, def: 2, gk: 3 };
+  const take = (type) => {
+    let idx = pool.findIndex(p => p.type === type);
+    if (idx < 0) {
+      let best = 0, bestD = 99;
+      pool.forEach((p, i) => {
+        const d = Math.abs((rank[p.type] ?? 1) - (rank[type] ?? 1));
+        if (d < bestD) { bestD = d; best = i; }
+      });
+      idx = best;
+    }
+    return pool.splice(idx, 1)[0];
+  };
+  return template.map(slot => ({ ...take(slot.type), pos: slot.pos }));
+}
+
 // --- Formation Switching ---
 function setFormation(formation) {
+  const prev = state.currentFormation;
+  if (prev !== formation && squadData[prev] && FORMATION_SLOTS[formation]) {
+    squadData[formation] = carrySquadInto(squadData[prev], FORMATION_SLOTS[formation]);
+  }
   state.currentFormation = formation;
   
   document.querySelectorAll('.btn-formation').forEach(btn => btn.classList.remove('active'));
