@@ -68,7 +68,7 @@
         <strong id="header-vibe-val">50%</strong>
       </div>
       <div class="status-pill" id="status-formation-pill" style="display: none;">
-        <span>포메이션: <strong id="header-formation-val">4-3-3 (밸런스)</strong></span>
+        <span>포메이션: <strong id="header-formation-val">3-4-3 (쓰리백 공격형)</strong></span>
       </div>
       <button class="btn-simulate-compact cta-sim" id="btn-run-simulation" onclick="runSimulation()">
         <span>▶ 경기 시뮬레이션</span>
@@ -91,7 +91,8 @@
           <div style="display: flex; align-items: center; gap: 0.4rem; flex-wrap: wrap;">
             <span class="mch-label">⚽ 포메이션:</span>
             <div class="formation-selector" id="formation-selector">
-              <button class="btn-formation active" id="btn-form-433" onclick="setFormation('4-3-3')">4-3-3</button>
+              <button class="btn-formation" id="btn-form-433" onclick="setFormation('4-3-3')">4-3-3</button>
+              <button class="btn-formation active" id="btn-form-343" onclick="setFormation('3-4-3')">3-4-3</button>
               <button class="btn-formation" id="btn-form-352" onclick="setFormation('3-5-2')">3-5-2</button>
               <button class="btn-formation" id="btn-form-4231" onclick="setFormation('4-2-3-1')">4-2-3-1</button>
               <button class="btn-formation" id="btn-form-442" onclick="setFormation('4-4-2')">4-4-2</button>
@@ -177,8 +178,8 @@
             <div class="tactic-box">
               <span class="tactic-label">⚽ 공격 루트</span>
               <div class="tactic-btns">
-                <button class="btn-tactic active" id="btn-route-halfspace" onclick="setTacticalDial('route', 'halfspace')">중앙 침투</button>
-                <button class="btn-tactic" id="btn-route-wing" onclick="setTacticalDial('route', 'wing')">측면 오버랩</button>
+                <button class="btn-tactic" id="btn-route-halfspace" onclick="setTacticalDial('route', 'halfspace')">중앙 침투</button>
+                <button class="btn-tactic active" id="btn-route-wing" onclick="setTacticalDial('route', 'wing')">측면 오버랩</button>
                 <button class="btn-tactic" id="btn-route-longball" onclick="setTacticalDial('route', 'longball')">다이렉트 롱볼</button>
               </div>
             </div>

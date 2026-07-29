@@ -34,7 +34,7 @@ function rateLimited(ip) {
 }
 
 // Valid tactical vocabulary the AI opponent may choose from (mirrors app.js dials).
-const FORMATIONS = ['4-3-3', '3-5-2', '4-2-3-1', '4-4-2'];
+const FORMATIONS = ['4-3-3', '3-4-3', '3-5-2', '4-2-3-1', '4-4-2'];
 const DIAL_OPTIONS = {
   tempo: ['build', 'standard', 'direct'],
   route: ['halfspace', 'wing', 'longball'],
