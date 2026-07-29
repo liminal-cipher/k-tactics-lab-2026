@@ -1882,17 +1882,13 @@ body.glow-success {
 .rail-pane { display: none; height: 100%; flex-direction: column; min-height: 0; }
 .rail-pane.active { display: flex; }
 
-/* --- Themed thin scrollbars (only inside panes that can overflow) --- */
-.rail-pane, .coach-msg-box, .chat-messages, #rail-pane-bench {
-  scrollbar-width: thin; scrollbar-color: rgba(6, 182, 212, 0.55) transparent;
-}
-.rail-pane::-webkit-scrollbar, .coach-msg-box::-webkit-scrollbar,
-.chat-messages::-webkit-scrollbar, #rail-pane-bench::-webkit-scrollbar { width: 6px; height: 6px; }
-.rail-pane::-webkit-scrollbar-thumb, .coach-msg-box::-webkit-scrollbar-thumb,
-.chat-messages::-webkit-scrollbar-thumb, #rail-pane-bench::-webkit-scrollbar-thumb {
-  background: rgba(6, 182, 212, 0.5); border-radius: 99px;
-}
-.rail-pane::-webkit-scrollbar-track { background: transparent; }
+/* --- Themed thin scrollbars, app-wide (rail panes, modals, and the locker
+       view whose default bar showed behind the scouting popup).
+       Neutral slate: a scrollbar is chrome, not a selection state. --- */
+html { scrollbar-width: thin; scrollbar-color: rgba(148, 163, 184, 0.45) transparent; }
+*::-webkit-scrollbar { width: 6px; height: 6px; }
+*::-webkit-scrollbar-thumb { background: rgba(148, 163, 184, 0.4); border-radius: 99px; }
+*::-webkit-scrollbar-track { background: transparent; }
 
 /* --- Bench pane --- */
 #rail-pane-bench { overflow-y: auto; }
@@ -1956,7 +1952,9 @@ body.glow-success {
   height: 100%; width: 50%; background: var(--accent-emerald);
   transition: width 0.4s ease, background 0.4s ease;
 }
-#rail-pane-chat .chat-messages { flex: 1; min-height: 0; overflow-y: auto; }
+/* Fill the whole rail column: the base .chat-messages rule still carries a
+   150px cap from the old left-rail layout, which starved this pane. */
+#rail-pane-chat .chat-messages { flex: 1; min-height: 0; max-height: none; overflow-y: auto; }
 
 /* --- Flag icons (inline SVG; reliable on Windows where flag emoji don't render) --- */
 .flag-ic {
@@ -2077,3 +2075,43 @@ body.glow-success {
   filter: grayscale(0.7);
 }
 .btn-toggle.on.inert::before { content: '◐'; }
+
+/* --- Player roles after the de-clutter pass ---
+   Pitch cards keep a clean face; the role returns on hover as a styled chip
+   (below the card: .pitch-container clips overflow and the grid has 6px of
+   air above the front line but 58px below the GK). Bench cards keep a short
+   inline role line, because that text is how you pick who to bring on. */
+.pitch-players-grid .player-card::after {
+  content: '임무 · ' attr(data-role);
+  position: absolute;
+  left: 50%; top: calc(100% + 7px);
+  transform: translateX(-50%);
+  background: rgba(11, 20, 36, 0.96);
+  border: 1px solid var(--glass-border);
+  border-bottom: 2px solid var(--pc, var(--accent-gold));
+  color: var(--text-primary);
+  font-size: 0.6rem; font-weight: 700; letter-spacing: 0.02em;
+  white-space: nowrap;
+  padding: 0.28rem 0.55rem; border-radius: 7px;
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.5);
+  opacity: 0; visibility: hidden; pointer-events: none;
+  transition: opacity 0.15s ease, visibility 0.15s;
+  z-index: 40;
+}
+.pitch-players-grid .player-card:hover::after { opacity: 1; visibility: visible; }
+/* Never show the chip on a card that is being dragged or is mid-swap-select */
+.pitch-players-grid .player-card.dragging::after,
+.pitch-players-grid .player-card.click-selected::after { opacity: 0 !important; visibility: hidden !important; }
+
+.player-role-tag {
+  font-size: 0.54rem;
+  color: var(--text-secondary);
+  font-weight: 700;
+  text-align: center;
+  margin-top: 0.18rem;
+  line-height: 1.2;
+  word-break: keep-all;
+  overflow-wrap: anywhere;
+  width: 100%;
+  pointer-events: none;
+}
