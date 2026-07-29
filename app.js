@@ -484,14 +484,16 @@ function createPlayerCardElement(p, source) {
   }
 
   const rating = (typeof SQUAD_STATS_2026 !== 'undefined' && SQUAD_STATS_2026[p.name]) ? SQUAD_STATS_2026[p.name].rating : '';
-  // The detailed role lives in the click modal; on the card itself it is a
-  // hover tooltip, so twenty always-on role pills stop shouting over the pitch.
-  card.title = `${p.name} · ${p.role}`;
+  // Pitch cards keep their face clean: the role shows as a styled hover chip
+  // (CSS ::after reads data-role) and in the click modal. Bench cards keep a
+  // short inline role line, since that text is how you choose who to bring on.
+  card.dataset.role = p.role;
   card.innerHTML = `
     ${rating ? `<span class="player-rating">${rating}</span>` : ''}
     <span class="player-pos-badge">${p.pos}</span>
     <div class="player-avatar">${p.avatar}</div>
     <div class="player-name">${p.name}</div>
+    ${source === 'bench' ? `<div class="player-role-tag">${p.role}</div>` : ''}
     ${staminaHtml}
   `;
   
@@ -1280,9 +1282,14 @@ function activeFanTags() {
   return tags;
 }
 
-// Remember the last few lines shown so the stream never repeats back-to-back.
+// Remember recent lines so a comment cannot reappear while its previous
+// appearance is still on screen. Measured at 1600x950 the expanded chat pane
+// holds ~13 bubbles on average and ~17 if every line is short, so 20 keeps a
+// repeat at least one full screen away (earliest recurrence: 20 x 4.5s = 90s).
+// The general pool alone is 22 lines, and pickFanComment falls back to
+// allowing reuse when a small situational pool is exhausted.
 const recentFanTexts = [];
-const RECENT_FAN_WINDOW = 3;
+const RECENT_FAN_WINDOW = 20;
 
 // Pick a comment conditioned on the current state (offline bank, $0 runtime).
 // Falls back to the legacy static pool if the bank asset is missing.
@@ -1328,6 +1335,9 @@ function pushChatComment(text, type = 'normal', customUser = null) {
   
   item.innerHTML = `<span class="chat-user ${type}">${user}:</span> ${text}`;
   box.appendChild(item);
+  // The stream runs all match; keep the DOM bounded to roughly two screens
+  // of history so a long session does not accumulate hundreds of nodes.
+  while (box.children.length > 40) box.removeChild(box.firstChild);
   box.scrollTop = box.scrollHeight;
 }
 
