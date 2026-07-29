@@ -1865,6 +1865,12 @@ body.glow-success {
   padding: 0 0.6rem 0.5rem; display: flex; flex-direction: column; gap: 0.45rem;
 }
 .opp-chip-body .match-phase-status { color: var(--text-primary); font-size: 0.74rem; line-height: 1.35; }
+.opp-chip-body .opp-plan-readout {
+  font-size: 0.7rem; line-height: 1.45; color: var(--text-secondary);
+  border-top: 1px solid var(--glass-border); padding-top: 0.45rem;
+}
+.opp-chip-body .opp-plan-readout strong { color: var(--text-primary); }
+.opp-chip-body .opp-plan-effect { color: var(--accent-amber); font-weight: 700; font-size: 0.66rem; }
 .opp-chip-body .ai-actions { display: flex; flex-wrap: wrap; gap: 0.4rem; }
 
 /* --- Tactical adjustments deck: one flat bar, five clusters split by

@@ -935,6 +935,7 @@ async function requestAiTacticalAdvice(type) {
 function selectOpponent(opp) {
   state.opponent = opp;
   state.opponentPlan = null; // new opponent re-scouts on next kickoff
+  if (typeof renderOpponentPlanChip === 'function') renderOpponentPlanChip(null);
 
   document.querySelectorAll('.btn-opponent').forEach(btn => btn.classList.remove('active'));
   const activeBtn = document.getElementById(`btn-opp-${opp}`);
@@ -1444,6 +1445,7 @@ function runSimulation() {
     state.matchPhase = 0;
     state.subActions = [];
     state.opponentPlan = null; // re-scout next match
+    renderOpponentPlanChip(null);
     state.staminaState = {}; // fresh legs: stamina bars back to base
     state.halfTimeScore = { kor: 0, opp: 1 };
     state.simResult = null;
@@ -1670,10 +1672,9 @@ function scriptedCounterPlan() {
   };
 }
 
-function opponentModifiers() {
-  const plan = state.opponentPlan;
-  if (!plan || !plan.counterDials) return { korMul: 1, oppMul: 1 };
-  const cd = plan.counterDials;
+// The counter plan's mechanical teeth, shared by the sim (opponentModifiers)
+// and by the chip readout that explains the plan to the user.
+function planMultipliers(cd) {
   let korMul = 1, oppMul = 1;
   if (cd.press === 'high') korMul *= 0.90;      // their press suppresses our goals
   else if (cd.press === 'tenback') korMul *= 0.82;
@@ -1681,6 +1682,12 @@ function opponentModifiers() {
   else if (cd.mentality === 'lock') oppMul *= 0.85;
   if (cd.tempo === 'direct') oppMul *= 1.08;
   return { korMul, oppMul };
+}
+
+function opponentModifiers() {
+  const plan = state.opponentPlan;
+  if (!plan || !plan.counterDials) return { korMul: 1, oppMul: 1 };
+  return planMultipliers(plan.counterDials);
 }
 
 // Vocabulary the LLM opponent must answer in (mirrors api/coach.js enums).
@@ -1704,26 +1711,68 @@ function isValidOpponentPlan(plan) {
     OPPONENT_VOCAB.mentality.includes(cd.mentality);
 }
 
+// Korean labels for the opponent's counter-dial codes (mirrors the app's own
+// button vocabulary). Without this the chip and coach messages leak raw enum
+// codes like "성향 attack / 압박 high" into a Korean UI.
+const COUNTER_KO = {
+  tempo: { build: '지공 빌드업', standard: '표준 템포', direct: '다이렉트 역습' },
+  press: { tenback: '텐백 저지선', region: '중원 지역방어', high: '게겐프레싱' },
+  mentality: { lock: '잠그기', balance: '균형', attack: '닥공' }
+};
+function counterKo(group, code) {
+  return (COUNTER_KO[group] && COUNTER_KO[group][code]) || code;
+}
+
+// The chip is this feature's home: idle it states the contract, after the
+// scout it shows the actual picks AND what they do to the second-half
+// expected goals — both for the LLM plan and for the scripted fallback,
+// which used to apply silently.
+function renderOpponentPlanChip(plan) {
+  const box = document.getElementById('opp-plan-readout');
+  if (!box) return;
+  if (!plan || !plan.counterDials) {
+    box.innerHTML = '🛰️ 킥오프하면 상대 감독이 <strong>내 라인업·다이얼을 읽고</strong> 카운터 전술을 짭니다. 그 선택은 후반 기대 득점에 배수로 반영됩니다.';
+    return;
+  }
+  const cd = plan.counterDials;
+  const m = planMultipliers(cd);
+  const effects = [];
+  if (m.korMul !== 1) effects.push(`${counterKo('press', cd.press)} → 우리 기대득점 ×${m.korMul.toFixed(2)}`);
+  if (cd.mentality !== 'balance') effects.push(`${counterKo('mentality', cd.mentality)} → 상대 기대득점 ×${cd.mentality === 'attack' ? '1.15' : '0.85'}`);
+  if (cd.tempo === 'direct') effects.push(`다이렉트 역습 → 상대 기대득점 ×1.08`);
+  box.innerHTML =
+    `🧠 <strong>카운터 확정${plan.scripted ? ' (기본 대응)' : ' (AI 판단)'}:</strong> ` +
+    `${plan.counterFormation} · ${counterKo('press', cd.press)} · ${counterKo('mentality', cd.mentality)}<br>` +
+    (effects.length
+      ? `<span class="opp-plan-effect">${effects.join(' · ')}</span>`
+      : `<span class="opp-plan-effect">중립 성향: 이번 카운터는 기대득점 배수에 손대지 않습니다</span>`);
+}
+
 // Fetch the AI opponent's plan (LLM), falling back to the scripted heuristic.
 async function fetchOpponentPlan() {
   // Synchronous fallback first, so the sim always has a plan even if the call is slow.
   if (!state.opponentPlan) state.opponentPlan = scriptedCounterPlan();
+  renderOpponentPlanChip(state.opponentPlan);
+  setOppChip(true); // the scout is the moment this chip earns its screen space
 
   const data = await callCoachAPI('opponent');
   const plan = data && data.opponent ? data.opponent : null;
   if (isValidOpponentPlan(plan)) {
     plan.scripted = false;
     state.opponentPlan = plan;
-    const oppName = (typeof OPPONENT_PROFILES !== 'undefined' && OPPONENT_PROFILES[state.opponent])
-      ? OPPONENT_PROFILES[state.opponent].name : state.opponent;
-    pushCoachMessage(
-      `🧠 <strong>[상대 감독 AI 스카우트: ${oppName}]</strong><br>` +
-      `맞불 포메이션 <strong>${plan.counterFormation}</strong> · 성향 ${plan.counterDials.mentality} / 압박 ${plan.counterDials.press}<br>` +
-      // reasoning is free-form LLM text: escape it like the chat path does.
-      `“${coachTextToHtml(plan.reasoning || '한국의 약점을 겨냥합니다.')}”`,
-      true
-    );
+    renderOpponentPlanChip(plan);
   }
+  // Announce whichever plan stands (the scripted path used to stay silent).
+  const p = state.opponentPlan;
+  const oppName = (typeof OPPONENT_PROFILES !== 'undefined' && OPPONENT_PROFILES[state.opponent])
+    ? OPPONENT_PROFILES[state.opponent].name : state.opponent;
+  pushCoachMessage(
+    `🧠 <strong>[상대 감독 스카우트: ${oppName}]</strong><br>` +
+    `맞불 포메이션 <strong>${p.counterFormation}</strong> · 압박 ${counterKo('press', p.counterDials.press)} · 성향 ${counterKo('mentality', p.counterDials.mentality)}<br>` +
+    // reasoning is free-form LLM text: escape it like the chat path does.
+    `“${coachTextToHtml(p.reasoning || '한국의 약점을 겨냥합니다.')}”`,
+    true
+  );
 }
 
 function runMonteCarlo(iterations = 1000) {
