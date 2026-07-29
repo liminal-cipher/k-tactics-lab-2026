@@ -1891,7 +1891,13 @@ html { scrollbar-width: thin; scrollbar-color: rgba(148, 163, 184, 0.45) transpa
 *::-webkit-scrollbar-track { background: transparent; }
 
 /* --- Bench pane --- */
-#rail-pane-bench { overflow-y: auto; }
+/* Clicking a bench card scales it (click-selected 1.15, hover 1.09) and the
+   transformed bounds spilled past the pane edge, switching on a horizontal
+   scrollbar. Clip sideways overflow and keep the zoom modest in the narrow
+   rail; the full-size zoom stays on the wide pitch. */
+#rail-pane-bench { overflow-y: auto; overflow-x: hidden; }
+#rail-pane-bench .player-card:hover { transform: translateY(-3px) scale(1.04); }
+#rail-pane-bench .player-card.click-selected { transform: scale(1.05) !important; }
 .rail-pane-hint {
   font-size: 0.66rem; color: var(--text-muted); font-weight: 600;
   margin-bottom: 0.5rem; flex-shrink: 0;
