@@ -1321,14 +1321,41 @@ function startLiveChatStream() {
   }, 4500);
 }
 
+// Fan-chat handles. Flavors: supporters, tactics nerds, matchday culture,
+// regional fans. House rules: cheer or nerd out, never demean a player or
+// coach, and no fan-slang terms the docs only quote with attribution.
+const FAN_NICKNAMES = [
+  // 응원단 결
+  '국대응원단', '낭만축구단', '월드컵은못참지', '4년을기다렸다', '오늘은이긴다',
+  '믿고있었다구', '거리응원세대', '붉은유니폼꺼냈다', '응원가외우는중', '극장골기다림',
+  // 선수 팬 결 (응원만, 조롱 없음)
+  '손흥민골넣자', '캡틴손', '빛현우팬', '김민재벽믿음', '이강인패스감상가',
+  '황인범볼터치팬', '설영우오버랩좋아', '조규성헤더조아',
+  // 전술덕후 결
+  'K리그덕후', '사이다전술단', '텐백은절대안돼', '하프스페이스신봉자', '빌드업연구가',
+  '전술보드수집가', '포메이션박사', '윙백활용론자', '압박축구좋아', '세트피스분석가',
+  '중원장악파', '역습한방러',
+  // 직관·본방 문화 결
+  '축잘알_서울', '새벽직관러', '본방사수클럽', '치킨먼저시킴', '하이라이트10번봄',
+  'VAR확인중', '후반은다르다', '전반보다후반', '수원_원정러', '부산갈매기축덕'
+];
+let lastFanUser = null;
+
 function pushChatComment(text, type = 'normal', customUser = null) {
   const box = document.getElementById('chat-messages');
   const item = document.createElement('div');
   item.className = 'chat-item';
-  
-  const userNames = ['축잘알_서울', 'K리그덕후', '사이다전술단', '텐백은절대안돼', '손흥민골넣자', '빛현우팬', '국대응원단'];
-  const user = customUser || userNames[Math.floor(Math.random() * userNames.length)];
-  
+
+  // Never show the same handle twice in a row; with 40 names the stream
+  // reads like a crowd instead of seven people talking fast.
+  let user = customUser;
+  if (!user) {
+    do {
+      user = FAN_NICKNAMES[Math.floor(Math.random() * FAN_NICKNAMES.length)];
+    } while (user === lastFanUser);
+  }
+  lastFanUser = user;
+
   item.innerHTML = `<span class="chat-user ${type}">${user}:</span> ${text}`;
   box.appendChild(item);
   // The stream runs all match; keep the DOM bounded to roughly two screens
