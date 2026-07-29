@@ -484,12 +484,14 @@ function createPlayerCardElement(p, source) {
   }
 
   const rating = (typeof SQUAD_STATS_2026 !== 'undefined' && SQUAD_STATS_2026[p.name]) ? SQUAD_STATS_2026[p.name].rating : '';
+  // The detailed role lives in the click modal; on the card itself it is a
+  // hover tooltip, so twenty always-on role pills stop shouting over the pitch.
+  card.title = `${p.name} · ${p.role}`;
   card.innerHTML = `
     ${rating ? `<span class="player-rating">${rating}</span>` : ''}
     <span class="player-pos-badge">${p.pos}</span>
     <div class="player-avatar">${p.avatar}</div>
     <div class="player-name">${p.name}</div>
-    <div class="player-role-tag">${p.role}</div>
     ${staminaHtml}
   `;
   
@@ -1151,6 +1153,10 @@ function updateVibeMeter() {
       if (!wasDanger) triggerScreenShake();
     }
   }
+
+  // The header mini-meter follows the same band colour as the main bar
+  // (one hue that means one thing, instead of a decorative rainbow).
+  if (headerBar && bar) headerBar.style.background = bar.style.backgroundColor;
 }
 
 // One-shot impact shake. It has to clear its own class: leaving it on freezes
