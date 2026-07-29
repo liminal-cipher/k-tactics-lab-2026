@@ -100,8 +100,10 @@
           </div>
           <div style="display: flex; align-items: center; gap: 0.4rem; flex-wrap: wrap;">
             <span class="mch-label">⚔️ 상대국:</span>
-            <button class="btn-opponent active" id="btn-opp-MEX" onclick="selectOpponent('MEX')"><svg class="flag-ic" viewBox="0 0 3 2" aria-hidden="true"><rect width="3" height="2" fill="#fff"/><rect width="1" height="2" fill="#006847"/><rect width="1" height="2" x="2" fill="#ce1126"/></svg> 멕시코</button>
+            <!-- Fixture order (CZE 6/11 -> MEX -> RSA final): the row reads as
+                 the group-stage schedule, ending on the match to re-coach. -->
             <button class="btn-opponent" id="btn-opp-CZE" onclick="selectOpponent('CZE')"><svg class="flag-ic" viewBox="0 0 3 2" aria-hidden="true"><rect width="3" height="1" fill="#fff"/><rect width="3" height="1" y="1" fill="#d7141a"/><path d="M0,0 L1.5,1 L0,2 Z" fill="#11457e"/></svg> 체코</button>
+            <button class="btn-opponent active" id="btn-opp-MEX" onclick="selectOpponent('MEX')"><svg class="flag-ic" viewBox="0 0 3 2" aria-hidden="true"><rect width="3" height="2" fill="#fff"/><rect width="1" height="2" fill="#006847"/><rect width="1" height="2" x="2" fill="#ce1126"/></svg> 멕시코</button>
             <button class="btn-opponent" id="btn-opp-RSA" onclick="selectOpponent('RSA')"><svg class="flag-ic" viewBox="0 0 9 6" aria-hidden="true"><rect width="9" height="3" fill="#e03c31"/><rect y="3" width="9" height="3" fill="#001489"/><path d="M0,0 L4.5,3 L0,6" fill="none" stroke="#fff" stroke-width="2.2"/><path d="M4.5,3 H9" fill="none" stroke="#fff" stroke-width="2.2"/><path d="M0,0 L4.5,3 L0,6" fill="none" stroke="#007a4d" stroke-width="1.2"/><path d="M4.5,3 H9" fill="none" stroke="#007a4d" stroke-width="1.2"/><path d="M0,0.05 L3.9,3 L0,5.95 Z" fill="#ffb612"/><path d="M0,0.8 L3,3 L0,5.2 Z" fill="#000"/></svg> 남아공</button>
           </div>
         </div>
