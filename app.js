@@ -4,7 +4,10 @@
 
 // --- Global State ---
 const state = {
-  currentFormation: '4-3-3',
+  // Open in the shape Korea actually fielded that day (FBref: RSA and CZE both
+  // 3-4-3). One deliberate exception: 손흥민 starts, because his benching is the
+  // controversy the user is here to re-litigate, not a condition to inherit.
+  currentFormation: '3-4-3',
   vibeScore: 50,
   opponent: 'MEX', // 'MEX' | 'CZE' | 'RSA' — the three 2026 group-stage opponents
   matchPhase: 0, // 0: Pre-match (0'), 1: Half-time (45'), 2: Full-time (90')
@@ -12,7 +15,10 @@ const state = {
   subActions: [], // [ { time: '60m', playerOut: '황인범', playerIn: '오현규' } ]
   dials: {
     tempo: 'standard', // 'build' | 'standard' | 'direct'
-    route: 'halfspace', // 'halfspace' | 'wing' | 'longball' (attacking approach axis)
+    // The board opens on the route that actually lost the match: press coverage of
+    // the day reduced our play to switching flanks. Starting on 'halfspace' would
+    // hand the user the reform the scenario is asking them to discover.
+    route: 'wing', // 'halfspace' | 'wing' | 'longball' (attacking approach axis)
     press: 'region', // 'tenback' | 'region' | 'high'
     mentality: 'balance', // 'lock' | 'balance' | 'attack'
     nopassback: false, // 🚫 U자 백패스 금지 (signature reform toggle)
@@ -25,11 +31,6 @@ const state = {
     defense: 60,
     midfield: 80,
     stamina: 70
-  },
-  tactics: {
-    halfspace: true,
-    nopassback: false,
-    kangin: false
   },
   fullbackRole: 'inverted', // 'inverted' | 'defensive' | 'overlap'
   selectedJoker: {
@@ -55,6 +56,22 @@ const squadData = {
     { id: 'p8', name: '김민재', pos: 'CB', avatar: '🧱', role: '파괴자 스토퍼', type: 'def' },
     { id: 'p9', name: '이한범', pos: 'CB', avatar: '⚓', role: '커버링 센터백', type: 'def' },
     { id: 'p10', name: '설영우', pos: 'RB', avatar: '🛡️', role: '밸런스형 풀백', type: 'def' },
+    { id: 'p11', name: '김승규', pos: 'GK', avatar: '🧤', role: '안정형 수문장', type: 'gk' }
+  ],
+  // The shape Korea actually lined up in against South Africa and Czechia
+  // (FBref match reports, 2026). Wing-backs sit in the midfield band, so the
+  // three centre-backs are the last line and the flanks are a shared duty.
+  '3-4-3': [
+    { id: 'p1', name: '손흥민', pos: 'LW', avatar: '⚡', role: '인사이드 포워드', type: 'att' },
+    { id: 'p2', name: '오현규', pos: 'ST', avatar: '🎯', role: '컴플리트 포워드', type: 'att' },
+    { id: 'p3', name: '이강인', pos: 'RW', avatar: '🎨', role: '전천후 플레이메이커', type: 'att' },
+    { id: 'p7', name: '이태석', pos: 'LWB', avatar: '🏃', role: '클래식 윙백', type: 'def' },
+    { id: 'p5', name: '황인범', pos: 'LCM', avatar: '🧭', role: '딥라잉 플레이메이커', type: 'mid' },
+    { id: 'p6', name: '백승호', pos: 'RCM', avatar: '⚙️', role: '홀딩 미드필더', type: 'mid' },
+    { id: 'p10', name: '설영우', pos: 'RWB', avatar: '🛡️', role: '클래식 윙백', type: 'def' },
+    { id: 'p12', name: '이기혁', pos: 'LCB', avatar: '🔒', role: '좌측 스토퍼', type: 'def' },
+    { id: 'p8', name: '김민재', pos: 'CB', avatar: '🧱', role: '수비 사령관', type: 'def' },
+    { id: 'p9', name: '이한범', pos: 'RCB', avatar: '⚓', role: '커버링 센터백', type: 'def' },
     { id: 'p11', name: '김승규', pos: 'GK', avatar: '🧤', role: '안정형 수문장', type: 'gk' }
   ],
   '3-5-2': [
@@ -261,7 +278,8 @@ const coachQuotes = {
   defensive: "🔒 풀백 쓰리백 스토퍼 전환! 월드컵에서 우리를 울렸던 측면 자동문 수비가 철옹성으로 변했습니다. 실점 걱정 끝!",
   overlap: "⚡ 좌우 풀백 오버래핑 올인!! 화끈한 닥공이 펼쳐지지만... 후반전 60분이 넘어가면 선수들 체력이 바닥나서 뻗어버릴 수 있습니다!",
   form352: "🛡️ 3-5-2 포메이션! 중원을 5명으로 꽉 채우고 김민재를 중심에 세워 수비 불안을 원천 봉쇄합니다. 아주 견고한 선택!",
-  form4231: "⚡ 4-2-3-1 포메이션! 이강인을 중앙 공격 메인에 두고 손흥민 원톱 파괴력을 극대화하는 현대적인 꿀조합입니다!"
+  form4231: "⚡ 4-2-3-1 포메이션! 이강인을 중앙 공격 메인에 두고 손흥민 원톱 파괴력을 극대화하는 현대적인 꿀조합입니다!",
+  form343: "🔥 3-4-3 포메이션! 2026 본선에서 실제로 들고 나갔던 그 대형입니다. 전방 3인을 그대로 두고 윙백 둘이 측면을 통째로 책임지므로, 공격은 두꺼워지고 뒷공간은 얇아집니다."
 };
 
 // --- Fan Live Chat Stream Pool ---
@@ -336,7 +354,10 @@ document.addEventListener('DOMContentLoaded', () => {
   renderPitch(state.currentFormation);
   renderBench();
   updateStats();
-  updateVibeMeter();
+  // Vibe is documented as a pure function of the board, so compute it for the
+  // very first paint too instead of leaving the hardcoded 50% placeholder
+  // (recalculateVibe ends by refreshing the meter).
+  recalculateVibe();
   startLiveChatStream();
   if (challenge) {
     dismissHeroIntro();       // a shared challenge link skips the hero onboarding
@@ -354,8 +375,8 @@ function startHeroScenario() {
   dismissHeroIntro();
   if (typeof selectOpponent === 'function') selectOpponent('RSA');
   pushCoachMessage(
-    `🔥 <strong>[남아공전 재도전]</strong><br>비기기만 하면 32강입니다. 손흥민을 선발로 되돌리고, U자 백패스를 폐기하고, 당신만의 전술로 그날의 결과를 바꾸세요. ` +
-    `단, 손흥민을 벤치에 두면 팬 지지율이 폭락합니다.`,
+    `🔥 <strong>[남아공전 재도전]</strong><br>비기기만 하면 32강입니다. 그날의 3-4-3 보드에서 벤치 논란의 손흥민만 선발로 되돌려 뒀습니다. 이제 U자 백패스를 폐기하고, 당신만의 전술로 그날의 결과를 바꾸세요. ` +
+    `단, 손흥민을 다시 벤치에 내리면 팬 지지율이 폭락합니다.`,
     true
   );
 }
@@ -365,9 +386,28 @@ function startHeroScenario() {
 // the pitch renders the real shape (e.g. 4-2-3-1 = ST / 3 AM / 2 DM / 4 DF / GK).
 const FORMATION_ROWS = {
   '4-3-3':   [3, 3, 4, 1],
+  '3-4-3':   [3, 4, 3, 1],
   '3-5-2':   [2, 5, 3, 1],
   '4-2-3-1': [1, 3, 2, 4, 1],
   '4-4-2':   [2, 4, 4, 1]
+};
+
+// One entry per formation, shared by the switcher and by the challenge-link
+// restore path so a new shape can never light up the wrong button.
+const FORMATION_BTN_IDS = {
+  '4-3-3':   'btn-form-433',
+  '3-4-3':   'btn-form-343',
+  '3-5-2':   'btn-form-352',
+  '4-2-3-1': 'btn-form-4231',
+  '4-4-2':   'btn-form-442'
+};
+
+const FORMATION_TAGLINE = {
+  '4-3-3':   ' (밸런스)',
+  '3-4-3':   ' (쓰리백 공격형)',
+  '3-5-2':   ' (쓰리백)',
+  '4-2-3-1': ' (코어 집중)',
+  '4-4-2':   ' (클래식)'
 };
 
 // --- Render Pitch & Players (with Drag & Drop) ---
@@ -662,21 +702,22 @@ function setFormation(formation) {
   state.currentFormation = formation;
   
   document.querySelectorAll('.btn-formation').forEach(btn => btn.classList.remove('active'));
-  if (formation === '4-3-3') document.getElementById('btn-form-433').classList.add('active');
-  if (formation === '3-5-2') document.getElementById('btn-form-352').classList.add('active');
-  if (formation === '4-2-3-1') document.getElementById('btn-form-4231').classList.add('active');
-  if (formation === '4-4-2') document.getElementById('btn-form-442').classList.add('active');
-  
-  document.getElementById('header-formation-val').textContent = formation + (formation === '4-3-3' ? ' (밸런스)' : (formation === '3-5-2' ? ' (쓰리백)' : ' (코어 집중)'));
-  
+  const activeBtn = document.getElementById(FORMATION_BTN_IDS[formation] || '');
+  if (activeBtn) activeBtn.classList.add('active');
+
+  document.getElementById('header-formation-val').textContent = formation + (FORMATION_TAGLINE[formation] || '');
+
   if (formation === '3-5-2') pushCoachMessage(coachQuotes.form352);
   else if (formation === '4-2-3-1') pushCoachMessage(coachQuotes.form4231);
+  else if (formation === '3-4-3') pushCoachMessage(coachQuotes.form343);
   else pushCoachMessage(`⚽ <strong>${formation}</strong> 포메이션 전환!<br>선수들의 간격이 재조정되었습니다. 한국 축구의 강점을 극대화할 세부 지침을 선택해 주세요!`);
-  
+
   if (formation === '3-5-2') {
     state.stats.defense = 85; state.stats.midfield = 88; state.stats.attack = 72;
   } else if (formation === '4-2-3-1') {
     state.stats.attack = 88; state.stats.midfield = 84; state.stats.defense = 70;
+  } else if (formation === '3-4-3') {
+    state.stats.attack = 84; state.stats.midfield = 78; state.stats.defense = 74;
   } else {
     state.stats.attack = 78; state.stats.defense = 75; state.stats.midfield = 80;
   }
@@ -827,9 +868,9 @@ async function requestAiTacticalAdvice(type) {
   }
   // Scripted fallback (offline / no key)
   if (type === 'mexico') {
-    pushCoachMessage(`⚡ <strong>[상대 국가팀 맞춤 전술 분석: 멕시코/남아공]</strong><br>상대는 측면 역습 속도가 빠르고 수비 라인이 높습니다. <strong>4-2-3-1 포메이션</strong>으로 전환하고, 이강인의 킬패스와 손흥민·양민혁의 초광속 침투를 극대화하는 것을 추천합니다! (스쿼드 밸런스 최적화)`, false);
+    pushCoachMessage(`⚡ <strong>[상대 국가팀 맞춤 전술 분석: 멕시코/남아공]</strong><br>상대는 측면 역습 속도가 빠르고 수비 라인이 높습니다. <strong>4-2-3-1 포메이션</strong>으로 전환하고, 이강인의 킬패스와 손흥민·엄지성의 초광속 침투를 극대화하는 것을 추천합니다! (스쿼드 밸런스 최적화)`, false);
   } else {
-    pushCoachMessage(`🛡️ <strong>[현재 스쿼드 밸런스 진단]</strong><br>현재 공격 파괴력 <strong>${state.stats.attack}</strong>, 중원 장악 <strong>${state.stats.midfield}</strong>, 수비 안정 <strong>${state.stats.defense}</strong>입니다. 후반전 60분이 넘어가면 체력 저하를 대비해 벤치의 오현규나 배준호를 교체 투입하세요!`, false);
+    pushCoachMessage(`🛡️ <strong>[현재 스쿼드 밸런스 진단]</strong><br>현재 공격 파괴력 <strong>${state.stats.attack}</strong>, 중원 장악 <strong>${state.stats.midfield}</strong>, 수비 안정 <strong>${state.stats.defense}</strong>입니다. 후반전 60분이 넘어가면 체력 저하를 대비해 벤치의 조규성이나 양현준을 교체 투입하세요!`, false);
   }
 }
 
@@ -1003,6 +1044,7 @@ function recalculateVibe() {
   if (state.currentFormation === '4-2-3-1') baseScore += 4;      // Modern balanced
   else if (state.currentFormation === '3-5-2') baseScore += 2;    // Tactical 3-back
   else if (state.currentFormation === '4-3-3') baseScore += 5;    // Attacking classic
+  else if (state.currentFormation === '3-4-3') baseScore += 0;    // The shape that lost: the press spent 2026 on its wing-back gaps
   else if (state.currentFormation === '4-4-2') baseScore -= 2;    // Rigid/classic
   
   // 2. Tactical Dials Impact — each category spans a negative AND a positive so
@@ -1037,7 +1079,11 @@ function recalculateVibe() {
     if (state.dials.press === 'high') matchupDelta += 4;
   } else if (state.opponent === 'RSA') {
     if (state.dials.mentality === 'attack' && state.dials.press === 'high') matchupDelta -= 6;
-    if (state.currentFormation === '3-5-2' || state.dials.press === 'region') matchupDelta += 5;
+    // A back three (either flavour) or a zonal block is the reading the public
+    // accepts against their counters. The flank exposure is priced separately
+    // on the route dial just below, so 3-4-3 with wing overlaps nets out low.
+    const backThree = state.currentFormation === '3-5-2' || state.currentFormation === '3-4-3';
+    if (backThree || state.dials.press === 'region') matchupDelta += 5;
     if (state.dials.route === 'wing') matchupDelta -= 4;         // vacated flanks vs their physical counters
   }
   
@@ -1146,6 +1192,9 @@ function updateStats() {
     if (state.currentFormation === '3-5-2') { avgDef += 8; avgMid += 5; avgAtt -= 4; }
     else if (state.currentFormation === '4-2-3-1') { avgAtt += 8; avgMid += 4; avgDef -= 4; }
     else if (state.currentFormation === '4-3-3') { avgAtt += 5; avgMid += 3; avgDef += 2; }
+    // Three up, three at the back, and only two central midfielders: the front
+    // line is heavy and the middle is the thinnest of the five shapes.
+    else if (state.currentFormation === '3-4-3') { avgAtt += 7; avgMid -= 2; avgDef += 0; }
     
     // Apply ML Dial adjustments
     if (state.dials.tempo === 'direct') { avgAtt += 6; avgStam -= 5; }
@@ -1542,7 +1591,7 @@ function opponentModifiers() {
 // Groq's JSON mode guarantees syntax only, so values are validated here:
 // an off-enum plan must never replace the working scripted plan.
 const OPPONENT_VOCAB = {
-  formations: ['4-3-3', '3-5-2', '4-2-3-1', '4-4-2'],
+  formations: ['4-3-3', '3-4-3', '3-5-2', '4-2-3-1', '4-4-2'],
   tempo: ['build', 'standard', 'direct'],
   route: ['halfspace', 'wing', 'longball'],
   press: ['tenback', 'region', 'high'],
@@ -1922,8 +1971,7 @@ function announceChallenge(challenge) {
   if (typeof syncDialButtons === 'function') syncDialButtons();
   // The restore path bypasses setFormation (it would push a coach quote and
   // overwrite stat presets), so move the formation button highlight by hand.
-  const formIds = { '4-3-3': 'btn-form-433', '3-5-2': 'btn-form-352', '4-2-3-1': 'btn-form-4231', '4-4-2': 'btn-form-442' };
-  const formBtn = document.getElementById(formIds[state.currentFormation] || '');
+  const formBtn = document.getElementById(FORMATION_BTN_IDS[state.currentFormation] || '');
   if (formBtn) {
     document.querySelectorAll('.btn-formation').forEach(b => b.classList.remove('active'));
     formBtn.classList.add('active');
@@ -2176,8 +2224,8 @@ let selectedPkKickers = [];
 // nudges a kicker around that baseline (elite ~82%, weak ~71%) instead of being
 // read as a raw percentage, which used to hand 손흥민 a 99% kick. The opponent
 // moves with their attacking strength for the same reason the rest of the model
-// does, so a shootout is never a free win: weak kickers against Spain are the
-// underdog at ~41%.
+// does, so a shootout is never a free win: the opponent converts 71~75%
+// depending on who you drew, and a weak kicker sits in the low 70s himself.
 const PK_BASELINE = 75;
 const PK_COMPOSURE_MID = 84;
 
