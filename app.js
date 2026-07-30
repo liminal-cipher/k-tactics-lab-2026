@@ -2208,7 +2208,12 @@ function syncDialButtons() {
 function captureResultCard() {
   const card = document.getElementById('manager-result-card');
   return html2canvas(card, {
-    backgroundColor: '#0e1626',
+    // Transparent, not the page colour. The canvas is a rectangle and the card
+    // is rounded, so an opaque fill survives in the four corners outside the
+    // radius: in the saved PNG that reads as dark wedges poking out behind the
+    // card. html2canvas clips the card's own background to its border-radius,
+    // so leaving the canvas unpainted gives clean rounded corners.
+    backgroundColor: null,
     scale: 2,
     onclone: doc => {
       const st = doc.createElement('style');
