@@ -442,6 +442,12 @@
             🔥 승부차기 시작!
           </button>
         </div>
+        <!-- First-person penalty view: replays each decided kick (app.js) -->
+        <div id="pk-view-container" style="display: none; margin-top: 1rem;">
+          <div style="font-size: 0.8rem; font-weight: 800; color: var(--accent-cyan); margin-bottom: 0.4rem;">🥅 키커 시점 · 골대 정면</div>
+          <canvas id="pk-view-canvas" width="1160" height="560" style="width: 100%; height: auto; display: block; background: #0b1220; border: 2px solid var(--glass-border); border-radius: 8px; box-shadow: inset 0 0 20px rgba(0,0,0,0.5);"></canvas>
+        </div>
+
         <div id="pk-results-log" style="margin-top: 1rem; display: flex; flex-direction: column; gap: 0.4rem; font-size: 0.85rem;"></div>
       </div>
 

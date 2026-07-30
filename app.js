@@ -2401,6 +2401,12 @@ function initPenaltyShootoutUI() {
   logEl.innerHTML = '';
   selectedPkKickers = [];
 
+  // Clear anything the previous shootout left running
+  stopPkView();
+  clearTimeout(pkRoundTimer);
+  const viewBox = document.getElementById('pk-view-container');
+  if (viewBox) viewBox.style.display = 'none';
+
   // Restore the start button (a previous shootout hides it at the end)
   const startBtn = document.getElementById('btn-start-pk');
   if (startBtn) { startBtn.style.display = ''; startBtn.disabled = false; }
@@ -2444,66 +2450,94 @@ function togglePkKicker(id, name) {
   }
 }
 
+// Each round is paced by its own animation instead of a fixed interval: the
+// kick is sampled first, the first-person view plays that decided kick, and
+// the log line lands when the ball does.
+let pkRoundTimer = null;
+
 function startPenaltyShootout() {
   const logEl = document.getElementById('pk-results-log');
   const btn = document.getElementById('btn-start-pk');
+  const viewBox = document.getElementById('pk-view-container');
   if (!logEl || !btn) return;
-  
+
   btn.disabled = true;
+  clearTimeout(pkRoundTimer);
   logEl.innerHTML = `<div style="color: var(--accent-cyan); font-weight: 800;">🔥 승부차기 1번 키커 준비 중...</div>`;
-  
+  if (viewBox) viewBox.style.display = 'block';
+
   let korPk = 0; let oppPk = 0;
   let round = 0;
-  
-  const interval = setInterval(() => {
+
+  const concludeShootout = () => {
+    btn.disabled = false;
+    btn.style.display = 'none';
+
+    const korWin = korPk > oppPk;
+    updateScorebug(null, null, `PK ${korPk}-${oppPk} 종료`);
+    logEl.innerHTML += `
+      <div style="margin-top: 0.6rem; padding: 0.6rem; background: ${korWin ? 'rgba(16,185,129,0.2)' : 'rgba(244,63,94,0.2)'}; border: 1px solid ${korWin ? 'var(--accent-emerald)' : 'var(--accent-rose)'}; border-radius: 6px; text-align: center; font-weight: 900; color: ${korWin ? 'var(--accent-emerald)' : 'var(--accent-rose)'};">
+        🏆 최종 PK 스코어 ${korPk} : ${oppPk} — ${korWin ? '대한민국 승부차기 극적 승리!! 8강 진출!' : '아쉬운 PK 석패... 훌륭한 명승부였습니다.'}
+      </div>
+    `;
+    logEl.scrollTop = logEl.scrollHeight;
+
+    pkRoundTimer = setTimeout(() => {
+      const pkBox = document.getElementById('pk-shootout-container');
+      const resultCard = document.getElementById('manager-result-card');
+      const actions = document.getElementById('sim-modal-actions');
+      if (pkBox) pkBox.style.display = 'none';
+      if (resultCard) resultCard.style.display = 'block';
+      if (actions) actions.style.display = 'flex';
+
+      const pkTitle = korWin ? "🔥 'PK 혈투 끝에 승리한 강철 심장' 승부차기 명장" : "🎲 '아쉬운 PK 석패' 불굴의 투혼 지휘관";
+      document.getElementById('res-style-name').textContent = publicVerdictTitle(korWin ? 'win' : 'loss') || pkTitle;
+      document.getElementById('res-desc').textContent = `90분 정규시간 ${state.finalScore.kor}:${state.finalScore.opp} 동점 이후 승부차기에서 ${selectedPkKickers.map(k=>k.name).join(', ')} 키커들의 활약으로 ${korPk}:${oppPk} 최종 승부를 가렸습니다.`;
+      document.getElementById('res-val-stage').textContent = korWin ? "월드컵 8강/16강 통과! 🏆✨" : "월드컵 16강 명승부 ⚽";
+    }, 3500);
+  };
+
+  const nextRound = () => {
     // After the 5 regulation kicks a level score goes to sudden death, so the
     // shootout can never be declared a "win" while the score is still tied.
     const suddenDeath = round >= 5;
-    if (!suddenDeath || korPk === oppPk) {
-      const kicker = selectedPkKickers[round % Math.max(1, selectedPkKickers.length)]
-        || { name: `한국 ${round + 1}번 키커` };
+    if (suddenDeath && korPk !== oppPk) { concludeShootout(); return; }
 
-      const korGoal = Math.random() * 100 < pkKickerRate(kicker.name);
-      const oppGoal = Math.random() * 100 < pkOpponentRate();
+    const kicker = selectedPkKickers[round % Math.max(1, selectedPkKickers.length)]
+      || { name: `한국 ${round + 1}번 키커` };
 
-      if (korGoal) korPk++;
+    const korGoal = Math.random() * 100 < pkKickerRate(kicker.name);
+    const oppGoal = Math.random() * 100 < pkOpponentRate();
+    // A missed kick is either saved or dragged off target; the view and the
+    // log line have to tell the same story, so it is decided once here.
+    const outcome = korGoal ? 'goal' : (Math.random() < 0.5 ? 'save' : 'miss');
+    if (korGoal) korPk++;
+    const label = suddenDeath ? `서든데스 ${round + 1}번` : `${round + 1}번 키커`;
+
+    let settled = false;
+    const settleRound = () => {
+      if (settled) return; // the view's callback and the error path must not both fire
+      settled = true;
       if (oppGoal) oppPk++;
-
       logEl.innerHTML += `
         <div style="padding: 0.35rem; background: var(--surface-sunken); border-radius: 4px; border-left: 3px solid ${korGoal ? 'var(--accent-emerald)' : 'var(--accent-rose)'};">
-          <strong>${suddenDeath ? `서든데스 #${round + 1}` : `#${round + 1}`} ${kicker.name}:</strong> ${korGoal ? '⚽ 골 성공!!' : '❌ 골키퍼 선방 / 실축!'} vs <strong>${state.opponent}:</strong> ${oppGoal ? '⚽ 성공' : '❌ 실축!'} (현재 ${korPk}:${oppPk})
+          <strong>${suddenDeath ? `서든데스 #${round + 1}` : `#${round + 1}`} ${kicker.name}:</strong> ${korGoal ? '⚽ 골 성공!!' : (outcome === 'save' ? '❌ 골키퍼 선방!' : '❌ 크로스바 위로 실축!')} vs <strong>${state.opponent}:</strong> ${oppGoal ? '⚽ 성공' : '❌ 실축!'} (현재 ${korPk}:${oppPk})
         </div>
       `;
       logEl.scrollTop = logEl.scrollHeight;
       round++;
-    } else {
-      clearInterval(interval);
-      btn.disabled = false;
-      btn.style.display = 'none';
-      
-      const korWin = korPk > oppPk;
-      updateScorebug(null, null, `PK ${korPk}-${oppPk} 종료`);
-      logEl.innerHTML += `
-        <div style="margin-top: 0.6rem; padding: 0.6rem; background: ${korWin ? 'rgba(16,185,129,0.2)' : 'rgba(244,63,94,0.2)'}; border: 1px solid ${korWin ? 'var(--accent-emerald)' : 'var(--accent-rose)'}; border-radius: 6px; text-align: center; font-weight: 900; color: ${korWin ? 'var(--accent-emerald)' : 'var(--accent-rose)'};">
-          🏆 최종 PK 스코어 ${korPk} : ${oppPk} — ${korWin ? '대한민국 승부차기 극적 승리!! 8강 진출!' : '아쉬운 PK 석패... 훌륭한 명승부였습니다.'}
-        </div>
-      `;
-      
-      setTimeout(() => {
-        const pkBox = document.getElementById('pk-shootout-container');
-        const resultCard = document.getElementById('manager-result-card');
-        const actions = document.getElementById('sim-modal-actions');
-        if (pkBox) pkBox.style.display = 'none';
-        if (resultCard) resultCard.style.display = 'block';
-        if (actions) actions.style.display = 'flex';
-        
-        const pkTitle = korWin ? "🔥 'PK 혈투 끝에 승리한 강철 심장' 승부차기 명장" : "🎲 '아쉬운 PK 석패' 불굴의 투혼 지휘관";
-        document.getElementById('res-style-name').textContent = publicVerdictTitle(korWin ? 'win' : 'loss') || pkTitle;
-        document.getElementById('res-desc').textContent = `90분 정규시간 ${state.finalScore.kor}:${state.finalScore.opp} 동점 이후 승부차기에서 ${selectedPkKickers.map(k=>k.name).join(', ')} 키커들의 활약으로 ${korPk}:${oppPk} 최종 승부를 가렸습니다.`;
-        document.getElementById('res-val-stage').textContent = korWin ? "월드컵 8강/16강 통과! 🏆✨" : "월드컵 16강 명승부 ⚽";
-      }, 3500);
+      pkRoundTimer = setTimeout(nextRound, 700);
+    };
+
+    try { SFX.ui(); if (korGoal) SFX.goal(); } catch (e) { /* audio is optional */ }
+    try {
+      animatePkKick({ kicker: kicker.name, round, outcome, korPk, oppPk, label }, settleRound);
+    } catch (e) {
+      settleRound(); // the shootout must finish even if the view cannot draw
     }
-  }, 1000);
+  };
+
+  nextRound();
 }
 
 // ==========================================================================
@@ -2634,6 +2668,39 @@ function teamShape(formation, attackingRight) {
   return spots;
 }
 
+// Shared chrome for both canvas views (the live match and the shootout), so
+// the two animations read as one thing. Plates are measured, not guessed: the
+// opponent code and the minute both change width mid-match.
+function drawCanvasHud(ctx, W, H, leftText, rightText) {
+  ctx.font = `800 ${Math.round(H * 0.075)}px 'Outfit', 'Noto Sans KR', sans-serif`;
+  ctx.textBaseline = 'top';
+  const pad = W * 0.013, y = H * 0.05, h = H * 0.11, m = W * 0.022;
+  ctx.fillStyle = 'rgba(15, 23, 42, 0.6)';
+  ctx.fillRect(m, y, ctx.measureText(leftText).width + pad * 2, h);
+  const rw = ctx.measureText(rightText).width + pad * 2;
+  ctx.fillRect(W - m - rw, y, rw, h);
+  ctx.fillStyle = '#f8fafc';
+  ctx.textAlign = 'left'; ctx.fillText(leftText, m + pad, y + H * 0.018);
+  ctx.textAlign = 'right'; ctx.fillText(rightText, W - m - pad, y + H * 0.018);
+  ctx.textAlign = 'left'; ctx.textBaseline = 'alphabetic';
+}
+
+function drawCanvasFlash(ctx, W, H, tone, text, sub) {
+  ctx.fillStyle = tone === 'good' ? 'rgba(16, 185, 129, 0.30)' : 'rgba(244, 63, 94, 0.26)';
+  ctx.fillRect(0, 0, W, H);
+  ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+  ctx.shadowColor = 'rgba(2, 20, 12, 0.85)';
+  ctx.shadowBlur = H * 0.05;
+  ctx.fillStyle = '#ffffff';
+  ctx.font = `900 ${Math.round(H * 0.16)}px 'Outfit', 'Noto Sans KR', sans-serif`;
+  ctx.fillText(text, W / 2, H * 0.44);
+  ctx.font = `700 ${Math.round(H * 0.078)}px 'Outfit', 'Noto Sans KR', sans-serif`;
+  ctx.fillStyle = tone === 'good' ? '#a7f3d0' : '#fecdd3';
+  ctx.fillText(sub, W / 2, H * 0.63);
+  ctx.shadowBlur = 0;
+  ctx.textAlign = 'left'; ctx.textBaseline = 'alphabetic';
+}
+
 function drawPitchSurface(ctx, W, H) {
   ctx.fillStyle = '#0a3d2c';
   ctx.fillRect(0, 0, W, H);
@@ -2694,6 +2761,198 @@ function skipLiveMatchView() {
   if (!v) return;
   stopLiveMatchView();
   v.finish();
+}
+
+// ==========================================================================
+// Penalty view, from behind the ball. Like the live match above, the kick is
+// decided before a frame is drawn (pkKickerRate vs. the keeper), so this
+// animates a settled outcome: where the ball goes and which way the keeper
+// dives are cosmetic choices seeded per kicker and round.
+// ==========================================================================
+
+const PK_GOAL = { left: 0.13, right: 0.87, top: 0.15, bottom: 0.64 };
+const PK_HORIZON = 0.61;
+let pkView = null;
+
+function stopPkView() {
+  if (pkView) {
+    if (pkView.raf) cancelAnimationFrame(pkView.raf);
+    if (pkView.watchdog) clearTimeout(pkView.watchdog);
+  }
+  pkView = null;
+}
+
+// A stable seed per (kicker, round) so a kick never re-rolls its corner
+// mid-animation, and the same shootout replays identically.
+function pkSeed(name, round) {
+  let h = 2166136261;
+  const s = String(name) + '#' + round;
+  for (let i = 0; i < s.length; i++) { h ^= s.charCodeAt(i); h = Math.imul(h, 16777619); }
+  return h >>> 0;
+}
+
+function drawPenaltyScene(ctx, W, H, sc) {
+  // Stands
+  ctx.fillStyle = '#0b1220';
+  ctx.fillRect(0, 0, W, H * PK_HORIZON);
+  sc.crowd.forEach(c => {
+    ctx.fillStyle = c.c;
+    ctx.fillRect(c.x * W, c.y * H, W * 0.006, W * 0.006);
+  });
+
+  // Turf, with the box lines converging toward the goal for depth
+  const horizon = H * PK_HORIZON;
+  const g = ctx.createLinearGradient(0, horizon, 0, H);
+  g.addColorStop(0, '#0d5238'); g.addColorStop(1, '#0a3d2c');
+  ctx.fillStyle = g;
+  ctx.fillRect(0, horizon, W, H - horizon);
+  ctx.strokeStyle = 'rgba(255, 255, 255, 0.22)';
+  ctx.lineWidth = Math.max(2, W / 420);
+  ctx.beginPath();
+  ctx.moveTo(-W * 0.20, H); ctx.lineTo(PK_GOAL.left * W - W * 0.02, horizon + H * 0.015);
+  ctx.moveTo(W * 1.20, H); ctx.lineTo(PK_GOAL.right * W + W * 0.02, horizon + H * 0.015);
+  ctx.moveTo(0, horizon + H * 0.02); ctx.lineTo(W, horizon + H * 0.02);
+  ctx.stroke();
+  // Penalty spot: the ground we are standing on
+  ctx.fillStyle = 'rgba(255, 255, 255, 0.5)';
+  ctx.beginPath(); ctx.ellipse(W / 2, H * 0.88, W * 0.012, H * 0.008, 0, 0, Math.PI * 2); ctx.fill();
+
+  // Goal: mouth, depth box, net
+  const gl = PK_GOAL.left * W, gr = PK_GOAL.right * W;
+  const gt = PK_GOAL.top * H, gb = PK_GOAL.bottom * H;
+  const dx = W * 0.035, dy = H * 0.045; // net depth offset
+  ctx.strokeStyle = 'rgba(226, 232, 240, 0.22)';
+  ctx.lineWidth = Math.max(1, W / 900);
+  for (let i = 1; i < 16; i++) {
+    const x = gl + ((gr - gl) / 16) * i;
+    ctx.beginPath(); ctx.moveTo(x, gt); ctx.lineTo(x + (x < (gl + gr) / 2 ? dx : -dx), gt + dy); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(x, gb); ctx.lineTo(x + (x < (gl + gr) / 2 ? dx : -dx), gb - dy * 0.4); ctx.stroke();
+  }
+  for (let i = 1; i < 9; i++) {
+    const y = gt + ((gb - gt) / 9) * i;
+    ctx.beginPath(); ctx.moveTo(gl, y); ctx.lineTo(gr, y); ctx.stroke();
+  }
+  ctx.strokeStyle = 'rgba(226, 232, 240, 0.30)';
+  ctx.strokeRect(gl + dx, gt + dy, (gr - gl) - dx * 2, (gb - gt) - dy);
+  ctx.strokeStyle = '#f8fafc';
+  ctx.lineWidth = Math.max(3, W / 145);
+  ctx.beginPath();
+  ctx.moveTo(gl, gb); ctx.lineTo(gl, gt); ctx.lineTo(gr, gt); ctx.lineTo(gr, gb);
+  ctx.stroke();
+}
+
+function drawKeeper(ctx, W, H, cx, cy, dive) {
+  const s = W * 0.047;               // body unit: a keeper fills ~3/4 of the goal height
+  const lean = dive * 0.9;           // -1 dives to our left, +1 to our right
+  ctx.save();
+  ctx.translate(cx, cy);
+  ctx.rotate(lean * 0.5);
+  ctx.fillStyle = '#0f172a';
+  ctx.beginPath(); ctx.ellipse(0, 0, s * 0.75, s * 1.5, 0, 0, Math.PI * 2); ctx.fill();
+  ctx.strokeStyle = '#22d3ee'; // keeper kit trim, distinct from both teams
+  ctx.lineWidth = Math.max(2, W / 320);
+  ctx.beginPath(); ctx.ellipse(0, 0, s * 0.75, s * 1.5, 0, 0, Math.PI * 2); ctx.stroke();
+  ctx.beginPath();
+  ctx.moveTo(-s * 0.6, -s * 0.5); ctx.lineTo(-s * (1.5 + Math.abs(lean) * 1.4), -s * (1.5 + lean * 0.6));
+  ctx.moveTo(s * 0.6, -s * 0.5); ctx.lineTo(s * (1.5 + Math.abs(lean) * 1.4), -s * (1.5 - lean * 0.6));
+  ctx.stroke();
+  ctx.fillStyle = '#fbbf24'; // gloves
+  ctx.beginPath(); ctx.arc(-s * (1.5 + Math.abs(lean) * 1.4), -s * (1.5 + lean * 0.6), s * 0.28, 0, Math.PI * 2); ctx.fill();
+  ctx.beginPath(); ctx.arc(s * (1.5 + Math.abs(lean) * 1.4), -s * (1.5 - lean * 0.6), s * 0.28, 0, Math.PI * 2); ctx.fill();
+  ctx.fillStyle = '#e2e8f0';
+  ctx.beginPath(); ctx.arc(0, -s * 1.85, s * 0.42, 0, Math.PI * 2); ctx.fill();
+  ctx.restore();
+}
+
+function drawPkBall(ctx, x, y, r) {
+  ctx.beginPath(); ctx.arc(x, y, r, 0, Math.PI * 2);
+  ctx.fillStyle = '#fbbf24'; ctx.fill();
+  ctx.strokeStyle = 'rgba(15, 23, 42, 0.9)'; ctx.lineWidth = Math.max(1.5, r * 0.18); ctx.stroke();
+  ctx.beginPath(); ctx.arc(x - r * 0.2, y - r * 0.2, r * 0.32, 0, Math.PI * 2);
+  ctx.fillStyle = 'rgba(15, 23, 42, 0.55)'; ctx.fill();
+}
+
+// cfg: { kicker, round, outcome: 'goal'|'save'|'miss', korPk, oppPk, label }
+function animatePkKick(cfg, onDone) {
+  const canvas = document.getElementById('pk-view-canvas');
+  const done = () => { if (typeof onDone === 'function') onDone(); };
+  if (!canvas || typeof canvas.getContext !== 'function') { done(); return false; }
+  const ctx = canvas.getContext('2d');
+  if (!ctx) { done(); return false; }
+  stopPkView();
+
+  const W = canvas.width, H = canvas.height;
+  const rng = seededRng(pkSeed(cfg.kicker, cfg.round));
+  const side = rng() < 0.5 ? -1 : 1;
+  const target = {
+    x: 0.5 + side * (0.19 + rng() * 0.13),
+    y: cfg.outcome === 'miss' ? PK_GOAL.top - 0.10 : (rng() < 0.5 ? 0.22 + rng() * 0.07 : 0.46 + rng() * 0.09)
+  };
+  const keeperSide = cfg.outcome === 'goal'
+    ? (rng() < 0.7 ? -side : side)   // beaten keeper usually guesses the other way
+    : side;                          // a save means he went the right way
+  const scene = {
+    crowd: Array.from({ length: 170 }, (_, i) => ({
+      x: rng(), y: 0.02 + rng() * 0.55,
+      c: i % 4 === 0 ? 'rgba(244, 63, 94, 0.45)' : 'rgba(148, 163, 184, 0.30)'
+    }))
+  };
+
+  const DUR = 1750, T_SET = 0.20, T_HIT = 0.62;
+  const startX = 0.5, startY = 0.90, startR = W * 0.034, endR = W * 0.012;
+  let t0 = 0, ended = false;
+
+  const finish = () => {
+    if (ended) return;
+    ended = true;
+    stopPkView();
+    done();
+  };
+
+  const frame = (p) => {
+    drawPenaltyScene(ctx, W, H, scene);
+    const flight = Math.min(1, Math.max(0, (p - T_SET) / (T_HIT - T_SET)));
+    // A save stops the ball at the keeper's gloves instead of the net.
+    const travel = cfg.outcome === 'save' ? Math.min(flight, 0.82) : flight;
+    const ease = travel * travel * (3 - 2 * travel);
+    const bx = (startX + (target.x - startX) * ease) * W;
+    const by = (startY + (target.y - startY) * ease) * H - Math.sin(ease * Math.PI) * H * 0.05;
+    const br = startR + (endR - startR) * ease;
+
+    const diveP = Math.min(1, Math.max(0, (p - T_SET - 0.06) / 0.34));
+    const dive = keeperSide * diveP * diveP;
+    drawKeeper(ctx, W, H, (0.5 + dive * 0.26) * W, H * (0.46 + diveP * 0.04), dive);
+    drawPkBall(ctx, bx, by, br);
+
+    drawCanvasHud(ctx, W, H, `PK ${cfg.korPk} : ${cfg.oppPk}`, cfg.label);
+    if (p < T_SET) {
+      ctx.textAlign = 'center';
+      ctx.font = `800 ${Math.round(H * 0.062)}px 'Outfit', 'Noto Sans KR', sans-serif`;
+      ctx.fillStyle = '#f8fafc';
+      ctx.fillText(`${cfg.kicker} 키커 준비`, W / 2, H * 0.80);
+      ctx.textAlign = 'left';
+    }
+    if (p >= T_HIT) {
+      if (cfg.outcome === 'goal') drawCanvasFlash(ctx, W, H, 'good', 'GOAL!', `${cfg.kicker} · ${cfg.korPk} : ${cfg.oppPk}`);
+      else if (cfg.outcome === 'save') drawCanvasFlash(ctx, W, H, 'bad', 'SAVED!', `${cfg.kicker} · 골키퍼 선방`);
+      else drawCanvasFlash(ctx, W, H, 'bad', 'MISS!', `${cfg.kicker} · 크로스바 위로`);
+    }
+  };
+
+  const step = (ts) => {
+    if (ended) return;
+    if (!t0) t0 = ts;
+    const p = Math.min(1, (ts - t0) / DUR);
+    frame(p);
+    if (p >= 1) { finish(); return; }
+    pkView.raf = requestAnimationFrame(step);
+  };
+
+  pkView = { raf: 0, watchdog: 0, finish, frame };
+  pkView.watchdog = setTimeout(finish, DUR + 4000); // a backgrounded tab must not stall the shootout
+  frame(0);
+  pkView.raf = requestAnimationFrame(step);
+  return true;
 }
 
 function startLiveMatchView(opts) {
@@ -2778,39 +3037,8 @@ function startLiveMatchView(opts) {
     ctx.lineWidth = Math.max(1.5, r * 0.22);
     ctx.stroke();
 
-    // Scoreline + clock burned into the canvas so a screenshot reads on its own.
-    // Plates are measured, not guessed: the opponent code and the minute both
-    // change width during a match.
-    ctx.font = `800 ${Math.round(H * 0.075)}px 'Outfit', 'Noto Sans KR', sans-serif`;
-    ctx.textBaseline = 'top';
-    const pad = W * 0.013, plateY = H * 0.05, plateH = H * 0.11;
-    const scoreTxt = `KOR ${score.kor} : ${score.opp} ${state.opponent}`;
-    const clockTxt = `${Math.min(90, Math.floor(t))}'`;
-    ctx.fillStyle = 'rgba(15, 23, 42, 0.6)';
-    ctx.fillRect(W * 0.022, plateY, ctx.measureText(scoreTxt).width + pad * 2, plateH);
-    const clockW = ctx.measureText(clockTxt).width + pad * 2;
-    ctx.fillRect(W - W * 0.022 - clockW, plateY, clockW, plateH);
-    ctx.fillStyle = '#f8fafc';
-    ctx.textAlign = 'left';
-    ctx.fillText(scoreTxt, W * 0.022 + pad, plateY + H * 0.018);
-    ctx.textAlign = 'right';
-    ctx.fillText(clockTxt, W - W * 0.022 - pad, plateY + H * 0.018);
-
-    if (fl) {
-      ctx.fillStyle = fl.team === 'kor' ? 'rgba(16, 185, 129, 0.30)' : 'rgba(244, 63, 94, 0.26)';
-      ctx.fillRect(0, 0, W, H);
-      ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
-      ctx.shadowColor = 'rgba(2, 20, 12, 0.85)';
-      ctx.shadowBlur = H * 0.05;
-      ctx.fillStyle = '#ffffff';
-      ctx.font = `900 ${Math.round(H * 0.16)}px 'Outfit', 'Noto Sans KR', sans-serif`;
-      ctx.fillText(fl.text, W / 2, H * 0.44);
-      ctx.font = `700 ${Math.round(H * 0.078)}px 'Outfit', 'Noto Sans KR', sans-serif`;
-      ctx.fillStyle = fl.team === 'kor' ? '#a7f3d0' : '#fecdd3';
-      ctx.fillText(fl.sub, W / 2, H * 0.63);
-      ctx.shadowBlur = 0;
-    }
-    ctx.textAlign = 'left'; ctx.textBaseline = 'alphabetic';
+    drawCanvasHud(ctx, W, H, `KOR ${score.kor} : ${score.opp} ${state.opponent}`, `${Math.min(90, Math.floor(t))}'`);
+    if (fl) drawCanvasFlash(ctx, W, H, fl.team === 'kor' ? 'good' : 'bad', fl.text, fl.sub);
   }
 
   const step = (ts) => {
