@@ -1506,10 +1506,16 @@ body.glow-success {
   background: linear-gradient(to right, #ffffff, #9db0d0);
   -webkit-background-clip: text; background-clip: text;
 }
+/* The fixture line, not a tagline: it names the match being coached and
+   follows the opponent selector, the way a broadcast bug does. */
 .brand-sub {
-  font-size: 0.62rem; letter-spacing: 0.13em; color: var(--text-muted);
-  font-weight: 800; text-transform: uppercase;
+  font-size: 0.68rem; letter-spacing: 0; color: var(--text-secondary);
+  font-weight: 700; text-transform: none; white-space: nowrap;
 }
+.brand-sub b { color: var(--text-primary); font-weight: 800; }
+/* The mark is drawn rather than typed: an emoji in a logo renders differently
+   on every platform and reads as a placeholder. */
+.logo-icon svg { width: 60%; height: 60%; color: #04231a; display: block; }
 
 /* Broadcast score bug */
 .scorebug {
@@ -1754,7 +1760,7 @@ body.glow-success {
    one knob per shape (renderPitch sets .rows-4), with every other dimension
    derived from it, measured against the worst case: half-time, when every card
    also carries a stamina gauge. */
-.pitch-players-grid { inset: 6px 26px 58px; gap: 0; --pc-w: clamp(66px, 10.5vh, 104px); }
+.pitch-players-grid { inset: 6px 26px 58px; gap: 0; --pc-w: clamp(66px, 12vh, 112px); }
 .pitch-players-grid.rows-4 { --pc-w: clamp(72px, 13vh, 120px); }
 .pitch-players-grid .player-card {
   width: var(--pc-w);
@@ -1765,6 +1771,15 @@ body.glow-success {
   font-size: calc(var(--pc-w) * 0.175);
   margin-top: calc(var(--pc-w) * 0.032); margin-bottom: calc(var(--pc-w) * 0.009);
 }
+/* A five-line shape (4-2-3-1) spends its height on the extra line, so it can
+   only get wider by getting flatter, and the avatar is the tallest thing on
+   the card. Trading avatar height for card width keeps its cards within
+   striking distance of the four-line shapes instead of a size behind. */
+.pitch-players-grid:not(.rows-4) .player-avatar {
+  width: calc(var(--pc-w) * 0.30); height: calc(var(--pc-w) * 0.30);
+  font-size: calc(var(--pc-w) * 0.15);
+  margin-top: calc(var(--pc-w) * 0.022); margin-bottom: 0;
+}
 .pitch-players-grid .player-name { font-size: calc(var(--pc-w) * 0.125); line-height: 1.1; }
 .pitch-players-grid .player-rating { font-size: calc(var(--pc-w) * 0.155); top: 4px; left: 7px; }
 .pitch-players-grid .player-pos-badge { font-size: calc(var(--pc-w) * 0.092); top: 4px; right: 5px; padding: 0.06rem 0.26rem; }
@@ -1772,12 +1787,18 @@ body.glow-success {
 /* Very short viewports (a ~700px window) cannot stack five gauge-carrying
    lines at any width, so the card face gets flatter as well as narrower:
    the avatar is the tallest thing on it. */
+/* Five lines stop fitting well before four do, so their width curve flattens
+   earlier. Measured: 12vh overflows the field in a 768px-tall window. */
+@media (max-height: 720px) {
+  .pitch-players-grid:not(.rows-4) { --pc-w: clamp(62px, 10.5vh, 78px); }
+}
 @media (max-height: 660px) {
   .pitch-players-grid { --pc-w: 62px; }
   .pitch-players-grid.rows-4 { --pc-w: 72px; }
 }
 @media (max-height: 680px) {
-  .pitch-players-grid .player-avatar {
+  .pitch-players-grid .player-avatar,
+  .pitch-players-grid:not(.rows-4) .player-avatar {
     width: calc(var(--pc-w) * 0.29); height: calc(var(--pc-w) * 0.29);
     font-size: calc(var(--pc-w) * 0.15);
     margin-top: calc(var(--pc-w) * 0.012); margin-bottom: 0;

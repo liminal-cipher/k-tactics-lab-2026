@@ -50,10 +50,19 @@
   <!-- ================= Header ================= -->
   <header class="app-header" id="header-bar">
     <div class="logo-container">
-      <div class="logo-icon" id="logo-icon">⚽</div>
+      <div class="logo-icon" id="logo-icon" aria-hidden="true">
+        <svg viewBox="0 0 64 64" focusable="false">
+          <g fill="none" stroke="currentColor" stroke-linecap="round">
+            <circle cx="32" cy="32" r="19" stroke-width="4"/>
+            <path d="M32 13v38M13 32h38" stroke-width="3"/>
+            <circle cx="32" cy="32" r="7.5" stroke-width="3"/>
+          </g>
+        </svg>
+      </div>
       <div class="brand-block">
         <h1 class="logo-text">K-Tactics Lab <span style="color: var(--accent-gold);">2026</span></h1>
-        <div class="brand-sub">2026 WORLD CUP · GROUP E</div>
+        <!-- Live fixture line, set by updateBrandFixture() in app.js -->
+        <div class="brand-sub" id="brand-fixture">조별리그 최종전 · 대한민국 vs 남아공</div>
       </div>
     </div>
 
