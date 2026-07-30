@@ -2051,13 +2051,13 @@ function showFinalResult() {
     desc = beatReality
       ? `그날 ${real.kor}:${real.opp}로 끝난 경기를 ${kor}:${opp} 승리로 되돌려 놓았습니다.`
       : `${kor}:${opp}로 이기며 그날의 승리를 그대로 지켜냈습니다.`;
-    stage = "월드컵 8강/4강 진출! 🏆✨";
+    stage = "승점 6 · 32강 진출 🏆";
   } else if (kor === opp) {
     styleName = `⚡ '끈적한 실리주의' 승점을 지킨 감독`;
     desc = beatReality
       ? `그날 ${real.kor}:${real.opp}로 진 경기를 ${kor}:${opp} 무승부로 끌어올려 승점 1을 벌었습니다.`
       : `${kor}:${opp} 무승부로 균형을 지켰습니다.`;
-    stage = "월드컵 16강 진출! ⚽";
+    stage = "승점 4 · 32강 진출 ⚽";
   } else {
     styleName = `🎲 '아쉬운 석패' 고군분투 지휘관`;
     desc = `${kor}:${opp} 패배. ${state.vibeScore >= 60 ? `그래도 팬 지지율은 ${state.vibeScore}%로 남아 방향성은 인정받았습니다.` : `팬 지지율도 ${state.vibeScore}%까지 내려앉았습니다.`} 아래 승부 요인에서 패인을 확인해 보세요.`;
@@ -2620,7 +2620,7 @@ function startPenaltyShootout() {
     updateScorebug(null, null, `PK ${korPk}-${oppPk} 종료`);
     logEl.innerHTML += `
       <div style="margin-top: 0.6rem; padding: 0.6rem; background: ${korWin ? 'rgba(16,185,129,0.2)' : 'rgba(244,63,94,0.2)'}; border: 1px solid ${korWin ? 'var(--accent-emerald)' : 'var(--accent-rose)'}; border-radius: 6px; text-align: center; font-weight: 900; color: ${korWin ? 'var(--accent-emerald)' : 'var(--accent-rose)'};">
-        🏆 최종 PK 스코어 ${korPk} : ${oppPk} — ${korWin ? '대한민국 승부차기 극적 승리!! 8강 진출!' : '아쉬운 PK 석패... 훌륭한 명승부였습니다.'}
+        🏆 최종 PK 스코어 ${korPk} : ${oppPk} — ${korWin ? '대한민국 승부차기 승리!! 정규시간 무승부로 조별리그는 이미 통과했습니다.' : '아쉬운 PK 석패... 그래도 정규시간 무승부로 조별리그는 통과했습니다.'}
       </div>
     `;
     logEl.scrollTop = logEl.scrollHeight;
@@ -2636,7 +2636,10 @@ function startPenaltyShootout() {
       const pkTitle = korWin ? "🔥 'PK 혈투 끝의 강철 심장' 승부차기 명장" : "🎲 '아쉬운 PK 석패' 불굴의 지휘관";
       document.getElementById('res-style-name').textContent = publicVerdictTitle(korWin ? 'win' : 'loss') || pkTitle;
       document.getElementById('res-desc').textContent = `90분 ${state.finalScore.kor}:${state.finalScore.opp} 동점 이후 ${selectedPkKickers.map(k => k.name).join(', ')} 키커로 승부차기 ${korPk}:${oppPk}. 팬 지지율은 ${state.vibeScore}%입니다.`;
-      document.getElementById('res-val-stage').textContent = korWin ? "월드컵 8강/16강 통과! 🏆✨" : "월드컵 16강 명승부 ⚽";
+      // The shootout is a sub-game: the group table only saw a draw, so the
+      // point and the qualification are the same either way.
+      document.getElementById('res-val-stage').textContent =
+        `승점 4 · 32강 진출 (승부차기 ${korWin ? '승' : '패'})`;
       // The 90-minute score is a draw either way, so the shootout carries the verdict.
       renderResultTransform(state.finalScore.kor, state.finalScore.opp, `PK ${korPk}:${oppPk} ${korWin ? '승' : '패'}`);
     }, 3500);
@@ -3241,14 +3244,11 @@ function startLiveMatchView(opts) {
   // so spot i is player i: the dots carry the actual names the manager picked.
   // The opponent's players are not in the dataset, and inventing eleven names
   // would be inventing data, so their side stays unlabelled.
-  // The number in the disc is the player's FBref rating, the same one printed
-  // on his card. The squad has no jersey numbers in the dataset, and painting
-  // invented ones onto a pitch that claims to show the real squad would be
-  // making up data.
+  // Real shirt numbers, from the roster in data/raw/fbref_roster.csv.
   const korPlayers = (squadData[state.currentFormation] || []).map(p => ({
     name: p.name,
-    rating: (typeof SQUAD_STATS_2026 !== 'undefined' && SQUAD_STATS_2026[p.name])
-      ? SQUAD_STATS_2026[p.name].rating : null
+    jersey: (typeof SQUAD_STATS_2026 !== 'undefined' && SQUAD_STATS_2026[p.name])
+      ? SQUAD_STATS_2026[p.name].jersey : null
   }));
 
   let clock = film.from;     // game minute
@@ -3298,11 +3298,11 @@ function startLiveMatchView(opts) {
         const p = drawDot(ctx, W, H, nx, ny, s.gk ? rr * 0.95 : rr, color, ring);
         if (me) {
           ctx.textAlign = 'center';
-          if (me.rating) {
-            ctx.font = `800 ${Math.round(rr * 1.12)}px 'Outfit', sans-serif`;
+          if (me.jersey != null) {
+            ctx.font = `800 ${Math.round(rr * 1.15)}px 'Outfit', sans-serif`;
             ctx.textBaseline = 'middle';
             ctx.fillStyle = 'rgba(10, 8, 14, 0.92)';
-            ctx.fillText(String(me.rating), p.x, p.y + rr * 0.04);
+            ctx.fillText(String(me.jersey), p.x, p.y + rr * 0.04);
           }
           ctx.font = nameFont;
           ctx.textBaseline = 'top';
