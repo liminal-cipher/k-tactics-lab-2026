@@ -1710,9 +1710,10 @@ body.glow-success {
 .sound-toggle:hover { background: var(--surface-sunken-2); color: var(--text-primary); }
 .sound-toggle.on { color: var(--accent-gold); border-color: rgba(246, 201, 69, 0.5); }
 
-/* Reform toggle chips (U자 백패스 금지 / 이강인 프리롤) — on/off, not a segmented pick */
-.btn-toggle::before { content: '○'; margin-right: 0.28rem; opacity: 0.7; font-size: 0.85em; }
-.btn-toggle.on::before { content: '●'; }
+/* Reform toggle chips (U자 백패스 금지 / 이강인 프리롤) — on/off, not a segmented
+   pick. The state is the fill: off is an outlined chip like every other button
+   in the deck, on is solid. That is the same difference the segmented dials
+   use, so the chips no longer carry a ○/● of their own. */
 .btn-toggle:hover { background: var(--surface-sunken-2); color: var(--text-primary); }
 .btn-toggle.on, .btn-toggle.on:hover {
   background: var(--accent-emerald); color: #000;
@@ -2228,7 +2229,9 @@ html { scrollbar-width: thin; scrollbar-color: rgba(148, 163, 184, 0.45) transpa
   opacity: 0.55;
   filter: grayscale(0.7);
 }
-.btn-toggle.on.inert::before { content: '◐'; }
+/* The half-filled glyph that used to mark this state went with the ○/●, so the
+   chip says it in words: on, but waiting for him to be back in the eleven. */
+.btn-toggle.on.inert::after { content: ' · 대기'; font-weight: 700; }
 
 /* --- Player roles after the de-clutter pass ---
    Pitch cards keep a clean face; the role returns on hover as a styled chip
