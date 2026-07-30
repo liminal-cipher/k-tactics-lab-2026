@@ -1747,29 +1747,37 @@ body.glow-success {
   inset: 18px 24px 44px;
   transform: rotateX(15deg); transform-origin: center 74%;
 }
-/* Cards grew after the role pill moved to a hover chip; the freed height is
-   spent on legibility. Sized against the worst case: 4-2-3-1 (five rows) at
-   half-time, when every card also carries a stamina gauge. */
-.pitch-players-grid { inset: 6px 26px 58px; gap: 0; }
-.pitch-players-grid .player-card { width: 88px; padding: 0.24rem 0.28rem 0.3rem; }
-.pitch-players-grid .player-avatar {
-  width: 33px; height: 33px; font-size: 1rem;
-  margin-top: 0.28rem; margin-bottom: 0.08rem;
+/* Card size follows the viewport height continuously instead of stepping at a
+   breakpoint. The grid is a space-between column, so a taller card does not
+   push the last line off the field, it eats the gap between the lines, and a
+   five-line shape (4-2-3-1) runs out of gap well before a four-line one. Hence
+   one knob per shape (renderPitch sets .rows-4), with every other dimension
+   derived from it, measured against the worst case: half-time, when every card
+   also carries a stamina gauge. */
+.pitch-players-grid { inset: 6px 26px 58px; gap: 0; --pc-w: clamp(62px, 9.2vh, 96px); }
+.pitch-players-grid.rows-4 { --pc-w: clamp(68px, 11vh, 108px); }
+.pitch-players-grid .player-card {
+  width: var(--pc-w);
+  padding: calc(var(--pc-w) * 0.044) calc(var(--pc-w) * 0.051) calc(var(--pc-w) * 0.055);
 }
-.pitch-players-grid .player-name { font-size: 0.7rem; line-height: 1.1; }
-.pitch-players-grid .player-rating { font-size: 0.88rem; top: 4px; left: 7px; }
-.pitch-players-grid .player-pos-badge { font-size: 0.52rem; top: 4px; right: 5px; padding: 0.06rem 0.26rem; }
-/* Short viewports (small laptops) cannot stack five gauge-carrying rows of
-   the large cards; fall back to a compact set. This was already tight before
-   the enlargement: measured at 1366x768, half-time 4-2-3-1 overflowed the
-   field with the old 76px cards too. */
-@media (max-height: 850px) {
-  .pitch-players-grid .player-card { width: 72px; padding: 0.16rem 0.2rem 0.18rem; }
-  .pitch-players-grid .player-avatar { width: 23px; height: 23px; font-size: 0.74rem; margin-top: 0.14rem; margin-bottom: 0.04rem; }
-  .pitch-players-grid .player-name { font-size: 0.6rem; line-height: 1.05; }
-  .pitch-players-grid .player-rating { font-size: 0.74rem; top: 3px; left: 6px; }
-  .pitch-players-grid .player-pos-badge { font-size: 0.46rem; top: 3px; right: 4px; padding: 0.04rem 0.22rem; }
-  .pitch-players-grid .stamina-gauge-text { font-size: 0.5rem; }
+.pitch-players-grid .player-avatar {
+  width: calc(var(--pc-w) * 0.36); height: calc(var(--pc-w) * 0.36);
+  font-size: calc(var(--pc-w) * 0.175);
+  margin-top: calc(var(--pc-w) * 0.032); margin-bottom: calc(var(--pc-w) * 0.009);
+}
+.pitch-players-grid .player-name { font-size: calc(var(--pc-w) * 0.125); line-height: 1.1; }
+.pitch-players-grid .player-rating { font-size: calc(var(--pc-w) * 0.155); top: 4px; left: 7px; }
+.pitch-players-grid .player-pos-badge { font-size: calc(var(--pc-w) * 0.092); top: 4px; right: 5px; padding: 0.06rem 0.26rem; }
+.pitch-players-grid .stamina-gauge-text { font-size: calc(var(--pc-w) * 0.088); }
+/* Very short viewports (a ~700px window) cannot stack five gauge-carrying
+   lines at any width, so the card face gets flatter as well as narrower:
+   the avatar is the tallest thing on it. */
+@media (max-height: 680px) {
+  .pitch-players-grid .player-avatar {
+    width: calc(var(--pc-w) * 0.29); height: calc(var(--pc-w) * 0.29);
+    font-size: calc(var(--pc-w) * 0.15);
+    margin-top: calc(var(--pc-w) * 0.012); margin-bottom: 0;
+  }
 }
 /* --- Route-dial nudge (hero scenario only, cleared on first interaction) --- */
 .tactic-box.guide-pulse { position: relative; }
@@ -1796,14 +1804,6 @@ body.glow-success {
 @keyframes guidePulse {
   0%, 100% { opacity: 0.25; }
   50% { opacity: 1; }
-}
-
-/* Very short viewports (720p windows minus browser chrome). */
-@media (max-height: 640px) {
-  .pitch-players-grid .player-card { width: 66px; padding: 0.1rem 0.16rem 0.12rem; }
-  .pitch-players-grid .player-avatar { width: 18px; height: 18px; font-size: 0.62rem; margin-top: 0.1rem; }
-  .pitch-players-grid .player-name { font-size: 0.55rem; }
-  .pitch-players-grid .player-rating { font-size: 0.68rem; }
 }
 
 /* --- Left rail (railbot) holds dials over chat; keep chat from over-growing --- */
@@ -2143,7 +2143,7 @@ html { scrollbar-width: thin; scrollbar-color: rgba(148, 163, 184, 0.45) transpa
    air above the front line but 58px below the GK). Bench cards keep a short
    inline role line, because that text is how you pick who to bring on. */
 .pitch-players-grid .player-card::after {
-  content: '임무 · ' attr(data-role);
+  content: attr(data-role);
   position: absolute;
   left: 50%; top: calc(100% + 7px);
   transform: translateX(-50%);
