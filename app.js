@@ -12,7 +12,6 @@ const state = {
   opponent: 'MEX', // 'MEX' | 'CZE' | 'RSA' — the three 2026 group-stage opponents
   matchPhase: 0, // 0: Pre-match (0'), 1: Half-time (45'), 2: Full-time (90')
   staminaState: {}, // { '손흥민': 85, '황인범': 89 ... }
-  subActions: [], // [ { time: '60m', playerOut: '황인범', playerIn: '오현규' } ]
   dials: {
     tempo: 'standard', // 'build' | 'standard' | 'direct'
     // The board opens on the route that actually lost the match: press coverage of
@@ -33,10 +32,6 @@ const state = {
     stamina: 70
   },
   fullbackRole: 'inverted', // 'inverted' | 'defensive' | 'overlap'
-  selectedJoker: {
-    id: 'oh',
-    name: '오현규 (피지컬/뚝배기)'
-  },
   activePlayerForRole: null,
   selectedPlayerForSwap: null,
   draggedPlayer: null,
@@ -1446,7 +1441,6 @@ function runSimulation() {
   } else {
     // Full-time -> fresh pre-match reset (keeps the user's current XI, dials, opponent)
     state.matchPhase = 0;
-    state.subActions = [];
     state.opponentPlan = null; // re-scout next match
     renderOpponentPlanChip(null);
     state.staminaState = {}; // fresh legs: stamina bars back to base
@@ -1552,14 +1546,9 @@ function runFirstHalf() {
       btn.style.background = 'var(--accent-rose)';
       btn.style.color = '#fff';
       
-      statusEl.innerHTML = `<span>⏸️ <strong style="color: var(--accent-amber);">HALF-TIME (45')</strong> 전반 스코어 <strong>${korGoals} : ${oppGoals}</strong> | 방전된 선수 교체 및 후반 조커 투입 지시 중</span>`;
-      
-      // Add sub action booking controls
-      actionsEl.innerHTML = `
-        <button class="btn-opponent" onclick="bookSubAction('60m')" style="border-color: var(--accent-emerald); color: var(--accent-emerald);">⏱️ 60분 ${state.selectedJoker.name.split(' ')[0]} 투입 예약</button>
-        <button class="btn-opponent" onclick="bookSubAction('75m')" style="border-color: var(--accent-cyan); color: var(--accent-cyan);">⏱️ 75분 닥공 전환 예약</button>
-      `;
-      
+      statusEl.innerHTML = `<span>⏸️ <strong style="color: var(--accent-amber);">HALF-TIME (45')</strong> 전반 스코어 <strong>${korGoals} : ${oppGoals}</strong> | 교체와 전술 지침을 직접 정한 뒤 후반을 가동하십시오</span>`;
+      actionsEl.innerHTML = '';
+
       renderPitch(state.currentFormation);
       // Say WHY the half ended this way. The score is computed from two edges,
       // and a manager who cannot see which one failed cannot fix it.
@@ -1569,25 +1558,10 @@ function runFirstHalf() {
       const defNote = oppGoals
         ? `수비 우위 <strong>${defenceEdge.toFixed(2)}</strong>로 기준선 1.05에 미치지 못해 실점했습니다. 압박 라인을 내리거나 수비를 보강해 보십시오.`
         : `수비 우위 <strong>${defenceEdge.toFixed(2)}</strong>로 기준선 1.05를 넘겨 <strong>실점을 막았습니다</strong>.`;
-      pushCoachMessage(`⏸️ <strong>[하프타임 정비 보고 - 전반 ${korGoals}:${oppGoals}]</strong><br>${atkNote} ${defNote}<br>구장 위 선수들의 체력 게이지 바를 확인해 주십시오! 방전된 선수(60% 미만)는 후반 60분 이후 경기력이 급감합니다. <strong>[⏱️ 교체 예약]</strong> 버튼을 누르거나 전술 다이얼을 수정한 뒤 <strong>[🔥 후반전 가동]</strong>을 눌러주십시오!`, true);
+      pushCoachMessage(`⏸️ <strong>[하프타임 정비 보고 - 전반 ${korGoals}:${oppGoals}]</strong><br>${atkNote} ${defNote}<br>구장 위 선수들의 체력 게이지 바를 확인해 주십시오! 방전된 선수(60% 미만)는 후반 경기력이 급감하므로, 벤치에서 <strong>직접 교체</strong>하면 그 자리는 프레시 레그로 채워집니다. 교체와 전술 다이얼을 정리한 뒤 <strong>[🔥 후반전 가동]</strong>을 눌러주십시오!`, true);
       triggerScreenShake();
     }
   }, 600);
-}
-
-function bookSubAction(timing) {
-  if (timing === '60m') {
-    state.subActions.push({ time: '60분', text: `${state.selectedJoker.name.split(' ')[0]} 투입` });
-    pushCoachMessage(`✅ <strong>[교체 예약 등록: 60분]</strong><br>후반전 60분에 ${state.selectedJoker.name} 조커 카드가 자동 가동됩니다!`);
-  } else {
-    state.subActions.push({ time: '75분', text: `전원 닥공 전환` });
-    setTacticalDial('mentality', 'attack');
-    pushCoachMessage(`✅ <strong>[전술 예약 등록: 75분]</strong><br>후반 75분 승부처에서 전면 닥공 모드로 총공세가 펼쳐집니다!`);
-  }
-  
-  const actionsEl = document.getElementById('match-phase-actions');
-  const badgeHtml = state.subActions.map(a => `<span class="sub-action-badge">📌 ${a.time} ${a.text}</span>`).join('');
-  if (actionsEl) actionsEl.innerHTML = badgeHtml;
 }
 
 // ==========================================================================
@@ -1604,6 +1578,15 @@ const OPP_STRENGTH = {
   CZE: { att: 68, def: 66 },
   RSA: { att: 66, def: 70 }
 };
+
+// What a player has left right now: whatever the first half drained him to,
+// or his baseline if he has not been on the pitch yet. The same rule the
+// stamina gauge on the card uses, so the bars and the model agree.
+function staminaOf(name) {
+  if (state.staminaState[name] !== undefined) return state.staminaState[name];
+  const s = (typeof SQUAD_STATS_2026 !== 'undefined' && SQUAD_STATS_2026[name]) ? SQUAD_STATS_2026[name] : null;
+  return s ? s.stamina : 82;
+}
 
 function poissonSample(lambda) {
   // Knuth's algorithm
@@ -1641,8 +1624,14 @@ function secondHalfLambdas() {
   if (kanginActive()) apply('kangin', '이강인 프리롤', 1.08, 1.04); // star magic, but over-reliance opens gaps
 
   // Stamina after first-half drain: tired legs score less, concede more.
-  const st = Object.values(state.staminaState);
-  const avg = st.length ? st.reduce((a, b) => a + b, 0) / st.length : 70;
+  // Averaged over the ELEVEN ON THE PITCH, not over everyone who has played.
+  // The old version read the drain map, so a substitute brought on at
+  // half-time was invisible to the model while the man he replaced kept
+  // dragging the average down: making a change could not help, which is the
+  // opposite of what a fresh pair of legs does. With no substitution the two
+  // are the same eleven, so nothing about the documented board moves.
+  const xi = (squadData[state.currentFormation] || []).map(p => p.name);
+  const avg = xi.length ? xi.reduce((a, n) => a + staminaOf(n), 0) / xi.length : 70;
   const sf = 0.75 + (avg / 100) * 0.45; // ~0.9 .. 1.2
   apply('stamina', `후반 체력 (평균 ${Math.round(avg)}%)`, sf, 1.9 - sf);
 
@@ -1809,31 +1798,6 @@ function runMonteCarlo(iterations = 1000) {
   };
 }
 
-// Execute booked substitutions: real swap on the pitch + fresh-legs stamina.
-function executeSubstitutions() {
-  const executed = [];
-  if (state.subActions.some(a => a.time === '60분')) {
-    const pitch = squadData[state.currentFormation] || [];
-    const onPitch = new Set(pitch.map(p => p.name));
-    let target = null, worst = 999;
-    pitch.forEach(p => {
-      if (p.type === 'gk') return;
-      const stm = state.staminaState[p.name] ?? 70;
-      if (stm < worst) { worst = stm; target = p; }
-    });
-    const incoming = benchPlayers.find(b => b.type === (target ? target.type : 'att') && !onPitch.has(b.name))
-      || benchPlayers.find(b => !onPitch.has(b.name));
-    if (target && incoming) {
-      const idx = pitch.indexOf(target);
-      pitch[idx] = { ...incoming, pos: target.pos, role: incoming.role || target.role };
-      state.staminaState[incoming.name] = 88;
-      delete state.staminaState[target.name];
-      executed.push({ out: target.name, in: incoming.name });
-    }
-  }
-  return executed;
-}
-
 function runSecondHalf() {
   const modal = document.getElementById('sim-modal');
   const liveCast = document.getElementById('sim-live-cast');
@@ -1851,8 +1815,10 @@ function runSecondHalf() {
   if (canvasBox) canvasBox.style.display = 'none';
   if (pkBox) pkBox.style.display = 'none';
   
-  // Execute booked substitutions (real swap + fresh legs) before sampling.
-  const executedSubs = executeSubstitutions();
+  // Anyone on the pitch without a first-half drain entry came on at half-time,
+  // which is how the broadcast knows to credit the manager's substitution.
+  const freshLegs = (squadData[state.currentFormation] || [])
+    .map(p => p.name).filter(n => state.staminaState[n] === undefined);
   renderPitch(state.currentFormation);
 
   // Real Monte Carlo: 1,000 Poisson draws of each side's 2nd-half goals,
@@ -1866,7 +1832,7 @@ function runSecondHalf() {
   // presentation layer: if the canvas is unavailable the ticker alone still
   // carries the half to full time.
   const film = buildMatchFilm();
-  const cues = buildCommentaryCues(film, executedSubs, sim);
+  const cues = buildCommentaryCues(film, freshLegs, sim);
   stepText.textContent = cues[0].text;
 
   let started = false;
@@ -2635,10 +2601,10 @@ function buildMatchFilm() {
 
 // Commentary cues shown in the ticker above the canvas, on the same clock as
 // the animation: the ticker shouts a goal on the frame the ball goes in.
-function buildCommentaryCues(film, executedSubs, sim) {
+function buildCommentaryCues(film, freshLegs, sim) {
   const cues = [{ minute: 45, text: `🔥 45' 후반전 킥오프! [vs ${state.opponent}] 후반 전술 지침 가동` }];
-  cues.push(executedSubs && executedSubs.length
-    ? { minute: 60, text: `🔄 60' 교체 투입: ${executedSubs[0].out} → ${executedSubs[0].in} (프레시 레그 공격 가담!)` }
+  cues.push(freshLegs && freshLegs.length
+    ? { minute: 58, text: `🔄 58' 하프타임에 투입된 ${freshLegs[0]}, 프레시 레그가 전방을 흔든다` }
     : { minute: 62, text: `⚡ 62' 중원에서 탈압박 성공, 공격 주도권을 끌어온다` });
   film.events.forEach(e => {
     cues.push(e.team === 'kor'
