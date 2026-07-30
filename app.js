@@ -1997,39 +1997,89 @@ function showFinalResult() {
   const kor = state.finalScore.kor; const opp = state.finalScore.opp;
   const sim = state.simResult || { winPct: 0, drawPct: 0, losePct: 0 };
 
+  // The opponent is named, not coded: "RSA" is a lookup key, and this card
+  // gets screenshotted by people who never opened the app.
+  const oppKo = (FIXTURE_LINE[state.opponent] || [null, state.opponent])[1];
+  const real = REAL_RESULT[state.opponent] || { kor: 0, opp: 1 };
+  const beatReality = (kor - opp) > (real.kor - real.opp);
+
   if (kor > opp) {
     SFX.goal();
-    styleName = `🔥 '몬테카를로 승률 ${sim.winPct}% 적중!' ${state.opponent} 완파 명장`;
-    desc = `${state.dials.nopassback ? 'U자형 백패스를 과감히 폐기하고 ' : ''}${state.dials.route === 'halfspace' ? '하프스페이스 중앙 침투' : state.dials.route === 'wing' ? '측면 오버랩' : '다이렉트 롱볼'}와 후반 승부수를 적중시켰습니다! 최종 스코어 ${kor}:${opp} 극적 승리! 팬 지지율 ${state.vibeScore}% 달성!`;
+    styleName = `🔥 '${oppKo}전 완파' 그날을 뒤집은 명장`;
+    desc = beatReality
+      ? `그날 ${real.kor}:${real.opp}로 끝난 경기를 ${kor}:${opp} 승리로 되돌려 놓았습니다.`
+      : `${kor}:${opp}로 이기며 그날의 승리를 그대로 지켜냈습니다.`;
     stage = "월드컵 8강/4강 진출! 🏆✨";
   } else if (kor === opp) {
-    styleName = `⚡ '끈적한 실리주의 밸런스 마스터' 귀중한 승점 확보`;
-    desc = `${state.opponent} 강호의 거센 공격을 수비 밸런스와 체력 안배로 막아냈습니다. 최종 스코어 ${kor}:${opp} 무승부! 조별리그 자력 진출 발판 마련!`;
+    styleName = `⚡ '끈적한 실리주의' 승점을 지킨 감독`;
+    desc = beatReality
+      ? `그날 ${real.kor}:${real.opp}로 진 경기를 ${kor}:${opp} 무승부로 끌어올려 승점 1을 벌었습니다.`
+      : `${kor}:${opp} 무승부로 균형을 지켰습니다.`;
     stage = "월드컵 16강 진출! ⚽";
   } else {
-    styleName = `🎲 '아쉬운 석패' 고군분투 열정 지휘관`;
-    desc = `후반 체력 저하와 상대의 파상공세를 극복하지 못하고 ${kor}:${opp}로 아쉽게 패배했습니다. ${state.vibeScore >= 60 ? `그래도 팬 지지율은 ${state.vibeScore}%로 남아 전술의 방향성은 인정받았습니다.` : `팬 지지율도 ${state.vibeScore}%까지 내려앉았습니다.`} 아래 승부 요인 TOP 3에서 패인을 확인해 보세요.`;
+    styleName = `🎲 '아쉬운 석패' 고군분투 지휘관`;
+    desc = `${kor}:${opp} 패배. ${state.vibeScore >= 60 ? `그래도 팬 지지율은 ${state.vibeScore}%로 남아 방향성은 인정받았습니다.` : `팬 지지율도 ${state.vibeScore}%까지 내려앉았습니다.`} 아래 승부 요인에서 패인을 확인해 보세요.`;
     // A loss repeats the real record: 1승 2패, 3rd in the group. The old text
     // said 1승 1무 1패, which is what a DRAW would have produced (and would have
     // qualified: the intro modal's whole premise is "비기기만 하면 32강").
     stage = "조별리그 1승 2패 · 조 3위 (32강행 불투명) 🔥";
   }
 
-  const distLine = `📊 1,000회 몬테카를로: 승 ${sim.winPct}% · 무 ${sim.drawPct}% · 패 ${sim.losePct}% (기대 득점 ${sim.avgKor != null ? sim.avgKor.toFixed(2) : '-'} : ${sim.avgOpp != null ? sim.avgOpp.toFixed(2) : '-'})`;
-
   styleName = publicVerdictTitle(kor > opp ? 'win' : kor === opp ? 'draw' : 'loss') || styleName;
 
-  const s = state.stats || {};
-  // The card grades the tactical build, so it averages the three tactical
-  // axes. Stamina now reads live fatigue, and a squad should not look worse
-  // on its own trophy card for having run for ninety minutes.
-  const balance = Math.round(((s.attack || 0) + (s.defense || 0) + (s.midfield || 0)) / 3);
-
+  renderResultTransform(kor, opp);
   document.getElementById('res-style-name').textContent = styleName;
-  document.getElementById('res-desc').textContent = `${desc}\n\n${distLine}`;
+  document.getElementById('res-build').textContent = buildSummaryLine();
+  document.getElementById('res-desc').textContent = desc;
   document.getElementById('res-val-stage').textContent = stage;
   document.getElementById('res-val-vibe').textContent = `${state.vibeScore}%`;
-  document.getElementById('res-val-joker').textContent = `${balance}점`;
+  document.getElementById('res-val-winpct').textContent = `${sim.winPct}%`;
+  document.getElementById('res-dist').textContent =
+    `1,000회 시뮬 · 승 ${sim.winPct}% · 무 ${sim.drawPct}% · 패 ${sim.losePct}%`
+    + (sim.avgKor != null ? ` · 기대 득점 ${sim.avgKor.toFixed(2)} : ${sim.avgOpp.toFixed(2)}` : '');
+}
+
+// What actually happened in each of the three group-stage matches, from the
+// repo's own FBref fixture table: Czechia 2-1 won, Mexico and South Africa
+// both 0-1 lost. The card puts that beside the manager's result, which is the
+// only comparison the premise is about.
+const REAL_RESULT = {
+  CZE: { kor: 2, opp: 1 },
+  MEX: { kor: 0, opp: 1 },
+  RSA: { kor: 0, opp: 1 }
+};
+
+function outcomeWord(kor, opp) {
+  return kor > opp ? '승리' : kor === opp ? '무승부' : '패배';
+}
+
+// mineNote overrides the outcome word (a shootout is not a 90-minute result).
+function renderResultTransform(mineKor, mineOpp, mineNote) {
+  const oppKo = (FIXTURE_LINE[state.opponent] || [null, state.opponent])[1];
+  const round = (FIXTURE_LINE[state.opponent] || ['조별리그'])[0];
+  const real = REAL_RESULT[state.opponent] || { kor: 0, opp: 1 };
+  const set = (id, text) => { const el = document.getElementById(id); if (el) el.textContent = text; };
+  set('res-tf-real', `${real.kor} : ${real.opp}`);
+  set('res-tf-real-note', outcomeWord(real.kor, real.opp));
+  set('res-tf-mine', `${mineKor} : ${mineOpp}`);
+  set('res-tf-mine-note', mineNote || outcomeWord(mineKor, mineOpp));
+  set('res-tf-fixture', `2026 월드컵 ${round} · 대한민국 vs ${oppKo}`);
+}
+
+// The board in one line, using the same words the buttons use. Only the dials
+// the manager actually moved: listing a default back at them says nothing
+// about the decision they made.
+function buildSummaryLine() {
+  const parts = [state.currentFormation];
+  const push = (map, val, dflt) => { if (val !== dflt && map[val]) parts.push(map[val]); };
+  push({ build: '지공 빌드업', direct: '다이렉트 역습' }, state.dials.tempo, 'standard');
+  push({ halfspace: '중앙 침투', longball: '다이렉트 롱볼' }, state.dials.route, 'wing');
+  push({ tenback: '텐백 저지선', high: '게겐프레싱' }, state.dials.press, 'region');
+  push({ lock: '잠그기', attack: '닥공' }, state.dials.mentality, 'balance');
+  if (state.dials.nopassback) parts.push('U자 백패스 금지');
+  if (kanginActive()) parts.push('이강인 프리롤');
+  if (parts.length === 1) parts.push('기본 지침 그대로');
+  return parts.join(' · ');
 }
 
 // The scoreline is one verdict, public opinion is the other. When the two
@@ -2173,7 +2223,14 @@ function captureResultCard() {
 async function shareResult() {
   const styleName = (document.getElementById('res-style-name')?.textContent || 'K-Tactics 감독 명함').trim();
   const url = buildChallengeURL();
-  const caption = `[K-Tactics Lab 2026] ${styleName}\n최종 ${state.finalScore.kor}:${state.finalScore.opp} · 팬 지지율 ${state.vibeScore}%\n내 전술에 도전 👉 ${url}`;
+  // Lead with the same transformation the card leads with: the score alone
+  // means nothing to someone who was not told what happened that day.
+  const real = REAL_RESULT[state.opponent] || { kor: 0, opp: 1 };
+  const oppKo = (FIXTURE_LINE[state.opponent] || [null, state.opponent])[1];
+  const mine = (document.getElementById('res-tf-mine-note')?.textContent || '').startsWith('PK')
+    ? `${state.finalScore.kor}:${state.finalScore.opp} (${document.getElementById('res-tf-mine-note').textContent})`
+    : `${state.finalScore.kor}:${state.finalScore.opp}`;
+  const caption = `[K-Tactics Lab 2026] ${styleName}\n${oppKo}전 그날 ${real.kor}:${real.opp} → 내 지휘 ${mine} · 팬 지지율 ${state.vibeScore}%\n내 전술 이겨봐 👉 ${url}`;
 
   // 1) Native share sheet with the result-card image (mobile).
   let sheetShown = false;
@@ -2491,10 +2548,12 @@ function startPenaltyShootout() {
       if (resultCard) resultCard.style.display = 'block';
       if (actions) actions.style.display = 'flex';
 
-      const pkTitle = korWin ? "🔥 'PK 혈투 끝에 승리한 강철 심장' 승부차기 명장" : "🎲 '아쉬운 PK 석패' 불굴의 투혼 지휘관";
+      const pkTitle = korWin ? "🔥 'PK 혈투 끝의 강철 심장' 승부차기 명장" : "🎲 '아쉬운 PK 석패' 불굴의 지휘관";
       document.getElementById('res-style-name').textContent = publicVerdictTitle(korWin ? 'win' : 'loss') || pkTitle;
-      document.getElementById('res-desc').textContent = `90분 정규시간 ${state.finalScore.kor}:${state.finalScore.opp} 동점 이후 승부차기에서 ${selectedPkKickers.map(k=>k.name).join(', ')} 키커들의 활약으로 ${korPk}:${oppPk} 최종 승부를 가렸습니다.`;
+      document.getElementById('res-desc').textContent = `90분 ${state.finalScore.kor}:${state.finalScore.opp} 동점 이후 ${selectedPkKickers.map(k => k.name).join(', ')} 키커로 승부차기 ${korPk}:${oppPk}. 팬 지지율은 ${state.vibeScore}%입니다.`;
       document.getElementById('res-val-stage').textContent = korWin ? "월드컵 8강/16강 통과! 🏆✨" : "월드컵 16강 명승부 ⚽";
+      // The 90-minute score is a draw either way, so the shootout carries the verdict.
+      renderResultTransform(state.finalScore.kor, state.finalScore.opp, `PK ${korPk}:${oppPk} ${korWin ? '승' : '패'}`);
     }, 3500);
   };
 
