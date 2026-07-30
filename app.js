@@ -445,6 +445,9 @@ function renderPitch(formation) {
   // Group players into formation lines using the per-formation row map
   // (falls back to a generic att/mid/def/GK split for any unknown formation).
   const rowSizes = FORMATION_ROWS[formation] || [3, 3, 4, 1];
+  // Four-line shapes have a spare line's worth of height, so their cards run
+  // larger (index.css keys off this class).
+  grid.classList.toggle('rows-4', rowSizes.length <= 4);
   const rows = [];
   let cursor = 0;
   for (const size of rowSizes) {
