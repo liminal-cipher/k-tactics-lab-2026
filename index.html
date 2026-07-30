@@ -539,11 +539,28 @@
     <div style="max-width: 560px; width: 100%; background: linear-gradient(160deg, #0e1626, #0a1220); border: 1px solid var(--glass-border); border-radius: 16px; padding: 2rem; box-shadow: 0 24px 60px rgba(0,0,0,0.55); text-align: center;">
       <div style="font-size: 0.78rem; font-weight: 800; color: var(--accent-rose); letter-spacing: 0.1em; margin-bottom: 0.6rem;">2026 북중미 월드컵 · 조별리그 최종전</div>
       <h2 style="font-size: 1.65rem; font-weight: 900; color: var(--text-primary); line-height: 1.35; margin-bottom: 1rem;">비기기만 하면 32강이었다.<br>그런데 <span style="color: var(--accent-rose);">남아공에 0-1</span>로 졌다.</h2>
-      <p style="font-size: 0.92rem; color: var(--text-secondary); line-height: 1.65; margin-bottom: 1.6rem;">
-        손흥민이 빠진 채 나선 최종전, 경기는 끝내 풀리지 않았다. 좋은 스쿼드로도 조별리그의 벽을 넘지 못했고, 그날 많은 팬들이 같은 생각을 했다.<br>
+      <p style="font-size: 0.92rem; color: var(--text-secondary); line-height: 1.65; margin-bottom: 1.2rem;">
+        손흥민이 빠진 채 나선 최종전, 경기는 끝내 풀리지 않았다. 그날 많은 팬들이 같은 생각을 했다.<br>
         <strong style="color: var(--text-primary);">"내가 감독이었다면 어땠을까?"</strong><br>
         이제 그 경기를, 당신이 다시 지휘한다.
       </p>
+
+      <!-- What was at stake, and the odds this engine gives the board as it stands -->
+      <div style="display: flex; gap: 0.5rem; margin-bottom: 0.9rem;">
+        <div style="flex: 1; background: rgba(255,255,255,0.045); border: 1px solid var(--glass-border); border-radius: 10px; padding: 0.6rem 0.4rem;">
+          <div style="font-size: 0.62rem; font-weight: 800; color: var(--text-muted); margin-bottom: 0.2rem;">비기기만 해도</div>
+          <div style="font-size: 0.95rem; font-weight: 900; color: var(--accent-emerald);">32강 진출</div>
+        </div>
+        <div style="flex: 1; background: rgba(255,255,255,0.045); border: 1px solid var(--glass-border); border-radius: 10px; padding: 0.6rem 0.4rem;">
+          <div style="font-size: 0.62rem; font-weight: 800; color: var(--text-muted); margin-bottom: 0.2rem;">실제 결과</div>
+          <div style="font-size: 0.95rem; font-weight: 900; color: var(--accent-rose);">0-1 패 · 조 3위</div>
+        </div>
+        <div style="flex: 1; background: rgba(255,255,255,0.045); border: 1px solid var(--glass-border); border-radius: 10px; padding: 0.6rem 0.4rem;">
+          <div style="font-size: 0.62rem; font-weight: 800; color: var(--text-muted); margin-bottom: 0.2rem;">당신이 쥔 것</div>
+          <div style="font-size: 0.95rem; font-weight: 900; color: var(--accent-cyan);">90분 · 20인</div>
+        </div>
+      </div>
+      <div id="hero-odds" style="font-size: 0.8rem; color: var(--text-secondary); font-weight: 600; margin-bottom: 1.3rem;"></div>
       <button onclick="startHeroScenario()" style="width: 100%; padding: 0.9rem; background: var(--accent-rose); color: #fff; border: none; border-radius: 10px; font-size: 1.05rem; font-weight: 900; cursor: pointer; box-shadow: 0 8px 24px rgba(244,63,94,0.35);">⚽ 그 남아공전을 다시 지휘하기</button>
       <button onclick="dismissHeroIntro()" style="margin-top: 0.85rem; background: none; border: none; color: var(--text-secondary); font-size: 0.82rem; cursor: pointer; text-decoration: underline;">자유 모드로 시작 (다른 상대 선택)</button>
     </div>

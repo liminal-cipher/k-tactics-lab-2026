@@ -359,6 +359,7 @@ document.addEventListener('DOMContentLoaded', () => {
   // (recalculateVibe ends by refreshing the meter).
   recalculateVibe();
   updateBrandFixture(); // the header names whichever match is loaded, including a shared link's
+  renderHeroOdds();     // the intro quotes odds this engine just sampled
   startLiveChatStream();
   if (challenge) {
     dismissHeroIntro();       // a shared challenge link skips the hero onboarding
@@ -370,6 +371,47 @@ document.addEventListener('DOMContentLoaded', () => {
 function dismissHeroIntro() {
   const m = document.getElementById('hero-intro-modal');
   if (m) m.style.display = 'none';
+}
+
+// The odds the manager inherits, computed rather than claimed: sets up the
+// opening board (that day's 3-4-3 against South Africa, its first half played
+// out), samples it, and puts the state back exactly as it was. The intro then
+// states a number this engine produced a moment ago instead of a slogan.
+function heroOpeningOdds() {
+  const keys = ['dials', 'opponent', 'staminaState', 'halfTimeScore', 'matchPhase', 'stats', 'opponentPlan'];
+  const snap = {};
+  // opponentPlan does not exist until the first scout, and JSON.stringify of
+  // undefined is undefined, which JSON.parse then chokes on.
+  keys.forEach(k => { snap[k] = state[k] === undefined ? undefined : JSON.parse(JSON.stringify(state[k])); });
+  try {
+    state.opponent = 'RSA';
+    state.opponentPlan = scriptedCounterPlan();
+    updateStats();
+    const o = firstHalfOutcome();
+    state.halfTimeScore = { kor: o.korGoals, opp: o.oppGoals };
+    state.matchPhase = 1;
+    state.staminaState = {};
+    (squadData[state.currentFormation] || []).forEach(p => {
+      const base = (typeof SQUAD_STATS_2026 !== 'undefined' && SQUAD_STATS_2026[p.name])
+        ? SQUAD_STATS_2026[p.name].stamina : 82;
+      state.staminaState[p.name] = Math.max(30, base - 22); // the drain, without its random spread
+    });
+    const sim = runMonteCarlo(20000); // a headline number should not flicker between page loads
+    return { win: sim.winPct, half: `${o.korGoals}-${o.oppGoals}` };
+  } catch (e) {
+    return null;
+  } finally {
+    keys.forEach(k => { state[k] = snap[k]; });
+    updateStats();
+  }
+}
+
+function renderHeroOdds() {
+  const el = document.getElementById('hero-odds');
+  if (!el) return;
+  const odds = heroOpeningOdds();
+  if (!odds) { el.style.display = 'none'; return; }
+  el.innerHTML = `그날의 전술을 그대로 두면 승률 <strong>${odds.win}%</strong>. 바꿀 수 있는 건 전부 당신 손에 있습니다.`;
 }
 
 function startHeroScenario() {
