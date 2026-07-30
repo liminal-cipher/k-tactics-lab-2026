@@ -1241,7 +1241,11 @@ function updateStats() {
       totalAtt += s.attack;
       totalDef += s.defense;
       totalMid += s.midfield;
-      totalStam += s.stamina;
+      // Live legs, not the roster baseline: before kickoff staminaOf gives the
+      // player's baseline anyway, and once the first half has been played it
+      // gives what is actually left, so the HUD bar tells the same story as the
+      // gauges on the cards and as the model. A substitution moves it.
+      totalStam += staminaOf(p.name);
     });
     
     let avgAtt = Math.round(totalAtt / pitchList.length);
@@ -1257,11 +1261,20 @@ function updateStats() {
     else if (state.currentFormation === '3-4-3') { avgAtt += 7; avgMid -= 2; avgDef += 0; }
     
     // Apply ML Dial adjustments
-    if (state.dials.tempo === 'direct') { avgAtt += 6; avgStam -= 5; }
+    if (state.dials.tempo === 'direct') { avgAtt += 6; }
     else if (state.dials.tempo === 'build') { avgMid += 5; avgAtt -= 2; }
-    
-    if (state.dials.press === 'high') { avgDef += 7; avgStam -= 8; }
+
+    if (state.dials.press === 'high') { avgDef += 7; }
     else if (state.dials.press === 'tenback') { avgDef += 10; avgAtt -= 8; }
+
+    // Before kickoff these two dials PREDICT what the shape will cost the legs.
+    // After the first half that cost has already been taken out of the real
+    // stamina above (runFirstHalf drains harder for a direct tempo and a high
+    // press), so charging it again would bill the manager twice.
+    if (state.matchPhase === 0) {
+      if (state.dials.tempo === 'direct') avgStam -= 5;
+      if (state.dials.press === 'high') avgStam -= 8;
+    }
     
     if (state.dials.mentality === 'attack') { avgAtt += 8; avgDef -= 6; }
     else if (state.dials.mentality === 'lock') { avgDef += 9; avgAtt -= 7; }
@@ -1989,7 +2002,10 @@ function showFinalResult() {
   styleName = publicVerdictTitle(kor > opp ? 'win' : kor === opp ? 'draw' : 'loss') || styleName;
 
   const s = state.stats || {};
-  const balance = Math.round(((s.attack || 0) + (s.defense || 0) + (s.midfield || 0) + (s.stamina || 0)) / 4);
+  // The card grades the tactical build, so it averages the three tactical
+  // axes. Stamina now reads live fatigue, and a squad should not look worse
+  // on its own trophy card for having run for ninety minutes.
+  const balance = Math.round(((s.attack || 0) + (s.defense || 0) + (s.midfield || 0)) / 3);
 
   document.getElementById('res-style-name').textContent = styleName;
   document.getElementById('res-desc').textContent = `${desc}\n\n${distLine}`;
