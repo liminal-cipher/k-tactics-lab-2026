@@ -2476,6 +2476,8 @@ function closeScoutingModal() {
 // ==========================================================================
 
 let selectedPkKickers = [];
+let pkCandidates = [];   // the seven cards on offer, in pitch order
+let pkHintTimer = null;
 
 // Real World Cup shootouts convert near 75%, so that is the baseline for BOTH
 // sides. Composure is a curated stat, not a per-90 derivation, so it only
@@ -2531,27 +2533,63 @@ function initPenaltyShootoutUI() {
     </div>
   `).join('');
   
+  pkCandidates = topKickers.map(p => ({ id: p.id, name: p.name }));
   selectedPkKickers = topKickers.slice(0, 5).map(p => ({ id: p.id, name: p.name }));
+  syncPkKickerCards();
 }
 
+// Clicking a chosen kicker drops him; clicking a spare adds him to the end of
+// the order. The old version guarded "at least five" and "at most five" against
+// a list that starts at exactly five, so both branches returned early and the
+// selection could never change: every card was frozen on the default order.
 function togglePkKicker(id, name) {
-  const card = document.getElementById(`pk-card-${id}`);
-  const badge = document.getElementById(`pk-order-${id}`);
-  const existingIdx = selectedPkKickers.findIndex(k => k.id === id);
-  
-  if (existingIdx !== -1) {
-    if (selectedPkKickers.length <= 5) return; // keep at least 5
-    selectedPkKickers.splice(existingIdx, 1);
-    if (card) card.classList.remove('selected');
-    if (badge) badge.style.display = 'none';
-  } else {
-    if (selectedPkKickers.length >= 5) return; // max 5
+  const idx = selectedPkKickers.findIndex(k => k.id === id);
+  if (idx !== -1) {
+    selectedPkKickers.splice(idx, 1);
+  } else if (selectedPkKickers.length < 5) {
     selectedPkKickers.push({ id, name });
-    if (card) card.classList.add('selected');
-    if (badge) {
-      badge.style.display = 'block';
-      badge.textContent = `#${selectedPkKickers.length} 키커`;
+  } else {
+    // Five already booked: say so rather than swallowing the click.
+    const hint = document.getElementById('pk-hint');
+    if (hint) {
+      hint.textContent = '이미 5명입니다. 빼고 싶은 키커를 먼저 클릭해 주세요.';
+      hint.classList.add('pk-hint-warn');
+      clearTimeout(pkHintTimer);
+      pkHintTimer = setTimeout(syncPkKickerCards, 1800);
     }
+    try { SFX.ui(); } catch (e) { /* audio is optional */ }
+    return;
+  }
+  try { SFX.ui(); } catch (e) { /* audio is optional */ }
+  syncPkKickerCards();
+}
+
+// One place decides how the seven cards look, so an order change renumbers the
+// badges instead of leaving stale ones behind.
+function syncPkKickerCards() {
+  pkCandidates.forEach(p => {
+    const card = document.getElementById(`pk-card-${p.id}`);
+    const badge = document.getElementById(`pk-order-${p.id}`);
+    const order = selectedPkKickers.findIndex(k => k.id === p.id);
+    if (card) card.classList.toggle('selected', order !== -1);
+    if (badge) {
+      badge.style.display = order === -1 ? 'none' : 'block';
+      if (order !== -1) badge.textContent = `#${order + 1} 키커`;
+    }
+  });
+  const hint = document.getElementById('pk-hint');
+  const startBtn = document.getElementById('btn-start-pk');
+  const n = selectedPkKickers.length;
+  if (hint) {
+    hint.classList.remove('pk-hint-warn');
+    hint.textContent = n === 5
+      ? `키커 순서 확정: ${selectedPkKickers.map((k, i) => `${i + 1}. ${k.name}`).join(' · ')}`
+      : `카드를 클릭한 순서대로 키커가 정해집니다. 5명을 지정해 주세요 (현재 ${n}명).`;
+  }
+  if (startBtn) {
+    startBtn.disabled = n !== 5;
+    startBtn.style.opacity = n === 5 ? '' : '0.5';
+    startBtn.style.cursor = n === 5 ? '' : 'not-allowed';
   }
 }
 
@@ -2972,27 +3010,70 @@ function drawPenaltyScene(ctx, W, H, sc) {
   ctx.stroke();
 }
 
-function drawKeeper(ctx, W, H, cx, cy, dive) {
-  const s = W * 0.047;               // body unit: a keeper fills ~3/4 of the goal height
-  const lean = dive * 0.9;           // -1 dives to our left, +1 to our right
+// A jointed keeper rather than a rotating blob: torso, head, two arms and two
+// legs, drawn as thick round strokes. `dive` is -1..1 across the goal and
+// `reach` is 0..1 from a low dive to a full stretch upward, so the figure goes
+// where the ball actually went. `phase` 0..1 drives the sequence: a crouch and
+// a push off the line first, then the extension.
+function drawKeeper(ctx, W, H, cx, cy, dive, reach, phase) {
+  const s = W * 0.047;
+  const p = Math.min(1, Math.max(0, phase == null ? Math.abs(dive) : phase));
+  const dir = dive < 0 ? -1 : 1;
+  const commit = Math.abs(dive);                 // how far into the dive
+  const crouch = Math.sin(Math.min(1, p * 3) * Math.PI) * 0.18 * (1 - commit); // dip before the push
+  const lean = dir * commit * 1.15;              // radians: horizontal at full stretch
+  const up = (reach == null ? 0.5 : reach);      // 1 = top corner, 0 = along the ground
+
   ctx.save();
-  ctx.translate(cx, cy);
-  ctx.rotate(lean * 0.5);
-  ctx.fillStyle = '#0f172a';
-  ctx.beginPath(); ctx.ellipse(0, 0, s * 0.75, s * 1.5, 0, 0, Math.PI * 2); ctx.fill();
-  ctx.strokeStyle = '#22d3ee'; // keeper kit trim, distinct from both teams
-  ctx.lineWidth = Math.max(2, W / 320);
-  ctx.beginPath(); ctx.ellipse(0, 0, s * 0.75, s * 1.5, 0, 0, Math.PI * 2); ctx.stroke();
+  ctx.translate(cx, cy + s * crouch);
+  ctx.rotate(lean * (0.55 + up * 0.35));
+
+  const kit = '#22d3ee', skin = '#e2e8f0', glove = '#fbbf24';
+  ctx.lineCap = 'round';
+  ctx.lineJoin = 'round';
+
+  // legs trail the dive, splitting as he extends
+  ctx.strokeStyle = '#0f172a';
+  ctx.lineWidth = s * 0.34;
+  const legSpread = 0.35 + commit * 0.5;
   ctx.beginPath();
-  ctx.moveTo(-s * 0.6, -s * 0.5); ctx.lineTo(-s * (1.5 + Math.abs(lean) * 1.4), -s * (1.5 + lean * 0.6));
-  ctx.moveTo(s * 0.6, -s * 0.5); ctx.lineTo(s * (1.5 + Math.abs(lean) * 1.4), -s * (1.5 - lean * 0.6));
+  ctx.moveTo(0, s * 0.55);
+  ctx.lineTo(-s * legSpread, s * (1.5 + commit * 0.35));
+  ctx.moveTo(0, s * 0.55);
+  ctx.lineTo(s * legSpread * 0.7, s * (1.6 - commit * 0.2));
   ctx.stroke();
-  ctx.fillStyle = '#fbbf24'; // gloves
-  ctx.beginPath(); ctx.arc(-s * (1.5 + Math.abs(lean) * 1.4), -s * (1.5 + lean * 0.6), s * 0.28, 0, Math.PI * 2); ctx.fill();
-  ctx.beginPath(); ctx.arc(s * (1.5 + Math.abs(lean) * 1.4), -s * (1.5 - lean * 0.6), s * 0.28, 0, Math.PI * 2); ctx.fill();
-  ctx.fillStyle = '#e2e8f0';
-  ctx.beginPath(); ctx.arc(0, -s * 1.85, s * 0.42, 0, Math.PI * 2); ctx.fill();
+
+  // torso
+  ctx.strokeStyle = kit;
+  ctx.lineWidth = s * 0.62;
+  ctx.beginPath();
+  ctx.moveTo(0, s * 0.6);
+  ctx.lineTo(0, -s * 0.55);
+  ctx.stroke();
+
+  // arms: the lead arm reaches for the corner, the trailing one balances
+  ctx.lineWidth = s * 0.26;
+  const reachLen = 1.05 + commit * 0.95;
+  const leadX = dir * s * reachLen * 1.15;
+  const leadY = -s * (0.75 + up * 0.9);
+  const trailX = -dir * s * (0.85 + commit * 0.35);
+  const trailY = s * (0.1 - up * 0.35);
+  ctx.beginPath();
+  ctx.moveTo(0, -s * 0.42); ctx.lineTo(leadX, leadY);
+  ctx.moveTo(0, -s * 0.42); ctx.lineTo(trailX, trailY);
+  ctx.stroke();
+
+  ctx.fillStyle = glove;
+  ctx.beginPath(); ctx.arc(leadX, leadY, s * 0.3, 0, Math.PI * 2); ctx.fill();
+  ctx.beginPath(); ctx.arc(trailX, trailY, s * 0.26, 0, Math.PI * 2); ctx.fill();
+
+  // head, tucked slightly toward the dive
+  ctx.fillStyle = skin;
+  ctx.beginPath(); ctx.arc(dir * s * 0.12 * commit, -s * 0.95, s * 0.4, 0, Math.PI * 2); ctx.fill();
+
   ctx.restore();
+  ctx.lineCap = 'butt';
+  ctx.lineJoin = 'miter';
 }
 
 function drawPkBall(ctx, x, y, r) {
@@ -3050,9 +3131,18 @@ function animatePkKick(cfg, onDone) {
     const by = (startY + (target.y - startY) * ease) * H - Math.sin(ease * Math.PI) * H * 0.05;
     const br = startR + (endR - startR) * ease;
 
+    // The dive: a beat of anticipation, then an arc across the line rather than
+    // a slide. He rises off the ground and comes back down, and how high he
+    // reaches follows the corner the ball is heading for.
     const diveP = Math.min(1, Math.max(0, (p - T_SET - 0.06) / 0.34));
-    const dive = keeperSide * diveP * diveP;
-    drawKeeper(ctx, W, H, (0.5 + dive * 0.26) * W, H * (0.46 + diveP * 0.04), dive);
+    const diveEase = diveP * diveP * (3 - 2 * diveP);
+    const dive = keeperSide * diveEase;
+    const reach = Math.min(1, Math.max(0, (PK_GOAL.bottom - target.y) / (PK_GOAL.bottom - PK_GOAL.top)));
+    const hop = Math.sin(diveEase * Math.PI) * (0.055 + reach * 0.05); // off the turf and back down
+    drawKeeper(ctx, W, H,
+      (0.5 + dive * 0.27) * W,
+      H * (0.46 + diveEase * 0.05 - hop),
+      dive, reach, diveP);
     drawPkBall(ctx, bx, by, br);
 
     drawCanvasHud(ctx, W, H, `PK ${cfg.korPk} : ${cfg.oppPk}`, cfg.label);
@@ -3151,7 +3241,15 @@ function startLiveMatchView(opts) {
   // so spot i is player i: the dots carry the actual names the manager picked.
   // The opponent's players are not in the dataset, and inventing eleven names
   // would be inventing data, so their side stays unlabelled.
-  const korNames = (squadData[state.currentFormation] || []).map(p => p.name);
+  // The number in the disc is the player's FBref rating, the same one printed
+  // on his card. The squad has no jersey numbers in the dataset, and painting
+  // invented ones onto a pitch that claims to show the real squad would be
+  // making up data.
+  const korPlayers = (squadData[state.currentFormation] || []).map(p => ({
+    name: p.name,
+    rating: (typeof SQUAD_STATS_2026 !== 'undefined' && SQUAD_STATS_2026[p.name])
+      ? SQUAD_STATS_2026[p.name].rating : null
+  }));
 
   let clock = film.from;     // game minute
   let territory = 0.5;       // 0 = our goal, 1 = their goal
@@ -3195,16 +3293,24 @@ function startLiveMatchView(opts) {
         const nx = Math.min(0.985, Math.max(0.015, s.x + push * amp
           + (s.gk ? 0 : Math.sin(t * 2.1 + i * 1.7) * 0.008)));
         const ny = Math.min(0.97, Math.max(0.03, s.y + (s.gk ? 0 : Math.cos(t * 1.7 + i * 2.3) * 0.02)));
-        const p = drawDot(ctx, W, H, nx, ny, s.gk ? r * 0.95 : r, color, ring);
-        if (isKor && korNames[i]) {
-          ctx.font = nameFont;
+        const me = isKor ? korPlayers[i] : null;
+        const rr = isKor ? r * 1.7 : r * 1.15;   // our discs carry a number, so they run larger
+        const p = drawDot(ctx, W, H, nx, ny, s.gk ? rr * 0.95 : rr, color, ring);
+        if (me) {
           ctx.textAlign = 'center';
+          if (me.rating) {
+            ctx.font = `800 ${Math.round(rr * 1.12)}px 'Outfit', sans-serif`;
+            ctx.textBaseline = 'middle';
+            ctx.fillStyle = 'rgba(10, 8, 14, 0.92)';
+            ctx.fillText(String(me.rating), p.x, p.y + rr * 0.04);
+          }
+          ctx.font = nameFont;
           ctx.textBaseline = 'top';
           ctx.lineWidth = Math.max(2, H * 0.008);
           ctx.strokeStyle = 'rgba(4, 12, 8, 0.85)'; // outline keeps it legible over grass
-          ctx.strokeText(korNames[i], p.x, p.y + r * 1.5);
+          ctx.strokeText(me.name, p.x, p.y + rr * 1.15);
           ctx.fillStyle = '#f8fafc';
-          ctx.fillText(korNames[i], p.x, p.y + r * 1.5);
+          ctx.fillText(me.name, p.x, p.y + rr * 1.15);
           ctx.textAlign = 'left';
           ctx.textBaseline = 'alphabetic';
         }
