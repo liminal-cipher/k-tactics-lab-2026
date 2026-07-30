@@ -1857,30 +1857,41 @@ function runSecondHalf() {
   const sim = runMonteCarlo(1000);
   state.simResult = sim;
   state.finalScore = { kor: sim.modalScore.kor, opp: sim.modalScore.opp };
-  const finalKor = state.finalScore.kor;
-  const finalOpp = state.finalScore.opp;
 
-  const subStep = executedSubs.length > 0
-    ? `🔄 60' 교체 실행: ${executedSubs[0].out} → ${executedSubs[0].in} (프레시 레그 공격 가담!)`
-    : `⚡ 65' 이강인 탈압박 후 전진 패스! 공격 주도권 장악!`;
-  const steps = [
-    `🔥 45' 후반전 가동! [vs ${state.opponent}] 후반전 전술 지침 및 예약 가동...`,
-    subStep,
-    `⚽ 88' 1,000회 몬테카를로 연산 완료! 승 ${sim.winPct}% · 무 ${sim.drawPct}% · 패 ${sim.losePct}% → 최빈 스코어 ${finalKor} : ${finalOpp}!!`
-  ];
-  
-  let i = 0;
-  stepText.textContent = steps[0];
-  
-  const interval = setInterval(() => {
-    i++;
-    if (i < steps.length) {
-      stepText.textContent = steps[i];
-    } else {
-      clearInterval(interval);
-      showFinalResult();
+  // Replay the settled half as a 2D top-down match, with the ticker on the
+  // same clock as the animation. The score is already fixed, so the view is a
+  // presentation layer: if the canvas is unavailable the ticker alone still
+  // carries the half to full time.
+  const film = buildMatchFilm();
+  const cues = buildCommentaryCues(film, executedSubs, sim);
+  stepText.textContent = cues[0].text;
+
+  let started = false;
+  if (canvasBox) {
+    canvasBox.style.display = 'block';
+    try {
+      started = startLiveMatchView({
+        film, cues,
+        onCue: (text) => { stepText.textContent = text; },
+        onEnd: showFinalResult
+      });
+    } catch (e) {
+      started = false;
     }
-  }, 1200);
+    if (!started) canvasBox.style.display = 'none';
+  }
+
+  if (!started) {
+    let i = 1;
+    const interval = setInterval(() => {
+      if (i < cues.length) {
+        stepText.textContent = cues[i++].text;
+      } else {
+        clearInterval(interval);
+        showFinalResult();
+      }
+    }, 1000);
+  }
 }
 
 // ==========================================================================
@@ -1966,13 +1977,12 @@ function showFinalResult() {
   const liveCast = document.getElementById('sim-live-cast');
   const resultCard = document.getElementById('manager-result-card');
   const actions = document.getElementById('sim-modal-actions');
-  const canvasBox = document.getElementById('sim-canvas-container');
   const pkBox = document.getElementById('pk-shootout-container');
 
   liveCast.style.display = 'none';
   markMatchFinished();
   renderXaiBreakdown(); // before the PK early-return so the draw path gets it too
-  
+
   // Check if Draw -> Trigger PK Shootout!
   if (state.finalScore.kor === state.finalScore.opp) {
     if (pkBox) {
@@ -1981,13 +1991,7 @@ function showFinalResult() {
       return;
     }
   }
-  
-  // Otherwise show 2D canvas animation + Result Card!
-  if (canvasBox && typeof start2DMiniMatchCanvas === 'function') {
-    canvasBox.style.display = 'block';
-    start2DMiniMatchCanvas(state.finalScore.kor > state.finalScore.opp);
-  }
-  
+
   resultCard.style.display = 'block';
   actions.style.display = 'flex';
   
@@ -2038,6 +2042,10 @@ function publicVerdictTitle(outcome) {
 }
 
 function closeModal() {
+  // Closing mid-replay must still settle the match: the score was decided
+  // before the animation started, so jump it to full time rather than
+  // leaving the board stuck at half-time.
+  if (liveMatchView) skipLiveMatchView();
   document.getElementById('sim-modal').classList.remove('active');
 }
 
@@ -2498,58 +2506,358 @@ function startPenaltyShootout() {
   }, 1000);
 }
 
-function start2DMiniMatchCanvas(isKorWin) {
-  const canvas = document.getElementById('live-match-canvas');
-  if (!canvas) return;
-  const ctx = canvas.getContext('2d');
-  const timerEl = document.getElementById('sim-canvas-timer');
-  
-  let frame = 0;
-  let ballX = 270; let ballY = 130;
-  let ballVX = isKorWin ? 3.5 : -2; let ballVY = 1.2;
-  
-  const animate = () => {
-    if (frame > 180) {
-      if (timerEl) timerEl.textContent = '90\' 종료';
-      return;
-    }
-    
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-    
-    // Pitch grass stripes
-    ctx.fillStyle = 'rgba(6, 78, 59, 0.4)';
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
-    ctx.strokeStyle = 'rgba(255, 255, 255, 0.3)';
-    ctx.lineWidth = 2;
-    ctx.beginPath();
-    ctx.moveTo(canvas.width / 2, 0); ctx.lineTo(canvas.width / 2, canvas.height);
-    ctx.stroke();
-    
-    // Ball movement
-    ballX += ballVX; ballY += ballVY;
-    if (ballY < 20 || ballY > canvas.height - 20) ballVY = -ballVY;
-    if (ballX > canvas.width - 40 && isKorWin) {
-      ballVX = 0; ballVY = 0;
-      ctx.fillStyle = '#10b981';
-      ctx.font = 'bold 20px sans-serif';
-      ctx.fillText('⚽ GOAL!! 2:1 극적 골!', canvas.width / 2 - 90, canvas.height / 2);
-    }
-    
-    // Draw players (Red for Kor, White for Opp)
-    ctx.fillStyle = '#f43f5e';
-    ctx.beginPath(); ctx.arc(Math.max(40, ballX - 25), ballY + 15, 8, 0, Math.PI * 2); ctx.fill();
-    
-    ctx.fillStyle = '#ffffff';
-    ctx.beginPath(); ctx.arc(Math.min(canvas.width - 40, ballX + 25), ballY - 10, 8, 0, Math.PI * 2); ctx.fill();
-    
-    // Draw ball
-    ctx.fillStyle = '#f59e0b';
-    ctx.beginPath(); ctx.arc(ballX, ballY, 5, 0, Math.PI * 2); ctx.fill();
-    
-    frame++;
-    if (timerEl) timerEl.textContent = `${Math.floor(frame / 2)}'`;
-    requestAnimationFrame(animate);
+// ==========================================================================
+// 2D live match view (top-down replay of the second half).
+//
+// The half is already decided before a single frame is drawn: runMonteCarlo
+// samples 1,000 halves and picks the modal score, and this view replays THAT
+// result. Goal minutes, scorers and the run of play come from a seeded PRNG
+// fed by the same lambdas, so the same board always produces the same film
+// and nothing drawn here can move a probability. The old canvas ignored the
+// score entirely and shouted a hardcoded "GOAL!! 2:1" at every win.
+// ==========================================================================
+
+const LIVE_MATCH_MS_PER_MIN = 270; // 45 game minutes in ~12s
+const LIVE_GOAL_FLASH_MIN = 2.4;   // how long a goal celebration holds, in game minutes
+let liveMatchView = null;          // handle for the running view (raf id + finish hook)
+
+// Deterministic 32-bit PRNG (mulberry32). Same seed -> same film.
+function seededRng(seed) {
+  let a = seed >>> 0;
+  return function () {
+    a = (a + 0x6D2B79F5) >>> 0;
+    let t = Math.imul(a ^ (a >>> 15), 1 | a);
+    t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
   };
-  
-  animate();
+}
+
+// Who gets the goal: sampled from the attacking players actually on the pitch,
+// weighted by the same FBref attack rating the board shows.
+function pickScorer(rng) {
+  const pitch = squadData[state.currentFormation] || [];
+  const pool = pitch.filter(p => p.type === 'att' || p.type === 'mid');
+  if (!pool.length) return null;
+  const weights = pool.map(p => {
+    const s = (typeof SQUAD_STATS_2026 !== 'undefined' && SQUAD_STATS_2026[p.name]) || null;
+    const base = s ? s.attack : 60;
+    return Math.max(4, p.type === 'att' ? base : base * 0.4);
+  });
+  let r = rng() * weights.reduce((a, b) => a + b, 0);
+  for (let i = 0; i < pool.length; i++) { r -= weights[i]; if (r <= 0) return pool[i]; }
+  return pool[pool.length - 1];
+}
+
+// Turn the settled score into a minute-by-minute script: when the goals land,
+// who scored them, and which side is camped in which half in between.
+function buildMatchFilm() {
+  const sim = state.simResult || {};
+  const half = state.halfTimeScore || { kor: 0, opp: 0 };
+  const fin = state.finalScore || { kor: 0, opp: 0 };
+  const korGoals = Math.max(0, fin.kor - half.kor);
+  const oppGoals = Math.max(0, fin.opp - half.opp);
+  const lamKor = sim.lamKor || 1, lamOpp = sim.lamOpp || 1;
+  const seed = (Math.round(lamKor * 1e5) ^ Math.round(lamOpp * 7919) ^ ((korGoals * 31 + oppGoals) * 104729)) >>> 0;
+  const rng = seededRng(seed);
+
+  const used = new Set();
+  const drawMinute = () => {
+    for (let i = 0; i < 60; i++) {
+      const m = 48 + Math.floor(rng() * 41); // 48' ~ 88'
+      if (!used.has(m)) { used.add(m); return m; }
+    }
+    let m = 48; while (used.has(m)) m++;
+    used.add(m); return m;
+  };
+
+  const events = [];
+  for (let i = 0; i < korGoals; i++) events.push({ minute: drawMinute(), team: 'kor' });
+  for (let i = 0; i < oppGoals; i++) events.push({ minute: drawMinute(), team: 'opp' });
+  events.sort((a, b) => a.minute - b.minute);
+  let k = half.kor, o = half.opp;
+  events.forEach(e => {
+    if (e.team === 'kor') { k++; const s = pickScorer(rng); e.scorer = s ? s.name : '대한민국'; }
+    else o++;
+    e.kor = k; e.opp = o;
+  });
+
+  // Possession segments: who is camped where between the goals. Share of the
+  // ball tracks the lambda split, so a dominant board looks dominant.
+  const korShare = Math.min(0.78, Math.max(0.22, lamKor / (lamKor + lamOpp)));
+  const segments = [];
+  let cursor = 45;
+  while (cursor < 90) {
+    const dur = 0.9 + rng() * 2.4;
+    const team = rng() < korShare ? 'kor' : 'opp';
+    const depth = team === 'kor' ? 0.60 + rng() * 0.28 : 0.40 - rng() * 0.28;
+    segments.push({ start: cursor, end: cursor + dur, team, depth });
+    cursor += dur;
+  }
+  return { events, segments, korShare, half, final: fin };
+}
+
+// Commentary cues shown in the ticker above the canvas, on the same clock as
+// the animation: the ticker shouts a goal on the frame the ball goes in.
+function buildCommentaryCues(film, executedSubs, sim) {
+  const cues = [{ minute: 45, text: `🔥 45' 후반전 킥오프! [vs ${state.opponent}] 후반 전술 지침 가동` }];
+  cues.push(executedSubs && executedSubs.length
+    ? { minute: 60, text: `🔄 60' 교체 투입: ${executedSubs[0].out} → ${executedSubs[0].in} (프레시 레그 공격 가담!)` }
+    : { minute: 62, text: `⚡ 62' 중원에서 탈압박 성공, 공격 주도권을 끌어온다` });
+  film.events.forEach(e => {
+    cues.push(e.team === 'kor'
+      ? { minute: e.minute, text: `⚽ ${e.minute}' 골!! ${e.scorer} 득점! ${e.kor} : ${e.opp}` }
+      : { minute: e.minute, text: `😱 ${e.minute}' ${state.opponent}에 실점... ${e.kor} : ${e.opp}` });
+  });
+  cues.push({
+    minute: 89,
+    text: `📊 1,000회 몬테카를로: 승 ${sim.winPct}% · 무 ${sim.drawPct}% · 패 ${sim.losePct}% → 최빈 스코어 ${film.final.kor} : ${film.final.opp}`
+  });
+  return cues.sort((a, b) => a.minute - b.minute);
+}
+
+// Formation rows -> normalized pitch spots. FORMATION_ROWS runs attack line
+// first and keeper last (the order the board renders), so the film shows the
+// same shape the manager actually built.
+function teamShape(formation, attackingRight) {
+  const rows = FORMATION_ROWS[formation] || [3, 3, 4, 1];
+  const outfieldRows = Math.max(1, rows.length - 1);
+  const spots = [];
+  rows.forEach((count, ri) => {
+    const isGk = (ri === rows.length - 1 && count === 1);
+    const x = isGk ? 0.045
+      : 0.70 - (outfieldRows > 1 ? ri / (outfieldRows - 1) : 0) * 0.50;
+    for (let i = 0; i < count; i++) {
+      const y = count === 1 ? 0.5 : 0.15 + (i / (count - 1)) * 0.70;
+      spots.push({ x: attackingRight ? x : 1 - x, y, gk: isGk });
+    }
+  });
+  return spots;
+}
+
+function drawPitchSurface(ctx, W, H) {
+  ctx.fillStyle = '#0a3d2c';
+  ctx.fillRect(0, 0, W, H);
+  const stripes = 9;
+  ctx.fillStyle = 'rgba(255, 255, 255, 0.035)';
+  for (let i = 0; i < stripes; i += 2) ctx.fillRect((W / stripes) * i, 0, W / stripes, H);
+
+  const px = W * 0.022, py = H * 0.05;
+  const fw = W - px * 2, fh = H - py * 2;
+  ctx.strokeStyle = 'rgba(255, 255, 255, 0.32)';
+  ctx.lineWidth = Math.max(2, W / 420);
+  ctx.strokeRect(px, py, fw, fh);
+  ctx.beginPath(); ctx.moveTo(W / 2, py); ctx.lineTo(W / 2, py + fh); ctx.stroke();
+  ctx.beginPath(); ctx.arc(W / 2, H / 2, fh * 0.155, 0, Math.PI * 2); ctx.stroke();
+  ctx.beginPath(); ctx.arc(W / 2, H / 2, ctx.lineWidth * 1.6, 0, Math.PI * 2);
+  ctx.fillStyle = 'rgba(255, 255, 255, 0.32)'; ctx.fill();
+
+  [0, 1].forEach(side => {
+    const boxW = fw * 0.155, boxH = fh * 0.58;
+    const bx = side === 0 ? px : px + fw - boxW;
+    ctx.strokeRect(bx, py + (fh - boxH) / 2, boxW, boxH);
+    const sixW = fw * 0.06, sixH = fh * 0.28;
+    const sx = side === 0 ? px : px + fw - sixW;
+    ctx.strokeRect(sx, py + (fh - sixH) / 2, sixW, sixH);
+    const gW = fw * 0.014, gH = fh * 0.17;
+    const gx = side === 0 ? px - gW : px + fw;
+    ctx.strokeRect(gx, py + (fh - gH) / 2, gW, gH);
+  });
+}
+
+// Pitch coords are normalized (0..1 along the length, Korea attacking right)
+// so every drawing call is resolution-independent.
+function pitchPoint(W, H, nx, ny) {
+  const px = W * 0.022, py = H * 0.05;
+  return { x: px + nx * (W - px * 2), y: py + ny * (H - py * 2) };
+}
+
+function drawDot(ctx, W, H, nx, ny, r, fill, ring) {
+  const p = pitchPoint(W, H, nx, ny);
+  ctx.beginPath(); ctx.arc(p.x, p.y, r, 0, Math.PI * 2);
+  ctx.fillStyle = fill; ctx.fill();
+  if (ring) { ctx.strokeStyle = ring; ctx.lineWidth = Math.max(1.5, r * 0.28); ctx.stroke(); }
+  return p;
+}
+
+function stopLiveMatchView() {
+  if (liveMatchView) {
+    if (liveMatchView.raf) cancelAnimationFrame(liveMatchView.raf);
+    if (liveMatchView.watchdog) clearTimeout(liveMatchView.watchdog);
+  }
+  liveMatchView = null;
+}
+
+// Jump straight to full time (skip button, or the modal being closed mid-match).
+// The result is already settled, so this only skips pixels.
+function skipLiveMatchView() {
+  const v = liveMatchView;
+  if (!v) return;
+  stopLiveMatchView();
+  v.finish();
+}
+
+function startLiveMatchView(opts) {
+  const canvas = document.getElementById('live-match-canvas');
+  if (!canvas || typeof canvas.getContext !== 'function') return false;
+  const ctx = canvas.getContext('2d');
+  if (!ctx) return false;
+  stopLiveMatchView();
+
+  const W = canvas.width, H = canvas.height;
+  const timerEl = document.getElementById('sim-canvas-timer');
+  const skipBtn = document.getElementById('btn-skip-live');
+  const film = opts.film;
+  const cues = opts.cues || [];
+  const onCue = opts.onCue || function () {};
+  const onEnd = opts.onEnd || function () {};
+
+  const korShape = teamShape(state.currentFormation, true);
+  const oppFormation = (state.opponentPlan && state.opponentPlan.counterFormation) || '4-4-2';
+  const oppShape = teamShape(oppFormation, false);
+
+  let clock = 45;            // game minute
+  let territory = 0.5;       // 0 = our goal, 1 = their goal
+  let cueIdx = 0, eventIdx = 0;
+  let flash = null;          // { until, team, text, sub }
+  let score = { kor: film.half.kor, opp: film.half.opp };
+  let last = 0, ended = false;
+
+  const finish = () => {
+    if (ended) return;
+    ended = true;
+    stopLiveMatchView(); // drop the raf/watchdog handle: this half is done
+    if (skipBtn) skipBtn.style.display = 'none';
+    if (timerEl) timerEl.textContent = "90' 종료";
+    score = { kor: film.final.kor, opp: film.final.opp };
+    try { drawFrame(90, 0.5, null); } catch (e) { /* final still frame is cosmetic */ }
+    onCue(cues.length ? cues[cues.length - 1].text : '');
+    onEnd();
+  };
+
+  function currentSegment(t) {
+    for (let i = 0; i < film.segments.length; i++) {
+      if (t >= film.segments[i].start && t < film.segments[i].end) return film.segments[i];
+    }
+    return film.segments[film.segments.length - 1] || { team: 'kor', depth: 0.5 };
+  }
+
+  function drawFrame(t, terr, fl) {
+    drawPitchSurface(ctx, W, H);
+
+    const seg = currentSegment(t);
+    const attacking = fl ? fl.team : seg.team;
+    const push = (terr - 0.5);
+    const r = Math.max(4, W / 125);
+
+    // Both blocks slide with the play, the way a compact team actually moves.
+    const drawTeam = (shape, isKor, color, ring) => {
+      shape.forEach((s, i) => {
+        const amp = s.gk ? 0.06 : (isKor ? 0.30 : 0.26);
+        const nx = Math.min(0.985, Math.max(0.015, s.x + push * amp
+          + (s.gk ? 0 : Math.sin(t * 2.1 + i * 1.7) * 0.008)));
+        const ny = Math.min(0.97, Math.max(0.03, s.y + (s.gk ? 0 : Math.cos(t * 1.7 + i * 2.3) * 0.02)));
+        drawDot(ctx, W, H, nx, ny, s.gk ? r * 0.95 : r, color, ring);
+      });
+    };
+    drawTeam(oppShape, false, '#e2e8f0', 'rgba(15, 23, 42, 0.75)');
+    drawTeam(korShape, true, '#f43f5e', 'rgba(255, 255, 255, 0.85)');
+
+    // Ball: the focus of play, out at the goal mouth during a celebration.
+    let bx, by;
+    if (fl) {
+      bx = fl.team === 'kor' ? 0.975 : 0.025;
+      by = 0.5 + Math.sin(fl.seedY) * 0.07;
+    } else {
+      bx = 0.08 + terr * 0.84;
+      by = 0.5 + Math.sin(t * 1.9 + 0.7) * 0.24;
+    }
+    const bp = drawDot(ctx, W, H, bx, by, r * 0.55, '#fbbf24', 'rgba(15, 23, 42, 0.9)');
+    ctx.beginPath();
+    ctx.arc(bp.x, bp.y, r * 1.5, 0, Math.PI * 2);
+    ctx.strokeStyle = attacking === 'kor' ? 'rgba(244, 63, 94, 0.45)' : 'rgba(226, 232, 240, 0.45)';
+    ctx.lineWidth = Math.max(1.5, r * 0.22);
+    ctx.stroke();
+
+    // Scoreline + clock burned into the canvas so a screenshot reads on its own.
+    // Plates are measured, not guessed: the opponent code and the minute both
+    // change width during a match.
+    ctx.font = `800 ${Math.round(H * 0.075)}px 'Outfit', 'Noto Sans KR', sans-serif`;
+    ctx.textBaseline = 'top';
+    const pad = W * 0.013, plateY = H * 0.05, plateH = H * 0.11;
+    const scoreTxt = `KOR ${score.kor} : ${score.opp} ${state.opponent}`;
+    const clockTxt = `${Math.min(90, Math.floor(t))}'`;
+    ctx.fillStyle = 'rgba(15, 23, 42, 0.6)';
+    ctx.fillRect(W * 0.022, plateY, ctx.measureText(scoreTxt).width + pad * 2, plateH);
+    const clockW = ctx.measureText(clockTxt).width + pad * 2;
+    ctx.fillRect(W - W * 0.022 - clockW, plateY, clockW, plateH);
+    ctx.fillStyle = '#f8fafc';
+    ctx.textAlign = 'left';
+    ctx.fillText(scoreTxt, W * 0.022 + pad, plateY + H * 0.018);
+    ctx.textAlign = 'right';
+    ctx.fillText(clockTxt, W - W * 0.022 - pad, plateY + H * 0.018);
+
+    if (fl) {
+      ctx.fillStyle = fl.team === 'kor' ? 'rgba(16, 185, 129, 0.30)' : 'rgba(244, 63, 94, 0.26)';
+      ctx.fillRect(0, 0, W, H);
+      ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+      ctx.shadowColor = 'rgba(2, 20, 12, 0.85)';
+      ctx.shadowBlur = H * 0.05;
+      ctx.fillStyle = '#ffffff';
+      ctx.font = `900 ${Math.round(H * 0.16)}px 'Outfit', 'Noto Sans KR', sans-serif`;
+      ctx.fillText(fl.text, W / 2, H * 0.44);
+      ctx.font = `700 ${Math.round(H * 0.078)}px 'Outfit', 'Noto Sans KR', sans-serif`;
+      ctx.fillStyle = fl.team === 'kor' ? '#a7f3d0' : '#fecdd3';
+      ctx.fillText(fl.sub, W / 2, H * 0.63);
+      ctx.shadowBlur = 0;
+    }
+    ctx.textAlign = 'left'; ctx.textBaseline = 'alphabetic';
+  }
+
+  const step = (ts) => {
+    if (ended) return;
+    if (!last) last = ts;
+    const dt = Math.min(120, ts - last); // a backgrounded tab must not skip the match
+    last = ts;
+    clock += dt / LIVE_MATCH_MS_PER_MIN;
+
+    // Goals fire on the frame the clock passes their minute.
+    while (eventIdx < film.events.length && clock >= film.events[eventIdx].minute) {
+      const e = film.events[eventIdx++];
+      score = { kor: e.kor, opp: e.opp };
+      flash = {
+        until: clock + LIVE_GOAL_FLASH_MIN, team: e.team, seedY: e.minute,
+        text: e.team === 'kor' ? 'GOAL!' : `${state.opponent} GOAL`,
+        sub: e.team === 'kor' ? `${e.minute}' ${e.scorer} · ${e.kor} : ${e.opp}` : `${e.minute}' 실점 · ${e.kor} : ${e.opp}`
+      };
+      updateScorebug(e.kor, e.opp, "2H · LIVE");
+      try { if (e.team === 'kor') SFX.goal(); else SFX.whistle(); } catch (err) { /* audio is optional */ }
+    }
+    if (flash && clock >= flash.until) flash = null;
+
+    while (cueIdx < cues.length && clock >= cues[cueIdx].minute) onCue(cues[cueIdx++].text);
+
+    // Territory eases toward whoever is on the ball; a goal drags it to the line.
+    const seg = currentSegment(clock);
+    let target = seg.depth;
+    const next = film.events[eventIdx];
+    if (next && next.minute - clock < 1.2) target = next.team === 'kor' ? 0.93 : 0.07;
+    if (flash) target = flash.team === 'kor' ? 0.96 : 0.04;
+    territory += (target - territory) * Math.min(1, dt / 320);
+
+    drawFrame(clock, territory, flash);
+    if (timerEl) timerEl.textContent = `${Math.min(90, Math.floor(clock))}'`;
+
+    if (clock >= 90) { finish(); return; }
+    liveMatchView.raf = requestAnimationFrame(step);
+  };
+
+  liveMatchView = { raf: 0, watchdog: 0, finish };
+  // requestAnimationFrame stops in a backgrounded tab, so a timer guarantees
+  // the half reaches full time even if no frame is ever painted. The score is
+  // already settled either way; only the pixels are skipped.
+  liveMatchView.watchdog = setTimeout(finish, 45 * LIVE_MATCH_MS_PER_MIN + 8000);
+  if (skipBtn) skipBtn.style.display = '';
+  drawFrame(45, 0.5, null);
+  liveMatchView.raf = requestAnimationFrame(step);
+  return true;
 }

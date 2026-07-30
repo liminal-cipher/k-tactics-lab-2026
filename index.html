@@ -416,15 +416,16 @@
         <div class="sim-step-text" id="sim-step-text">⚽ 후반전 킥오프 준비 중...</div>
       </div>
 
-      <!-- 2D Live Match Canvas Animation Sandbox -->
+      <!-- 2D live match view: a replay of the settled second half (app.js) -->
       <div class="sim-canvas-container" id="sim-canvas-container" style="display: none; margin-bottom: 1.2rem;">
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
-          <span style="font-size: 0.85rem; font-weight: 800; color: var(--accent-cyan); display: flex; align-items: center; gap: 0.4rem;">
-            <span>⚽ 2D 라이브 매치 하이라이트 애니메이션 (60fps)</span>
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem; gap: 0.6rem;">
+          <span style="font-size: 0.85rem; font-weight: 800; color: var(--accent-cyan);">⚽ 2D 라이브 중계 · 후반 45분</span>
+          <span style="display: flex; align-items: center; gap: 0.5rem;">
+            <button id="btn-skip-live" onclick="skipLiveMatchView()" style="display: none; font-size: 0.72rem; font-weight: 800; padding: 0.2rem 0.6rem; border-radius: var(--radius-full); border: 1px solid var(--glass-border); background: transparent; color: var(--text-secondary); cursor: pointer;">⏭ 결과 바로 보기</button>
+            <span id="sim-canvas-timer" style="font-size: 0.8rem; font-family: monospace; background: rgba(0,0,0,0.5); padding: 0.15rem 0.5rem; border-radius: 4px; color: #fff;">45'</span>
           </span>
-          <span id="sim-canvas-timer" style="font-size: 0.8rem; font-family: monospace; background: rgba(0,0,0,0.5); padding: 0.15rem 0.5rem; border-radius: 4px; color: #fff;">00'</span>
         </div>
-        <canvas id="live-match-canvas" width="540" height="260" style="width: 100%; max-height: 260px; background: rgba(6, 78, 59, 0.6); border: 2px solid var(--glass-border); border-radius: 8px; box-shadow: inset 0 0 20px rgba(0,0,0,0.5);"></canvas>
+        <canvas id="live-match-canvas" width="1160" height="520" style="width: 100%; height: auto; display: block; background: #0a3d2c; border: 2px solid var(--glass-border); border-radius: 8px; box-shadow: inset 0 0 20px rgba(0,0,0,0.5);"></canvas>
       </div>
 
       <!-- Penalty Shootout Trigger / Interactive Box (When Match Ends in Draw) -->
