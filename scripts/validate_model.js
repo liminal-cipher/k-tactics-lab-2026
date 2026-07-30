@@ -46,12 +46,15 @@ global.state = {
   halfTimeScore: { kor: 0, opp: 1 },
   currentFormation: '4-3-3'
 };
-// secondHalfLambdas asks kanginActive whether the freeroll is live, and that
-// reads the pitch. The board above leaves the dial off, so the lookup never
-// changes a multiplier here; the stub only keeps the reference resolvable.
-global.squadData = { '4-3-3': [] };
+// secondHalfLambdas reads the pitch twice: kanginActive asks whether the
+// freeroll is live (the dial is off here, so it never moves a multiplier), and
+// the stamina factor averages the eleven currently on it. The stub therefore
+// has to name the same eleven the staminaState above describes, or the model
+// would grade a team whose legs it cannot see.
+global.squadData = { '4-3-3': Object.keys(global.state.staminaState).map(name => ({ name })) };
 eval(extract('OPP_STRENGTH', 'const'));
 eval(extract('kanginActive', 'fn'));
+eval(extract('staminaOf', 'fn'));
 eval(extract('opponentModifiers', 'fn'));
 eval(extract('secondHalfLambdas', 'fn'));
 eval(extract('poissonSample', 'fn'));
