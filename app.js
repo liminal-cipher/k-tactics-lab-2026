@@ -3105,6 +3105,11 @@ function startLiveMatchView(opts) {
   const korShape = teamShape(state.currentFormation, true);
   const oppFormation = (state.opponentPlan && state.opponentPlan.counterFormation) || '4-4-2';
   const oppShape = teamShape(oppFormation, false);
+  // teamShape walks FORMATION_ROWS in the same order squadData stores the XI,
+  // so spot i is player i: the dots carry the actual names the manager picked.
+  // The opponent's players are not in the dataset, and inventing eleven names
+  // would be inventing data, so their side stays unlabelled.
+  const korNames = (squadData[state.currentFormation] || []).map(p => p.name);
 
   let clock = film.from;     // game minute
   let territory = 0.5;       // 0 = our goal, 1 = their goal
@@ -3141,13 +3146,26 @@ function startLiveMatchView(opts) {
     const r = Math.max(4, W / 125);
 
     // Both blocks slide with the play, the way a compact team actually moves.
+    const nameFont = `700 ${Math.round(H * 0.042)}px 'Noto Sans KR', 'Outfit', sans-serif`;
     const drawTeam = (shape, isKor, color, ring) => {
       shape.forEach((s, i) => {
         const amp = s.gk ? 0.06 : (isKor ? 0.30 : 0.26);
         const nx = Math.min(0.985, Math.max(0.015, s.x + push * amp
           + (s.gk ? 0 : Math.sin(t * 2.1 + i * 1.7) * 0.008)));
         const ny = Math.min(0.97, Math.max(0.03, s.y + (s.gk ? 0 : Math.cos(t * 1.7 + i * 2.3) * 0.02)));
-        drawDot(ctx, W, H, nx, ny, s.gk ? r * 0.95 : r, color, ring);
+        const p = drawDot(ctx, W, H, nx, ny, s.gk ? r * 0.95 : r, color, ring);
+        if (isKor && korNames[i]) {
+          ctx.font = nameFont;
+          ctx.textAlign = 'center';
+          ctx.textBaseline = 'top';
+          ctx.lineWidth = Math.max(2, H * 0.008);
+          ctx.strokeStyle = 'rgba(4, 12, 8, 0.85)'; // outline keeps it legible over grass
+          ctx.strokeText(korNames[i], p.x, p.y + r * 1.5);
+          ctx.fillStyle = '#f8fafc';
+          ctx.fillText(korNames[i], p.x, p.y + r * 1.5);
+          ctx.textAlign = 'left';
+          ctx.textBaseline = 'alphabetic';
+        }
       });
     };
     drawTeam(oppShape, false, '#e2e8f0', 'rgba(15, 23, 42, 0.75)');
