@@ -1754,8 +1754,8 @@ body.glow-success {
    one knob per shape (renderPitch sets .rows-4), with every other dimension
    derived from it, measured against the worst case: half-time, when every card
    also carries a stamina gauge. */
-.pitch-players-grid { inset: 6px 26px 58px; gap: 0; --pc-w: clamp(62px, 9.2vh, 96px); }
-.pitch-players-grid.rows-4 { --pc-w: clamp(68px, 11vh, 108px); }
+.pitch-players-grid { inset: 6px 26px 58px; gap: 0; --pc-w: clamp(66px, 10.5vh, 104px); }
+.pitch-players-grid.rows-4 { --pc-w: clamp(72px, 13vh, 120px); }
 .pitch-players-grid .player-card {
   width: var(--pc-w);
   padding: calc(var(--pc-w) * 0.044) calc(var(--pc-w) * 0.051) calc(var(--pc-w) * 0.055);
@@ -1772,6 +1772,10 @@ body.glow-success {
 /* Very short viewports (a ~700px window) cannot stack five gauge-carrying
    lines at any width, so the card face gets flatter as well as narrower:
    the avatar is the tallest thing on it. */
+@media (max-height: 660px) {
+  .pitch-players-grid { --pc-w: 62px; }
+  .pitch-players-grid.rows-4 { --pc-w: 72px; }
+}
 @media (max-height: 680px) {
   .pitch-players-grid .player-avatar {
     width: calc(var(--pc-w) * 0.29); height: calc(var(--pc-w) * 0.29);
@@ -1959,9 +1963,18 @@ html { scrollbar-width: thin; scrollbar-color: rgba(148, 163, 184, 0.45) transpa
 }
 #rail-pane-bench .bench-grid {
   display: grid; grid-template-columns: repeat(2, 1fr); gap: 0.5rem;
-  overflow: visible; padding: 0;
+  overflow: visible;
+  /* The cards used to sit flush against both rail edges, so the hover zoom
+     (4%) had nowhere to grow: the pane clips sideways, which took 3px off the
+     card and all of its glow. The inset costs ~10px of card width, spent back
+     on the name and the role line below. */
+  padding: 6px 10px;
 }
 #rail-pane-bench .bench-grid .player-card { width: auto; min-width: 0; }
+/* Bench text carries the substitution decision, so it reads a size up from
+   the pitch cards' compact face. */
+#rail-pane-bench .player-name { font-size: 0.8rem; line-height: 1.2; }
+#rail-pane-bench .player-role-tag { font-size: 0.62rem; margin-top: 0.22rem; }
 
 /* --- Coach pane --- */
 #rail-pane-coach { gap: 0.6rem; }
