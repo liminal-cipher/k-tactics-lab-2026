@@ -1099,12 +1099,71 @@ body.glow-success {
   text-transform: uppercase;
 }
 
+/* --- The transformation, top of the card ---------------------------------
+   This card is exported as a PNG and shared, so the fact that travels has to
+   be the headline: the real scoreline of that match against the one the
+   manager produced. Plain flex and borders only, since html2canvas rasterises
+   this block (no filters, no masks). */
+.res-transform {
+  display: flex; align-items: stretch; justify-content: center;
+  gap: 0.6rem; margin: 0.9rem 0 0.5rem;
+}
+.res-tf-side {
+  flex: 0 1 190px;
+  display: flex; flex-direction: column; align-items: center; gap: 0.15rem;
+  background: rgba(0, 0, 0, 0.28);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-sm);
+  padding: 0.6rem 0.5rem 0.55rem;
+}
+.res-tf-side.res-tf-mine {
+  background: rgba(34, 224, 138, 0.12);
+  border-color: var(--accent-emerald);
+}
+.res-tf-lab {
+  font-size: 0.62rem; font-weight: 800; letter-spacing: 0.04em;
+  color: var(--text-muted); text-transform: none;
+}
+.res-tf-mine .res-tf-lab { color: var(--accent-emerald); }
+.res-tf-score {
+  font-family: var(--font-display);
+  font-size: 2.1rem; font-weight: 900; line-height: 1.05;
+  color: var(--text-secondary);
+}
+.res-tf-mine .res-tf-score { color: #ffffff; }
+.res-tf-note { font-size: 0.68rem; font-weight: 700; color: var(--text-muted); }
+.res-tf-mine .res-tf-note { color: var(--accent-emerald); }
+.res-tf-arrow {
+  display: flex; align-items: center;
+  font-family: var(--font-display); font-size: 1.5rem; font-weight: 800;
+  color: var(--accent-emerald);
+}
+.res-tf-fixture {
+  font-size: 0.7rem; font-weight: 700; color: var(--text-muted);
+  margin-bottom: 0.9rem;
+}
+
 .manager-style-name {
   font-family: var(--font-display);
   font-size: 1.6rem;
   font-weight: 800;
   color: var(--text-primary);
   margin-bottom: 0.4rem;
+}
+
+/* What the manager actually built, in the app's own button words */
+.res-build {
+  display: inline-block;
+  font-size: 0.74rem; font-weight: 800; color: var(--accent-cyan);
+  background: rgba(51, 214, 255, 0.1);
+  border: 1px solid rgba(51, 214, 255, 0.35);
+  border-radius: var(--radius-full);
+  padding: 0.24rem 0.7rem;
+  margin-bottom: 0.7rem;
+}
+.res-dist {
+  font-size: 0.68rem; font-weight: 600; color: var(--text-muted);
+  margin: 0.5rem 0 0.2rem;
 }
 
 .manager-desc {
