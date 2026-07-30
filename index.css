@@ -2272,3 +2272,6 @@ html { scrollbar-width: thin; scrollbar-color: rgba(148, 163, 184, 0.45) transpa
   width: 100%;
   pointer-events: none;
 }
+
+/* The shootout refuses a sixth kicker; the hint says why for a moment. */
+.pk-hint-warn { color: var(--accent-rose) !important; font-weight: 700; }
