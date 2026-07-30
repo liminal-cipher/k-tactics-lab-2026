@@ -475,11 +475,29 @@
       <!-- Final Manager Result Card (Viral Shareable Card) -->
       <div class="manager-result-card" id="manager-result-card" style="display: none;">
         <span class="manager-title-badge" id="res-badge">K-Tactics 공식 인증 감독</span>
+
+        <!-- The one fact worth sharing: what actually happened, and what you made happen -->
+        <div class="res-transform" id="res-transform">
+          <div class="res-tf-side">
+            <span class="res-tf-lab">그날의 결과</span>
+            <span class="res-tf-score" id="res-tf-real">0 : 1</span>
+            <span class="res-tf-note" id="res-tf-real-note">패배</span>
+          </div>
+          <div class="res-tf-arrow">→</div>
+          <div class="res-tf-side res-tf-mine">
+            <span class="res-tf-lab">당신의 결과</span>
+            <span class="res-tf-score" id="res-tf-mine">2 : 1</span>
+            <span class="res-tf-note" id="res-tf-mine-note">승리</span>
+          </div>
+        </div>
+        <div class="res-tf-fixture" id="res-tf-fixture">2026 월드컵 조별리그 최종전 · 대한민국 vs 남아공</div>
+
         <h2 class="manager-style-name" id="res-style-name">"답답한 백패스 축구 완벽 극복! 중앙을 지배하는 명장 지략가"</h2>
+        <div class="res-build" id="res-build">3-4-3 · 중앙 침투 · U자 백패스 금지</div>
         <p class="manager-desc" id="res-desc">
           U자형 백패스를 과감히 폐기하고 이강인과 하프스페이스 침투를 극대화한 당신의 전술! 측면 수비까지 안정적으로 잠그며 팬 지지율 92%를 달성했습니다.
         </p>
-        
+
         <div class="result-stats-grid">
           <div class="result-stat-item">
             <span class="result-stat-label">예상 월드컵 성적</span>
@@ -490,10 +508,11 @@
             <span class="result-stat-value" id="res-val-vibe" style="color: var(--accent-cyan);">92%</span>
           </div>
           <div class="result-stat-item">
-            <span class="result-stat-label">스쿼드 밸런스 지수</span>
-            <span class="result-stat-value" id="res-val-joker" style="color: var(--accent-amber);">88점</span>
+            <span class="result-stat-label">몬테카를로 승률</span>
+            <span class="result-stat-value" id="res-val-winpct" style="color: var(--accent-amber);">39%</span>
           </div>
         </div>
+        <div class="res-dist" id="res-dist">1,000회 시뮬 · 승 39% · 무 36% · 패 26%</div>
 
         <!-- XAI: 승부 요인 TOP 3 (항상 표시) + λ 분해 상세 (접이식) -->
         <div class="res-xai" id="res-xai" style="display: none;">
