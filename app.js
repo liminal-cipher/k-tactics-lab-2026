@@ -1468,13 +1468,32 @@ const PRESS_BROADCAST_LABEL = {
   high: '초고강도 게겐프레싱'
 };
 
+// The half-time score, as a calculation the view can ask for before kickoff.
+// Deterministic on purpose: the premise is re-taking one specific match, so
+// the situation you inherit must not reroll.
+function firstHalfOutcome() {
+  const oppStr = OPP_STRENGTH[state.opponent] || { att: 72, def: 72 };
+  const attackEdge = state.stats.attack / oppStr.def
+    + (state.dials.route === 'halfspace' ? 0.10 : state.dials.route === 'wing' ? 0.05 : 0)
+    + (state.dials.nopassback ? 0.08 : 0)
+    + (state.dials.mentality === 'attack' ? 0.06 : state.dials.mentality === 'lock' ? -0.06 : 0);
+  const defenceEdge = state.stats.defense / oppStr.att
+    + (state.dials.press === 'tenback' ? 0.18 : state.dials.press === 'high' ? 0.12 : 0)
+    + (state.dials.mentality === 'lock' ? 0.05 : state.dials.mentality === 'attack' ? -0.05 : 0);
+  return {
+    attackEdge, defenceEdge,
+    korGoals: attackEdge >= 1.10 ? 1 : 0,
+    oppGoals: defenceEdge >= 1.05 ? 0 : 1
+  };
+}
+
 function runFirstHalf() {
   const btn = document.getElementById('btn-run-simulation');
   const statusEl = document.getElementById('match-phase-status');
   const actionsEl = document.getElementById('match-phase-actions');
-  
+
   btn.disabled = true;
-  btn.innerHTML = `<span>⏳ 전반전 (0~45분) AI 가동 중...</span>`;
+  btn.innerHTML = `<span>⏳ 전반전 (0~45분) 진행 중...</span>`;
   SFX.whistle();
   setOppChip(true); // reveal the live status + half-time controls
   updateScorebug(0, 0, "1H · LIVE");
@@ -1483,46 +1502,13 @@ function runFirstHalf() {
   // Sets a scripted fallback synchronously so the sim always has a plan by 2nd half.
   fetchOpponentPlan();
 
-  // Quick 1.5s transition relay
-  const steps = [
-    `⚽ 0' 킥오프! [vs ${state.opponent}] 전반전 탐색전 가동...`,
-    `⚔️ 24' ${state.opponent} 측면 파상공세 vs 한국 ${PRESS_BROADCAST_LABEL[state.dials.press] || '중원 지역방어'} 맞불!`,
-    `⏱️ 45' 전반전 종료! 하프타임 라커룸 도달 (체력 방전 및 스코어 연산 중...)`
-  ];
-  
-  let stepIdx = 0;
-  statusEl.innerHTML = `<span>${steps[0]}</span>`;
-  
-  const interval = setInterval(() => {
-    stepIdx++;
-    if (stepIdx < steps.length) {
-      statusEl.innerHTML = `<span>${steps[stepIdx]}</span>`;
-    } else {
-      clearInterval(interval);
-      
-      // Half-time score. Deterministic on purpose: the premise is re-taking one
-      // specific match, so the situation you inherit must not reroll. But it is
-      // a CALCULATION, not a lookup. The previous version checked four dial
-      // flags and nothing else, so the same half played out against Spain and
-      // South Africa alike, benching the captain changed nothing, and tenback
-      // on its own bought a 1:0 lead worth a ~75% win rate.
-      //
-      // Now each side gets an "edge" = our stat over their opposing stat, plus
-      // the tactical instructions that bear on it. Clearing the threshold puts
-      // the goal in. A par squad (70 attack vs a 70 defence) sits exactly at
-      // 1.00 and still needs the reform route's +0.10 to reach 1.10, so the
-      // press-driven reforms remain the normal way through; raw quality only
-      // carries a half on its own when it is genuinely dominant.
-      const oppStr = OPP_STRENGTH[state.opponent] || { att: 72, def: 72 };
-      const attackEdge = state.stats.attack / oppStr.def
-        + (state.dials.route === 'halfspace' ? 0.10 : state.dials.route === 'wing' ? 0.05 : 0)
-        + (state.dials.nopassback ? 0.08 : 0)
-        + (state.dials.mentality === 'attack' ? 0.06 : state.dials.mentality === 'lock' ? -0.06 : 0);
-      const defenceEdge = state.stats.defense / oppStr.att
-        + (state.dials.press === 'tenback' ? 0.18 : state.dials.press === 'high' ? 0.12 : 0)
-        + (state.dials.mentality === 'lock' ? 0.05 : state.dials.mentality === 'attack' ? -0.05 : 0);
-      const korGoals = attackEdge >= 1.10 ? 1 : 0;
-      const oppGoals = defenceEdge >= 1.05 ? 0 : 1;
+  // The half is settled here, before a frame is drawn, exactly as it always
+  // was: the view below replays this result rather than producing it.
+  const outcome = firstHalfOutcome();
+  const korGoals = outcome.korGoals, oppGoals = outcome.oppGoals;
+  const attackEdge = outcome.attackEdge, defenceEdge = outcome.defenceEdge;
+
+  const reachHalfTime = () => {
       state.halfTimeScore = { kor: korGoals, opp: oppGoals };
       updateScorebug(korGoals, oppGoals, "HALF-TIME 45'");
 
@@ -1560,8 +1546,39 @@ function runFirstHalf() {
         : `수비 우위 <strong>${defenceEdge.toFixed(2)}</strong>로 기준선 1.05를 넘겨 <strong>실점을 막았습니다</strong>.`;
       pushCoachMessage(`⏸️ <strong>[하프타임 정비 보고 - 전반 ${korGoals}:${oppGoals}]</strong><br>${atkNote} ${defNote}<br>구장 위 선수들의 체력 게이지 바를 확인해 주십시오! 방전된 선수(60% 미만)는 후반 경기력이 급감하므로, 벤치에서 <strong>직접 교체</strong>하면 그 자리는 프레시 레그로 채워집니다. 교체와 전술 다이얼을 정리한 뒤 <strong>[🔥 후반전 가동]</strong>을 눌러주십시오!`, true);
       triggerScreenShake();
-    }
-  }, 600);
+  };
+
+  // Play the settled half in the match view, then hand the board back so the
+  // manager can work in the locker room. The modal is the match; the board is
+  // where the tactics get changed, so it closes itself at the whistle.
+  const film = buildMatchFilm({
+    from: 0, to: 45, phaseLabel: '1H · LIVE',
+    fromScore: { kor: 0, opp: 0 }, toScore: { kor: korGoals, opp: oppGoals },
+    lamKor: outcome.attackEdge, lamOpp: outcome.defenceEdge
+  });
+  const cues = buildFirstHalfCues(film);
+  statusEl.innerHTML = `<span>${cues[0].text}</span>`;
+
+  const closeAndSettle = () => {
+    setTimeout(() => {
+      const modal = document.getElementById('sim-modal');
+      if (modal) modal.classList.remove('active');
+      reachHalfTime();
+    }, 1100); // hold the final frame on 45' before handing the board back
+  };
+
+  if (!openMatchView({ film, cues, title: `⚽ 전반전 라이브 · vs ${state.opponent}`, onEnd: closeAndSettle })) {
+    // No canvas: fall back to the ticker alone, at the old pace.
+    let i = 1;
+    const interval = setInterval(() => {
+      if (i < cues.length) {
+        statusEl.innerHTML = `<span>${cues[i++].text}</span>`;
+      } else {
+        clearInterval(interval);
+        reachHalfTime();
+      }
+    }, 700);
+  }
 }
 
 // ==========================================================================
@@ -1799,22 +1816,9 @@ function runMonteCarlo(iterations = 1000) {
 }
 
 function runSecondHalf() {
-  const modal = document.getElementById('sim-modal');
-  const liveCast = document.getElementById('sim-live-cast');
-  const resultCard = document.getElementById('manager-result-card');
-  const actions = document.getElementById('sim-modal-actions');
   const stepText = document.getElementById('sim-step-text');
-  const canvasBox = document.getElementById('sim-canvas-container');
-  const pkBox = document.getElementById('pk-shootout-container');
-  
-  modal.classList.add('active');
   updateScorebug(null, null, "2H · LIVE");
-  liveCast.style.display = 'flex';
-  resultCard.style.display = 'none';
-  actions.style.display = 'none';
-  if (canvasBox) canvasBox.style.display = 'none';
-  if (pkBox) pkBox.style.display = 'none';
-  
+
   // Anyone on the pitch without a first-half drain entry came on at half-time,
   // which is how the broadcast knows to credit the manager's substitution.
   const freshLegs = (squadData[state.currentFormation] || [])
@@ -1833,24 +1837,18 @@ function runSecondHalf() {
   // carries the half to full time.
   const film = buildMatchFilm();
   const cues = buildCommentaryCues(film, freshLegs, sim);
-  stepText.textContent = cues[0].text;
 
-  let started = false;
-  if (canvasBox) {
-    canvasBox.style.display = 'block';
-    try {
-      started = startLiveMatchView({
-        film, cues,
-        onCue: (text) => { stepText.textContent = text; },
-        onEnd: showFinalResult
-      });
-    } catch (e) {
-      started = false;
-    }
-    if (!started) canvasBox.style.display = 'none';
-  }
+  const started = openMatchView({
+    film, cues,
+    title: '🏆 2026 월드컵 대한민국 최종 리포트',
+    onEnd: showFinalResult
+  });
 
   if (!started) {
+    document.getElementById('sim-modal').classList.add('active');
+    const liveCast = document.getElementById('sim-live-cast');
+    if (liveCast) liveCast.style.display = 'flex';
+    stepText.textContent = cues[0].text;
     let i = 1;
     const interval = setInterval(() => {
       if (i < cues.length) {
@@ -2552,24 +2550,31 @@ function pickScorer(rng) {
 }
 
 // Turn the settled score into a minute-by-minute script: when the goals land,
-// who scored them, and which side is camped in which half in between.
-function buildMatchFilm() {
+// who scored them, and which side is camped in which half in between. Both
+// halves use this; the first one is a fixed calculation and the second a
+// settled Monte Carlo draw, but either way the score exists before the film.
+function buildMatchFilm(opts) {
+  const cfg = opts || {};
+  const from = cfg.from != null ? cfg.from : 45;
+  const to = cfg.to != null ? cfg.to : 90;
   const sim = state.simResult || {};
-  const half = state.halfTimeScore || { kor: 0, opp: 0 };
-  const fin = state.finalScore || { kor: 0, opp: 0 };
+  const half = cfg.fromScore || state.halfTimeScore || { kor: 0, opp: 0 };
+  const fin = cfg.toScore || state.finalScore || { kor: 0, opp: 0 };
   const korGoals = Math.max(0, fin.kor - half.kor);
   const oppGoals = Math.max(0, fin.opp - half.opp);
-  const lamKor = sim.lamKor || 1, lamOpp = sim.lamOpp || 1;
-  const seed = (Math.round(lamKor * 1e5) ^ Math.round(lamOpp * 7919) ^ ((korGoals * 31 + oppGoals) * 104729)) >>> 0;
+  const lamKor = cfg.lamKor || sim.lamKor || 1, lamOpp = cfg.lamOpp || sim.lamOpp || 1;
+  const seed = (Math.round(lamKor * 1e5) ^ Math.round(lamOpp * 7919)
+    ^ ((korGoals * 31 + oppGoals) * 104729) ^ (from * 2654435761)) >>> 0;
   const rng = seededRng(seed);
 
+  const lo = from + 3, hi = to - 2;   // no goal in the opening or closing minute
   const used = new Set();
   const drawMinute = () => {
     for (let i = 0; i < 60; i++) {
-      const m = 48 + Math.floor(rng() * 41); // 48' ~ 88'
+      const m = lo + Math.floor(rng() * (hi - lo));
       if (!used.has(m)) { used.add(m); return m; }
     }
-    let m = 48; while (used.has(m)) m++;
+    let m = lo; while (used.has(m)) m++;
     used.add(m); return m;
   };
 
@@ -2588,33 +2593,50 @@ function buildMatchFilm() {
   // ball tracks the lambda split, so a dominant board looks dominant.
   const korShare = Math.min(0.78, Math.max(0.22, lamKor / (lamKor + lamOpp)));
   const segments = [];
-  let cursor = 45;
-  while (cursor < 90) {
+  let cursor = from;
+  while (cursor < to) {
     const dur = 0.9 + rng() * 2.4;
     const team = rng() < korShare ? 'kor' : 'opp';
     const depth = team === 'kor' ? 0.60 + rng() * 0.28 : 0.40 - rng() * 0.28;
     segments.push({ start: cursor, end: cursor + dur, team, depth });
     cursor += dur;
   }
-  return { events, segments, korShare, half, final: fin };
+  return {
+    events, segments, korShare, half, final: fin, from, to,
+    phaseLabel: cfg.phaseLabel || '2H · LIVE'
+  };
 }
 
 // Commentary cues shown in the ticker above the canvas, on the same clock as
 // the animation: the ticker shouts a goal on the frame the ball goes in.
+function goalCue(e) {
+  return e.team === 'kor'
+    ? { minute: e.minute, text: `⚽ ${e.minute}' 골!! ${e.scorer} 득점! ${e.kor} : ${e.opp}` }
+    : { minute: e.minute, text: `😱 ${e.minute}' ${state.opponent}에 실점... ${e.kor} : ${e.opp}` };
+}
+
 function buildCommentaryCues(film, freshLegs, sim) {
   const cues = [{ minute: 45, text: `🔥 45' 후반전 킥오프! [vs ${state.opponent}] 후반 전술 지침 가동` }];
   cues.push(freshLegs && freshLegs.length
     ? { minute: 58, text: `🔄 58' 하프타임에 투입된 ${freshLegs[0]}, 프레시 레그가 전방을 흔든다` }
     : { minute: 62, text: `⚡ 62' 중원에서 탈압박 성공, 공격 주도권을 끌어온다` });
-  film.events.forEach(e => {
-    cues.push(e.team === 'kor'
-      ? { minute: e.minute, text: `⚽ ${e.minute}' 골!! ${e.scorer} 득점! ${e.kor} : ${e.opp}` }
-      : { minute: e.minute, text: `😱 ${e.minute}' ${state.opponent}에 실점... ${e.kor} : ${e.opp}` });
-  });
+  film.events.forEach(e => cues.push(goalCue(e)));
   cues.push({
     minute: 89,
     text: `📊 1,000회 몬테카를로: 승 ${sim.winPct}% · 무 ${sim.drawPct}% · 패 ${sim.losePct}% → 최빈 스코어 ${film.final.kor} : ${film.final.opp}`
   });
+  return cues.sort((a, b) => a.minute - b.minute);
+}
+
+// The first half runs on the same ticker, quoting the manager's own press
+// setting back at them the way the old status-bar relay did.
+function buildFirstHalfCues(film) {
+  const cues = [
+    { minute: 0, text: `⚽ 0' 킥오프! [vs ${state.opponent}] 전반전 탐색전 가동` },
+    { minute: 24, text: `⚔️ 24' ${state.opponent} 측면 파상공세 vs 한국 ${PRESS_BROADCAST_LABEL[state.dials.press] || '중원 지역방어'} 맞불!` }
+  ];
+  film.events.forEach(e => cues.push(goalCue(e)));
+  cues.push({ minute: 44, text: `⏱️ 45' 전반전 종료 — 라커룸에서 후반을 준비합니다 (${film.final.kor} : ${film.final.opp})` });
   return cues.sort((a, b) => a.minute - b.minute);
 }
 
@@ -2924,6 +2946,49 @@ function animatePkKick(cfg, onDone) {
   return true;
 }
 
+// Opens the simulation modal as a live match view (either half) and starts the
+// replay. Returns false if the canvas cannot draw, so the caller can fall back
+// to the ticker alone and still finish the half.
+function openMatchView(opts) {
+  const modal = document.getElementById('sim-modal');
+  const liveCast = document.getElementById('sim-live-cast');
+  const stepText = document.getElementById('sim-step-text');
+  const canvasBox = document.getElementById('sim-canvas-container');
+  const resultCard = document.getElementById('manager-result-card');
+  const actions = document.getElementById('sim-modal-actions');
+  const pkBox = document.getElementById('pk-shootout-container');
+  const titleEl = document.getElementById('sim-modal-title');
+  const capEl = document.getElementById('sim-canvas-caption');
+  if (!modal || !canvasBox || !stepText) return false;
+
+  modal.classList.add('active');
+  if (liveCast) liveCast.style.display = 'flex';
+  if (resultCard) resultCard.style.display = 'none';
+  if (actions) actions.style.display = 'none';
+  if (pkBox) pkBox.style.display = 'none';
+  if (titleEl && opts.title) titleEl.textContent = opts.title;
+  if (capEl) capEl.textContent = `⚽ 2D 라이브 중계 · ${opts.film.from}~${opts.film.to}분`;
+  canvasBox.style.display = 'block';
+  stepText.textContent = opts.cues[0].text;
+
+  let started = false;
+  try {
+    started = startLiveMatchView({
+      film: opts.film,
+      cues: opts.cues,
+      onCue: (text) => { stepText.textContent = text; if (opts.onCue) opts.onCue(text); },
+      onEnd: opts.onEnd
+    });
+  } catch (e) {
+    started = false;
+  }
+  if (!started) {
+    canvasBox.style.display = 'none';
+    modal.classList.remove('active');
+  }
+  return started;
+}
+
 function startLiveMatchView(opts) {
   const canvas = document.getElementById('live-match-canvas');
   if (!canvas || typeof canvas.getContext !== 'function') return false;
@@ -2943,7 +3008,7 @@ function startLiveMatchView(opts) {
   const oppFormation = (state.opponentPlan && state.opponentPlan.counterFormation) || '4-4-2';
   const oppShape = teamShape(oppFormation, false);
 
-  let clock = 45;            // game minute
+  let clock = film.from;     // game minute
   let territory = 0.5;       // 0 = our goal, 1 = their goal
   let cueIdx = 0, eventIdx = 0;
   let flash = null;          // { until, team, text, sub }
@@ -2955,9 +3020,9 @@ function startLiveMatchView(opts) {
     ended = true;
     stopLiveMatchView(); // drop the raf/watchdog handle: this half is done
     if (skipBtn) skipBtn.style.display = 'none';
-    if (timerEl) timerEl.textContent = "90' 종료";
+    if (timerEl) timerEl.textContent = `${film.to}' 종료`;
     score = { kor: film.final.kor, opp: film.final.opp };
-    try { drawFrame(90, 0.5, null); } catch (e) { /* final still frame is cosmetic */ }
+    try { drawFrame(film.to, 0.5, null); } catch (e) { /* final still frame is cosmetic */ }
     onCue(cues.length ? cues[cues.length - 1].text : '');
     onEnd();
   };
@@ -3006,7 +3071,7 @@ function startLiveMatchView(opts) {
     ctx.lineWidth = Math.max(1.5, r * 0.22);
     ctx.stroke();
 
-    drawCanvasHud(ctx, W, H, `KOR ${score.kor} : ${score.opp} ${state.opponent}`, `${Math.min(90, Math.floor(t))}'`);
+    drawCanvasHud(ctx, W, H, `KOR ${score.kor} : ${score.opp} ${state.opponent}`, `${Math.min(film.to, Math.floor(t))}'`);
     if (fl) drawCanvasFlash(ctx, W, H, fl.team === 'kor' ? 'good' : 'bad', fl.text, fl.sub);
   }
 
@@ -3026,7 +3091,7 @@ function startLiveMatchView(opts) {
         text: e.team === 'kor' ? 'GOAL!' : `${state.opponent} GOAL`,
         sub: e.team === 'kor' ? `${e.minute}' ${e.scorer} · ${e.kor} : ${e.opp}` : `${e.minute}' 실점 · ${e.kor} : ${e.opp}`
       };
-      updateScorebug(e.kor, e.opp, "2H · LIVE");
+      updateScorebug(e.kor, e.opp, film.phaseLabel);
       try { if (e.team === 'kor') SFX.goal(); else SFX.whistle(); } catch (err) { /* audio is optional */ }
     }
     if (flash && clock >= flash.until) flash = null;
@@ -3042,9 +3107,9 @@ function startLiveMatchView(opts) {
     territory += (target - territory) * Math.min(1, dt / 320);
 
     drawFrame(clock, territory, flash);
-    if (timerEl) timerEl.textContent = `${Math.min(90, Math.floor(clock))}'`;
+    if (timerEl) timerEl.textContent = `${Math.min(film.to, Math.floor(clock))}'`;
 
-    if (clock >= 90) { finish(); return; }
+    if (clock >= film.to) { finish(); return; }
     liveMatchView.raf = requestAnimationFrame(step);
   };
 
@@ -3052,9 +3117,10 @@ function startLiveMatchView(opts) {
   // requestAnimationFrame stops in a backgrounded tab, so a timer guarantees
   // the half reaches full time even if no frame is ever painted. The score is
   // already settled either way; only the pixels are skipped.
-  liveMatchView.watchdog = setTimeout(finish, 45 * LIVE_MATCH_MS_PER_MIN + 8000);
+  liveMatchView.watchdog = setTimeout(finish, (film.to - film.from) * LIVE_MATCH_MS_PER_MIN + 8000);
   if (skipBtn) skipBtn.style.display = '';
-  drawFrame(45, 0.5, null);
+  if (timerEl) timerEl.textContent = `${film.from}'`; // never show the previous half's clock
+  drawFrame(film.from, 0.5, null);
   liveMatchView.raf = requestAnimationFrame(step);
   return true;
 }
