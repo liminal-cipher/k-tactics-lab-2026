@@ -358,6 +358,7 @@ document.addEventListener('DOMContentLoaded', () => {
   // very first paint too instead of leaving the hardcoded 50% placeholder
   // (recalculateVibe ends by refreshing the meter).
   recalculateVibe();
+  updateBrandFixture(); // the header names whichever match is loaded, including a shared link's
   startLiveChatStream();
   if (challenge) {
     dismissHeroIntro();       // a shared challenge link skips the hero onboarding
@@ -930,8 +931,25 @@ async function requestAiTacticalAdvice(type) {
 }
 
 // --- Opponent Selection & Tactical Dial Control Functions ---
+// The header names the match being coached. The three fixtures are the real
+// 2026 group stage in order (체코 6/11 -> 멕시코 -> 남아공 최종전), so the
+// round label is a fact about the schedule, not decoration.
+const FIXTURE_LINE = {
+  CZE: ['조별리그 1차전', '체코'],
+  MEX: ['조별리그 2차전', '멕시코'],
+  RSA: ['조별리그 최종전', '남아공']
+};
+
+function updateBrandFixture() {
+  const el = document.getElementById('brand-fixture');
+  if (!el) return;
+  const f = FIXTURE_LINE[state.opponent] || ['조별리그', state.opponent];
+  el.innerHTML = `${f[0]} · <b>대한민국 vs ${f[1]}</b>`;
+}
+
 function selectOpponent(opp) {
   state.opponent = opp;
+  updateBrandFixture();
   state.opponentPlan = null; // new opponent re-scouts on next kickoff
   if (typeof renderOpponentPlanChip === 'function') renderOpponentPlanChip(null);
 
