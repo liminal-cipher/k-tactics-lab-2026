@@ -3244,7 +3244,7 @@ function startLiveMatchView(opts) {
   // so spot i is player i: the dots carry the actual names the manager picked.
   // The opponent's players are not in the dataset, and inventing eleven names
   // would be inventing data, so their side stays unlabelled.
-  // Real shirt numbers, from the roster in data/raw/fbref_roster.csv.
+  // Real shirt numbers, from the roster in data/raw/kor/fbref_roster.csv.
   const korPlayers = (squadData[state.currentFormation] || []).map(p => ({
     name: p.name,
     jersey: (typeof SQUAD_STATS_2026 !== 'undefined' && SQUAD_STATS_2026[p.name])
