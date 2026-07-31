@@ -1659,14 +1659,19 @@ function runFirstHalf() {
 // Second-half goals ~ Poisson(lambda); lambda derived from team stats, dials,
 // post-drain stamina, executed subs, and opponent strength. Aggregated over N runs.
 // ==========================================================================
-// The three 2026 group-stage opponents. Pending a proper FBref derivation these
-// are balance values, but the ordering is anchored to the actual results: all
-// three scored exactly once against us, and Czechia is the only one we scored
-// on (2-1), so its defence is the weakest of the three.
+// The three 2026 group-stage opponents, derived from their own FBref tables by
+// scripts/parse_opponents.py: attack from goals and shots on target, defence
+// from what opponents managed against them, both as log-ratios against Korea's
+// own rates with Korea pinned at 70. Transferred by hand on purpose, so that
+// script only ever reports and this table stays the single place the engine
+// reads. Re-run it to check for drift. The values these replaced were hand-set
+// balance numbers, and the derivation reproduced them closely enough to be a
+// check on both: Czechia 68 attack against 68, South Africa 70 defence against
+// 70, and the same ordering on each axis. Limits are in MODEL_SELECTION §4.
 const OPP_STRENGTH = {
-  MEX: { att: 74, def: 72 },
-  CZE: { att: 68, def: 66 },
-  RSA: { att: 66, def: 70 }
+  MEX: { att: 77, def: 77 },
+  CZE: { att: 68, def: 65 },
+  RSA: { att: 67, def: 70 }
 };
 
 // What a player has left right now: whatever the first half drained him to,
@@ -2484,7 +2489,7 @@ let pkHintTimer = null;
 // nudges a kicker around that baseline (elite ~82%, weak ~71%) instead of being
 // read as a raw percentage, which used to hand 손흥민 a 99% kick. The opponent
 // moves with their attacking strength for the same reason the rest of the model
-// does, so a shootout is never a free win: the opponent converts 71~75%
+// does, so a shootout is never a free win: the opponent converts 72~76%
 // depending on who you drew, and a weak kicker sits in the low 70s himself.
 const PK_BASELINE = 75;
 const PK_COMPOSURE_MID = 84;
