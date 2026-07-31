@@ -6,8 +6,10 @@
 #        exactly one {att, def} pair per team — the two numbers app.js reads
 #        as OPP_STRENGTH[country]. See data/raw/README.md.
 # Usage:  python scripts/parse_opponents.py
-# Output: prints a curated-vs-derived comparison table. Does NOT write
-#         app.js — B‴4's gate decides whether the derived values ship.
+# Output: prints a comparison table. Does NOT write app.js: the derived
+#         values shipped on 2026-07-31, but moving them stays a human step
+#         taken after checking the gate, so this script only ever reports.
+#         Re-run it and diff the output against OPP_STRENGTH in app.js.
 # ==========================================================================
 
 import csv, io, math, os, sys
@@ -20,7 +22,11 @@ RAW = os.path.join(REPO, 'data', 'raw')
 COUNTRIES = ['cze', 'mex', 'rsa']
 REFERENCE = 'kor'   # every index is expressed relative to our own raw data
 
-# Curated values currently hardcoded in app.js OPP_STRENGTH.
+# The hand-curated values app.js used until 2026-07-31. Kept as the baseline
+# this script reports against: the point of the comparison is that the derived
+# numbers reproduce them (CZE attack 68 vs 68, RSA defence 70 vs 70, both
+# orderings intact), so replacing the table with the shipped values would erase
+# the very check it exists to make.
 CURATED = {
     'MEX': {'att': 74, 'def': 72},
     'CZE': {'att': 68, 'def': 66},
