@@ -2,7 +2,7 @@
 # ==========================================================================
 # K-Tactics Lab 2026 - Raw Data Verification
 # Compares the hand-transcribed PLAYERS literals in scripts/parse_stats.py
-# against the original FBref CSV exports in data/raw/.
+# against the original FBref CSV exports in data/raw/kor/.
 # Usage:  python scripts/verify_raw.py
 # Exit:   0 = every measured field matches, 1 = at least one mismatch
 # ==========================================================================
@@ -13,7 +13,7 @@ from datetime import date, timedelta
 sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8')
 HERE = os.path.dirname(os.path.abspath(__file__))
 REPO = os.path.normpath(os.path.join(HERE, '..'))
-RAW = os.path.join(REPO, 'data', 'raw')
+RAW = os.path.join(REPO, 'data', 'raw', 'kor')
 
 spec = importlib.util.spec_from_file_location('ps', os.path.join(HERE, 'parse_stats.py'))
 ps = importlib.util.module_from_spec(spec)
@@ -71,7 +71,7 @@ gkp = load('fbref_goalkeeping.csv')
 ros = load('fbref_roster.csv')
 
 print('=' * 74)
-print(' 원자료 대조: data/raw/*.csv  vs  scripts/parse_stats.py PLAYERS')
+print(' 원자료 대조: data/raw/kor/*.csv  vs  scripts/parse_stats.py PLAYERS')
 print('=' * 74)
 
 # --- scope -----------------------------------------------------------------
