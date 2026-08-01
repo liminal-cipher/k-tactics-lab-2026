@@ -1281,11 +1281,24 @@ function toggleCollapse(headBtn) {
 
 // Right-rail tabs (bench / Coach V / fan chat). One pane at a time — this is why
 // the fan chat and the tactical console can no longer overlap.
+// A hidden pane has no layout, so scrollHeight reads 0 and the pin-to-bottom
+// that runs on every appended message quietly does nothing. The fan feed runs
+// all match, so by the time the manager opens that tab it is sitting on the
+// oldest message with the newest ones below the fold. Re-pin on reveal, once
+// the pane is displayed and has a real height.
+function pinChatsToBottom() {
+  ['chat-messages', 'coach-messages'].forEach(id => {
+    const box = document.getElementById(id);
+    if (box) box.scrollTop = box.scrollHeight;
+  });
+}
+
 function switchRailTab(name) {
   document.querySelectorAll('.rail-tab').forEach(b =>
     b.classList.toggle('active', b.dataset.tab === name));
   document.querySelectorAll('.rail-pane').forEach(p =>
     p.classList.toggle('active', p.id === `rail-pane-${name}`));
+  pinChatsToBottom();
   if (typeof SFX !== 'undefined' && SFX.ui) SFX.ui();
 }
 
