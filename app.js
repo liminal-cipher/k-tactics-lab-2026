@@ -371,6 +371,10 @@ document.addEventListener('DOMContentLoaded', () => {
 function dismissHeroIntro() {
   const m = document.getElementById('hero-intro-modal');
   if (m) m.style.display = 'none';
+  // Arrival beats, staggered so they read one at a time and stay in their own
+  // corners: the guide bar bottom-left, the opponent-manager chip top-right.
+  startCoachGuide();
+  setTimeout(peekOppCoachChip, 1800);
 }
 
 // The odds the manager inherits, computed rather than claimed: sets up the
@@ -442,6 +446,110 @@ function showRouteGuide() {
     }
   };
   document.addEventListener('click', onFirstMove, true);
+}
+
+// ==========================================================================
+// First-run coach guide + arrival flourishes.
+// Closing the hero intro used to drop the manager onto a full board with no
+// word about which parts are theirs to move. These are nudges, not gates:
+// each step clears itself the moment the manager does the thing.
+// ==========================================================================
+
+const GUIDE_STEPS = [
+  {
+    text: '선수 카드를 <b>클릭하거나 드래그</b>해 선발 라인업을 바꿔 보세요.',
+    ring: () => document.querySelector('#pitch-players-grid .player-card'),
+    done: '.player-card, .rail-tab'
+  },
+  {
+    text: '아래 <b>전술 다이얼</b>에서 템포·공격 루트·압박 라인을 지정합니다.',
+    // The route box may already be carrying the hero scenario's own pulse;
+    // its rule outranks .guide-ring, so it simply keeps that tooltip.
+    ring: () => {
+      const btn = document.getElementById('btn-route-halfspace');
+      return btn ? btn.closest('.tactic-box') : null;
+    },
+    done: '.btn-tactic, .btn-formation'
+  },
+  {
+    text: '준비되면 <b>[▶ 경기 시뮬레이션]</b>으로 그날의 후반전을 다시 치릅니다.',
+    ring: () => document.getElementById('btn-run-simulation'),
+    done: '.cta-sim'
+  }
+];
+
+let guideIdx = -1;
+let guideRinged = null;
+let guideStarted = false;
+
+function startCoachGuide() {
+  if (guideStarted) return;
+  guideStarted = true;
+  document.addEventListener('click', onGuideClick, true);
+  setTimeout(() => showGuideStep(0), 600); // let the intro modal finish closing
+}
+
+function showGuideStep(i) {
+  const bar = document.getElementById('guide-bar');
+  const stepEl = document.getElementById('guide-step');
+  const textEl = document.getElementById('guide-text');
+  if (!bar || !textEl) return;
+
+  clearGuideRing();
+  if (i >= GUIDE_STEPS.length) { dismissCoachGuide(); return; }
+
+  guideIdx = i;
+  const step = GUIDE_STEPS[i];
+  if (stepEl) stepEl.textContent = `${i + 1}/${GUIDE_STEPS.length}`;
+  textEl.innerHTML = step.text;
+  bar.hidden = false;
+
+  const target = step.ring();
+  if (target) {
+    target.classList.add('guide-ring');
+    guideRinged = target;
+  }
+}
+
+function clearGuideRing() {
+  if (guideRinged) guideRinged.classList.remove('guide-ring');
+  guideRinged = null;
+}
+
+function onGuideClick(e) {
+  if (guideIdx < 0 || !e.target || !e.target.closest) return;
+  if (e.target.closest('.guide-bar')) return; // the bar's own skip button
+  if (e.target.closest(GUIDE_STEPS[guideIdx].done)) showGuideStep(guideIdx + 1);
+}
+
+function dismissCoachGuide() {
+  clearGuideRing();
+  guideIdx = -1;
+  document.removeEventListener('click', onGuideClick, true);
+  const bar = document.getElementById('guide-bar');
+  if (bar) bar.hidden = true;
+}
+
+// The AI opponent manager is the differentiator and it ships collapsed, so it
+// introduces itself once on arrival and folds back on its own. Any click on
+// the chip means the manager took over, and the auto-close stands down.
+function peekOppCoachChip() {
+  const chip = document.getElementById('opp-coach-chip');
+  if (!chip || state.matchPhase !== 0) return;
+  setOppChip(true);
+  chip.classList.add('chip-peek');
+
+  const timer = setTimeout(() => {
+    chip.classList.remove('chip-peek');
+    if (state.matchPhase === 0) setOppChip(false);
+  }, 5200);
+  const head = chip.querySelector('.collapse-head');
+  if (head) {
+    head.addEventListener('click', () => {
+      clearTimeout(timer);
+      chip.classList.remove('chip-peek');
+    }, { once: true });
+  }
 }
 
 // Row breakdown per formation, top to bottom (attack line first, GK last).
