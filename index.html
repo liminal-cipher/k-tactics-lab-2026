@@ -535,6 +535,8 @@
           </div>
         </div>
         <div class="res-tf-fixture" id="res-tf-fixture">2026 월드컵 조별리그 최종전 · 대한민국 vs 남아공</div>
+        <!-- 같은 경기를 몇 번째 다시 지휘했는지. 재도전 루프가 눈에 보여야 한 번 더 누른다. -->
+        <div class="res-attempts" id="res-attempts" style="display: none;"></div>
 
         <h2 class="manager-style-name" id="res-style-name">"답답한 백패스 축구 완벽 극복! 중앙을 지배하는 명장 지략가"</h2>
         <div class="res-build" id="res-build">3-4-3 · 중앙 침투 · U자 백패스 금지</div>
@@ -567,7 +569,11 @@
         </div>
       </div>
 
-      <div style="display: flex; gap: 0.75rem; margin-top: 1rem;" id="sim-modal-actions" style="display: none;">
+      <!-- 결과 직후가 가장 의욕이 높은 지점이라, 재도전을 여기서 바로 받는다. -->
+      <div class="sim-modal-actions" id="sim-modal-actions" style="display: none;">
+        <button class="btn-retry" onclick="retryFromResult()">
+          <span>🔁 다른 전술로 다시 지휘</span>
+        </button>
         <button class="btn-share" onclick="shareResult()">
           <span>📤 공유하기</span>
         </button>

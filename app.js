@@ -31,6 +31,10 @@ const state = {
     midfield: 80,
     stamina: 70
   },
+  // Every settled match this session, in order: the re-coaching loop needs a
+  // memory so the result card can say "3번째 도전" instead of pretending each
+  // run is the first. Kept per opponent (see renderAttemptLine).
+  attempts: [],
   fullbackRole: 'inverted', // 'inverted' | 'defensive' | 'overlap'
   activePlayerForRole: null,
   selectedPlayerForSwap: null,
@@ -2203,15 +2207,26 @@ function showFinalResult() {
   styleName = publicVerdictTitle(kor > opp ? 'win' : kor === opp ? 'draw' : 'loss') || styleName;
 
   renderResultTransform(kor, opp);
+  recordAttempt(kor, opp);
   document.getElementById('res-style-name').textContent = styleName;
-  document.getElementById('res-build').textContent = buildSummaryLine();
   document.getElementById('res-desc').textContent = desc;
   document.getElementById('res-val-stage').textContent = stage;
-  document.getElementById('res-val-vibe').textContent = `${state.vibeScore}%`;
-  document.getElementById('res-val-winpct').textContent = `${sim.winPct}%`;
-  document.getElementById('res-dist').textContent =
+  renderResultCardStats();
+}
+
+// The board the result came from, and the sampling behind it. Both endings need
+// these: a draw hands off to the shootout before this point, so the shootout's
+// card used to inherit whatever the previous match had left on it (a stale
+// tactic line and stale percentages, on the surface people screenshot).
+function renderResultCardStats() {
+  const sim = state.simResult || { winPct: 0, drawPct: 0, losePct: 0 };
+  const set = (id, text) => { const el = document.getElementById(id); if (el) el.textContent = text; };
+  set('res-build', buildSummaryLine());
+  set('res-val-vibe', `${state.vibeScore}%`);
+  set('res-val-winpct', `${sim.winPct}%`);
+  set('res-dist',
     `1,000회 시뮬 · 승 ${sim.winPct}% · 무 ${sim.drawPct}% · 패 ${sim.losePct}%`
-    + (sim.avgKor != null ? ` · 기대 득점 ${sim.avgKor.toFixed(2)} : ${sim.avgOpp.toFixed(2)}` : '');
+    + (sim.avgKor != null ? ` · 기대 득점 ${sim.avgKor.toFixed(2)} : ${sim.avgOpp.toFixed(2)}` : ''));
 }
 
 // What actually happened in each of the three group-stage matches, from the
@@ -2239,6 +2254,70 @@ function renderResultTransform(mineKor, mineOpp, mineNote) {
   set('res-tf-mine', `${mineKor} : ${mineOpp}`);
   set('res-tf-mine-note', mineNote || outcomeWord(mineKor, mineOpp));
   set('res-tf-fixture', `2026 월드컵 ${round} · 대한민국 vs ${oppKo}`);
+}
+
+// ==========================================================================
+// Re-coaching loop: remember every settled run, and offer the next one from
+// the result card itself (where intent is highest) rather than making the
+// manager close the modal and rediscover the header CTA.
+// ==========================================================================
+
+// Called once per settled match, from both the regular and the shootout path.
+function recordAttempt(kor, opp, note) {
+  state.attempts.push({
+    opponent: state.opponent,
+    kor, opp,
+    note: note || outcomeWord(kor, opp),
+    build: buildSummaryLine()
+  });
+  renderAttemptLine();
+}
+
+// A shootout win is a 90-minute draw, so it cannot be ranked by goal
+// difference alone. The margin decides first, a PK win breaks the tie.
+function attemptRank(a) {
+  return (a.kor - a.opp) * 10 + (/^PK/.test(a.note) && /승/.test(a.note) ? 1 : 0);
+}
+
+function attemptLabel(a) {
+  return /^PK/.test(a.note) ? `${a.kor}:${a.opp} (${a.note})` : `${a.kor}:${a.opp}`;
+}
+
+function renderAttemptLine() {
+  const el = document.getElementById('res-attempts');
+  if (!el) return;
+  // Only runs against the match currently on the board: "3번째 도전" has to
+  // mean this fixture, not three different opponents in a row.
+  const runs = state.attempts.filter(a => a.opponent === state.opponent);
+  if (runs.length <= 1) { el.style.display = 'none'; return; }
+
+  let bestIdx = 0;
+  runs.forEach((a, i) => { if (attemptRank(a) >= attemptRank(runs[bestIdx])) bestIdx = i; });
+  const isBest = bestIdx === runs.length - 1;
+
+  el.style.display = 'inline-flex';
+  el.innerHTML = isBest
+    ? `🔁 ${runs.length}번째 도전 <em>· 지금까지 최고 기록</em>`
+    : `🔁 ${runs.length}번째 도전 <em>· 최고 기록 ${attemptLabel(runs[bestIdx])} (${bestIdx + 1}번째)</em>`;
+}
+
+// Result card -> straight back to the board, reset and ready for a new plan.
+// runSimulation() already owns the full-time reset branch, so this reuses it
+// rather than duplicating the teardown.
+function retryFromResult() {
+  closeModal();
+  if (state.matchPhase === 2) runSimulation();
+  if (typeof SFX !== 'undefined' && SFX.ui) SFX.ui();
+
+  // Point at the dials, since "다른 전술로" is the whole premise of the click.
+  const deck = document.getElementById('rail-dials');
+  if (deck) {
+    deck.classList.add('guide-ring');
+    deck.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    setTimeout(() => deck.classList.remove('guide-ring'), 4000);
+  }
+  const runs = state.attempts.filter(a => a.opponent === state.opponent).length;
+  showToast(`🔁 ${runs + 1}번째 도전 준비 완료! 전술을 바꾸고 다시 시뮬레이션하세요.`);
 }
 
 // The board in one line, using the same words the buttons use. Only the dials
@@ -2775,6 +2854,8 @@ function startPenaltyShootout() {
         `승점 4 · 32강 진출 (승부차기 ${korWin ? '승' : '패'})`;
       // The 90-minute score is a draw either way, so the shootout carries the verdict.
       renderResultTransform(state.finalScore.kor, state.finalScore.opp, `PK ${korPk}:${oppPk} ${korWin ? '승' : '패'}`);
+      renderResultCardStats();
+      recordAttempt(state.finalScore.kor, state.finalScore.opp, `PK ${korPk}:${oppPk} ${korWin ? '승' : '패'}`);
     }, 3500);
   };
 
