@@ -1143,6 +1143,19 @@ body.glow-success {
   margin-bottom: 0.9rem;
 }
 
+/* Attempt counter: the same match, re-coached. Sits under the fixture line so
+   the shared card carries proof that the result was earned, not rolled. */
+.res-attempts {
+  display: inline-flex; align-items: center; gap: 0.4rem;
+  font-size: 0.68rem; font-weight: 800; color: var(--accent-amber);
+  background: rgba(245, 158, 11, 0.12);
+  border: 1px solid rgba(245, 158, 11, 0.45);
+  border-radius: var(--radius-full);
+  padding: 0.22rem 0.7rem;
+  margin-bottom: 0.9rem;
+}
+.res-attempts em { font-style: normal; color: var(--text-secondary); font-weight: 700; }
+
 .manager-style-name {
   font-family: var(--font-display);
   font-size: 1.6rem;
@@ -1222,6 +1235,28 @@ body.glow-success {
   font-size: 0.85rem;
 }
 .btn-download:hover { background: #34d399; transform: translateY(-2px); }
+
+/* Result-modal action row. Retry leads, because the loop is the product:
+   the point is not one scoreline, it is that a different board changes it. */
+.sim-modal-actions { gap: 0.75rem; margin-top: 1rem; flex-wrap: wrap; }
+.btn-retry {
+  flex: 1 1 100%;
+  background: var(--accent-amber);
+  color: #1a1000;
+  border: none;
+  padding: 0.85rem;
+  border-radius: var(--radius-sm);
+  font-weight: 900;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  font-size: 0.9rem;
+  box-shadow: 0 8px 20px rgba(245, 158, 11, 0.28);
+}
+.btn-retry:hover { background: #fbbf24; transform: translateY(-2px); }
 
 /* ==========================================================================
    AI Coach Chat & Message Bubble Styles
