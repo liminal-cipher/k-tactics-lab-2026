@@ -259,8 +259,14 @@ Object.keys(squadData).forEach(f => { DEFAULT_ROLE_SUM[f] = roleSum(squadData[f]
 // overwrites the entry's type with his own.
 const FORMATION_SLOTS = {};
 Object.keys(squadData).forEach(f => {
-  FORMATION_SLOTS[f] = squadData[f].map(p => ({ pos: p.pos, type: p.type }));
+  FORMATION_SLOTS[f] = squadData[f].map(p => ({ pos: p.pos, type: p.type, role: p.role }));
 });
+
+// ROLE_EFFECTS scores 61 task names; the modal offers 18, five per band. So a
+// player's current task is often not one of the five on offer, and that is by
+// design: the five are re-tasking choices, not the whole vocabulary. Used by
+// openRoleModal to decide whether the current task needs listing on its own.
+const roleFitsBand = (role, band) => (roleOptions[band] || []).includes(role);
 
 // Each player's own band, also captured at load. A slot's band belongs to the
 // slot, so a player who walks off the pitch has to get his own back rather than
@@ -772,11 +778,10 @@ function createPlayerCardElement(p, source) {
 // colour said another, because the colour reads `type` and `type` was riding
 // along with the player (swap 백승호 into 설영우's back-line slot and you got an
 // RWB badge on a midfield-green card). Both now come from the slot template.
-const intoSlot = (player, formation, idx) => ({
-  ...player,
-  pos: FORMATION_SLOTS[formation][idx].pos,
-  type: FORMATION_SLOTS[formation][idx].type
-});
+const intoSlot = (player, formation, idx) => {
+  const slot = FORMATION_SLOTS[formation][idx];
+  return { ...player, pos: slot.pos, type: slot.type };
+};
 
 // Off the pitch, a player is himself again rather than the line he was filling.
 const ontoBench = (player) => ({
@@ -875,7 +880,16 @@ function openRoleModal(player, cardElement) {
   const list = document.getElementById('role-option-list');
   list.innerHTML = '';
   
-  const options = roleOptions[player.type] || roleOptions['mid'];
+  // The five on offer are re-tasking choices, not the whole vocabulary, so the
+  // task a player is actually carrying is often not among them: 김민재 starts on
+  // 수비 사령관 and a substitute arrives on a BENCH_ROLE name like 돌파형 윙어.
+  // Matching on the exact string then left every row unmarked, which reads as
+  // "nothing is selected" rather than "his task is not one of these five".
+  // Listing it first, already active, keeps exactly one row current at all times.
+  const band = roleOptions[player.type] ? player.type : 'mid';
+  const options = roleFitsBand(player.role, band)
+    ? roleOptions[band]
+    : [player.role, ...roleOptions[band]];
   options.forEach(roleName => {
     const item = document.createElement('div');
     item.className = `role-option-item ${player.role === roleName ? 'active' : ''}`;
