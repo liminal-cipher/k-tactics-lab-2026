@@ -262,6 +262,15 @@ Object.keys(squadData).forEach(f => {
   FORMATION_SLOTS[f] = squadData[f].map(p => ({ pos: p.pos, type: p.type }));
 });
 
+// Each player's own band, also captured at load. A slot's band belongs to the
+// slot, so a player who walks off the pitch has to get his own back rather than
+// keep whatever line he was last filling in.
+const NATURAL_TYPE = {};
+Object.keys(squadData).forEach(f => {
+  squadData[f].forEach(p => { if (!(p.id in NATURAL_TYPE)) NATURAL_TYPE[p.id] = p.type; });
+});
+benchPlayers.forEach(p => { if (!(p.id in NATURAL_TYPE)) NATURAL_TYPE[p.id] = p.type; });
+
 // Half weight, rounded away from zero so a one-point deviation still shows up
 // (plain Math.round turns -0.5 into 0 and would silently swallow it).
 function roleDeviation(pitchList) {
@@ -758,45 +767,56 @@ function createPlayerCardElement(p, source) {
 }
 
 // --- Handle Drag and Drop Player Swapping & Witty AI Coach Warning ---
+// A pitch slot owns its position code AND its band; only the man in it changes.
+// Carrying just the position over meant the badge said one line and the card
+// colour said another, because the colour reads `type` and `type` was riding
+// along with the player (swap 백승호 into 설영우's back-line slot and you got an
+// RWB badge on a midfield-green card). Both now come from the slot template.
+const intoSlot = (player, formation, idx) => ({
+  ...player,
+  pos: FORMATION_SLOTS[formation][idx].pos,
+  type: FORMATION_SLOTS[formation][idx].type
+});
+
+// Off the pitch, a player is himself again rather than the line he was filling.
+const ontoBench = (player) => ({
+  ...player,
+  pos: 'SUB',
+  type: NATURAL_TYPE[player.id] || player.type
+});
+
 function handlePlayerSwap(sourcePlayer, targetPlayer, sourceOrigin, targetOrigin) {
   state.selectedPlayerForSwap = null;
+  const f = state.currentFormation;
   // If swapping between bench and pitch
   if (sourceOrigin === 'bench' && targetOrigin === 'pitch') {
-    const pitchList = squadData[state.currentFormation];
+    const pitchList = squadData[f];
     const targetIdx = pitchList.findIndex(x => x.id === targetPlayer.id);
     const benchIdx = benchPlayers.findIndex(x => x.id === sourcePlayer.id);
-    
+
     if (targetIdx !== -1 && benchIdx !== -1) {
-      // Preserve target position badge
-      const tempPos = pitchList[targetIdx].pos;
-      
-      pitchList[targetIdx] = { ...sourcePlayer, pos: tempPos };
-      benchPlayers[benchIdx] = { ...targetPlayer, pos: 'SUB' };
+      pitchList[targetIdx] = intoSlot(sourcePlayer, f, targetIdx);
+      benchPlayers[benchIdx] = ontoBench(targetPlayer);
     }
   } else if (sourceOrigin === 'pitch' && targetOrigin === 'bench') {
-    const pitchList = squadData[state.currentFormation];
+    const pitchList = squadData[f];
     const sourceIdx = pitchList.findIndex(x => x.id === sourcePlayer.id);
     const benchIdx = benchPlayers.findIndex(x => x.id === targetPlayer.id);
-    
+
     if (sourceIdx !== -1 && benchIdx !== -1) {
-      const tempPos = pitchList[sourceIdx].pos;
-      
-      pitchList[sourceIdx] = { ...targetPlayer, pos: tempPos };
-      benchPlayers[benchIdx] = { ...sourcePlayer, pos: 'SUB' };
+      pitchList[sourceIdx] = intoSlot(targetPlayer, f, sourceIdx);
+      benchPlayers[benchIdx] = ontoBench(sourcePlayer);
     }
   } else if (sourceOrigin === 'pitch' && targetOrigin === 'pitch') {
     // Swap positions within pitch
-    const pitchList = squadData[state.currentFormation];
+    const pitchList = squadData[f];
     const idx1 = pitchList.findIndex(x => x.id === sourcePlayer.id);
     const idx2 = pitchList.findIndex(x => x.id === targetPlayer.id);
-    
+
     if (idx1 !== -1 && idx2 !== -1) {
-      const tempPos1 = pitchList[idx1].pos;
-      const tempPos2 = pitchList[idx2].pos;
-      
       const temp = pitchList[idx1];
-      pitchList[idx1] = { ...pitchList[idx2], pos: tempPos1 };
-      pitchList[idx2] = { ...temp, pos: tempPos2 };
+      pitchList[idx1] = intoSlot(pitchList[idx2], f, idx1);
+      pitchList[idx2] = intoSlot(temp, f, idx2);
     }
   }
   
@@ -920,7 +940,10 @@ function carrySquadInto(currentXI, template) {
     }
     return pool.splice(idx, 1)[0];
   };
-  return template.map(slot => ({ ...take(slot.type), pos: slot.pos }));
+  // The slot hands out both halves of its identity, position code and band.
+  // Spreading the player last would let his own band ride along, and then the
+  // card would wear a back-line badge in midfield green.
+  return template.map(slot => ({ ...take(slot.type), pos: slot.pos, type: slot.type }));
 }
 
 // --- Formation Switching ---
