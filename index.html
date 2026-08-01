@@ -37,13 +37,46 @@
 </head>
 <body id="body-tag">
 
-  <!-- 좁은 화면 안내: 전술 보드는 데스크톱 폭을 전제로 설계됨 (CSS 미디어 쿼리로만 표시) -->
-  <div class="narrow-screen-notice" role="alert">
-    <div class="narrow-screen-notice-inner">
-      <div class="narrow-screen-notice-icon">🖥️</div>
-      <h2>PC 화면에서 열어 주세요</h2>
-      <p><strong>K-Tactics Lab 2026</strong> 의 전술 보드는 축구 중계 화면처럼 넓은 데스크톱 화면 전용으로 설계되었습니다.</p>
-      <p>데스크톱 Chrome 브라우저(가로 1280px 이상 권장)에서 접속하시면 감독석의 전체 보드를 만나실 수 있습니다.</p>
+  <!-- 좁은 화면(≤767px) 진입 화면 (CSS 미디어 쿼리로만 표시).
+       전술 보드는 데스크톱 폭을 전제로 설계됐지만, 링크는 대부분 폰에서 열린다.
+       그래서 보드 대신 "왜 이 경기를 다시 지휘하는지"부터 보여주고 PC 링크를 쥐여 준다. -->
+  <div class="narrow-screen-notice" id="mobile-landing" role="region" aria-label="K-Tactics Lab 2026 소개">
+    <div class="mobile-landing-inner">
+      <div class="ml-kicker">2026 북중미 월드컵 · 조별리그 최종전</div>
+      <h2 class="ml-title">비기기만 하면 32강이었다.<br>그런데 <span>남아공에 0-1</span>로 졌다.</h2>
+
+      <img class="ml-cover" src="docs/img/og-cover.png" width="1200" height="630"
+           alt="K-Tactics Lab 2026: 그날의 남아공전을 당신이 다시 지휘한다">
+
+      <p class="ml-lead">
+        그날 많은 팬들이 같은 생각을 했습니다.<br>
+        <strong>"내가 감독이었다면 어땠을까?"</strong><br>
+        <b>K-Tactics Lab 2026</b>은 그 90분을 당신이 다시 지휘하는 전술 샌드박스입니다.
+      </p>
+
+      <div class="ml-stats">
+        <div class="ml-stat"><span class="ml-stat-lab">비기기만 해도</span><span class="ml-stat-val emerald">32강 진출</span></div>
+        <div class="ml-stat"><span class="ml-stat-lab">실제 결과</span><span class="ml-stat-val rose">0-1 패 · 조 3위</span></div>
+        <div class="ml-stat"><span class="ml-stat-lab">당신이 쥔 것</span><span class="ml-stat-val cyan">90분 · 20인</span></div>
+      </div>
+
+      <ul class="ml-feats">
+        <li><b>AI 상대 감독</b>이 당신의 라인업과 전술 다이얼을 읽고 후반 카운터를 짭니다.</li>
+        <li>모든 선택은 <b>몬테카를로 1,000회</b>로 채점되고, 승부 요인 TOP 3가 근거로 따라옵니다.</li>
+        <li><b>2D 라이브 중계</b>와 <b>1인칭 승부차기</b>로 후반 45분이 눈앞에서 흘러갑니다.</li>
+      </ul>
+
+      <figure class="ml-board">
+        <img src="docs/img/proposal-board.png" loading="lazy" alt="K-Tactics Lab 2026 전술 보드 화면">
+        <figcaption>실제 전술 보드 화면 (데스크톱)</figcaption>
+      </figure>
+
+      <div class="ml-cta">
+        <button type="button" class="ml-btn-primary" onclick="copyDesktopLink()">🔗 PC에서 열 링크 복사</button>
+        <button type="button" class="ml-btn-ghost" onclick="dismissMobileLanding()">그래도 이 화면에서 둘러보기</button>
+      </div>
+
+      <p class="ml-foot">전술 보드는 축구 중계 화면처럼 넓은 가로 폭을 전제로 설계되었습니다. 데스크톱 Chrome(가로 1280px 이상)을 권장합니다.</p>
     </div>
   </div>
 

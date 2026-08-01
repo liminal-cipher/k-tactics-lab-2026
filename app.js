@@ -552,6 +552,26 @@ function peekOppCoachChip() {
   }
 }
 
+// ==========================================================================
+// Narrow-screen landing (≤767px). The board needs desktop width, but the
+// vote link lands on a phone, so the phone gets the pitch and a way through.
+// ==========================================================================
+
+function copyDesktopLink() {
+  const url = location.href.split('#')[0];
+  const ok = () => showToast('🔗 링크를 복사했습니다. PC 브라우저에 붙여넣어 주세요!');
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(url).then(ok).catch(() => prompt('아래 주소를 PC에서 열어 주세요:', url));
+    return;
+  }
+  prompt('아래 주소를 PC에서 열어 주세요:', url);
+}
+
+function dismissMobileLanding() {
+  document.body.classList.add('landing-dismissed');
+  showToast('ℹ️ 좁은 화면에서는 보드 일부가 잘릴 수 있습니다.');
+}
+
 // Row breakdown per formation, top to bottom (attack line first, GK last).
 // Each array sums to 11 and matches that formation's squadData ordering, so
 // the pitch renders the real shape (e.g. 4-2-3-1 = ST / 3 AM / 2 DM / 4 DF / GK).
