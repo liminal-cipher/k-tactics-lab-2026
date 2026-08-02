@@ -103,24 +103,29 @@
 
 ## 📁 6. Project Structure (프로젝트 구조)
 ```text
-k-tactics-lab/
+k-tactics-lab-2026/
 ├── index.html       # 메인 UI, 매치데이 보드(피치 히어로 + 3탭 레일), 락커룸/모달, 남아공전 히어로 온보딩
 ├── index.css        # 다크 시네마틱 토큰 디자인 시스템, 데스크톱 레이아웃, Keyframe 애니메이션
 ├── app.js           # 전술 엔진, 로컬 몬테카를로 시뮬, Coach V/AI 상대감독 클라이언트, Vibe, 락커룸
+├── favicon.svg      # 파비콘 (인라인 SVG 직접 제작)
 ├── api/
 │   └── coach.js     # Vercel 서버리스 프록시 (LLM 체인 Groq→Gemini, 키 은닉, chat/analysis/opponent)
 ├── data/
 │   ├── squad_stats_2026.js  # 2026 WC 출전 공식 20인 FBref 파생 스탯
-│   └── fan_comments_2026.js # 상태 태깅 여론 댓글 뱅크 (오프라인 생성 자산, 런타임 $0)
+│   ├── fan_comments_2026.js # 상태 태깅 여론 댓글 뱅크 (오프라인 생성 자산, 런타임 $0)
+│   └── raw/                 # FBref 원본 CSV 4개국(kor/rsa/mex/cze) + 국가별 SOURCE.md (재현성 근거)
 ├── scripts/
 │   ├── parse_stats.py        # FBref per-90 → 4대 능력치 변환 (오프라인)
+│   ├── parse_opponents.py    # 상대 3개국 원본 CSV → 팀 강도(att/def) 도출·대조 리포트 (오프라인)
+│   ├── verify_raw.py         # 원본 CSV ↔ 전사된 선수 스탯 전수 대조 (불일치 시 exit 1)
 │   ├── gen_fan_comments.py   # 여론 뱅크 생성기 (오프라인, 선택)
 │   └── validate_model.js     # 몬테카를로 엔진 검증 하니스 (보정·수렴, node로 재현)
 ├── docs/
 │   ├── AI_ENGINEERING.md     # 모델 선택·프롬프트·비용 아키텍처 근거
 │   ├── DATA_PIPELINE.md      # FBref 수집→정제→변환→검증 전 과정 (공식·워크드 예제·재현성 검증)
 │   ├── MODEL_SELECTION.md    # 경기 모델 선택 근거 + 해석적 정답 대비 검증·수렴 분석
-│   └── USER_GUIDE.md         # 플레이 방법 및 엔진 동작 원리 해설 (무엇이 실제 연산이고 무엇이 연출인지)
+│   ├── USER_GUIDE.md         # 플레이 방법 및 엔진 동작 원리 해설 (무엇이 실제 연산이고 무엇이 연출인지)
+│   └── img/                  # 기획서 다이어그램·OG 커버 이미지
 ├── vercel.json      # 서버리스 함수 설정
 ├── .env.example     # GEMINI_API_KEY / GROQ_API_KEY 예시 (실제 키는 커밋 금지)
 ├── LICENSE          # MIT License
