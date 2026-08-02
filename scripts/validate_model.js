@@ -18,14 +18,25 @@ function extract(name, kind) {
   const i = src.indexOf(startTok);
   if (i === -1) throw new Error(`not found in app.js: ${name}`);
   let j = src.indexOf('{', i);
-  let depth = 0, inStr = null;
+  let depth = 0, inStr = null, inCmt = null;
   for (; j < src.length; j++) {
-    const c = src[j], p = src[j - 1];
+    const c = src[j], p = src[j - 1], n = src[j + 1];
+    // Comments are skipped before quotes are considered. app.js is commented in
+    // English prose, so an apostrophe in "the modal's contents" used to open a
+    // string that never closed; the matcher then walked past the function's own
+    // closing brace and returned however much of the file it took to rebalance.
+    // Every extraction here was silently over-long, and one more apostrophe
+    // anywhere in the file was enough to turn that into a parse error.
+    if (inCmt === 'line') { if (c === '\n') inCmt = null; continue; }
+    if (inCmt === 'block') { if (c === '/' && p === '*') inCmt = null; continue; }
     if (inStr) { if (c === inStr && p !== '\\') inStr = null; continue; }
+    if (c === '/' && n === '/') { inCmt = 'line'; continue; }
+    if (c === '/' && n === '*') { inCmt = 'block'; continue; }
     if (c === "'" || c === '"' || c === '`') { inStr = c; continue; }
     if (c === '{') depth++;
     else if (c === '}') { depth--; if (depth === 0) break; }
   }
+  if (depth !== 0) throw new Error(`unbalanced extraction for ${name}`);
   let code = src.slice(i, j + 1) + (kind === 'const' ? ';' : '');
   if (kind === 'const') code = code.replace(`const ${name} = `, `globalThis.${name} = `);
   return code;
@@ -55,6 +66,9 @@ global.squadData = { '4-3-3': Object.keys(global.state.staminaState).map(name =>
 eval(extract('OPP_STRENGTH', 'const'));
 eval(extract('kanginActive', 'fn'));
 eval(extract('staminaOf', 'fn'));
+// opponentModifiers defers to planMultipliers. It used to arrive for free
+// inside an over-long extraction; now that the slices are exact, it is named.
+eval(extract('planMultipliers', 'fn'));
 eval(extract('opponentModifiers', 'fn'));
 eval(extract('secondHalfLambdas', 'fn'));
 eval(extract('poissonSample', 'fn'));
