@@ -942,12 +942,24 @@ function selectPlayerRole(player, newRole) {
 function carrySquadInto(currentXI, template) {
   const pool = currentXI.slice();
   const rank = { att: 0, mid: 1, def: 2, gk: 3 };
+  // Match on the player's OWN band, not the one the slot he currently occupies
+  // lent him. The returned card takes the slot's type (so the badge and colour
+  // stay honest), which means matching on `p.type` was reading back the last
+  // formation's decision: 3-4-3 has three forwards but 4-2-3-1 wants four, so a
+  // midfielder got pulled up and permanently became `att`. Coming back there was
+  // then one midfielder short and somebody else got dragged across, and the XI
+  // walked one seat further out of place on every round trip. NATURAL_TYPE never
+  // moves, so a round trip now lands every player back where he started.
+  // `type` is display only (updateStats averages SQUAD_STATS_2026 by name and
+  // roleSum adds the same eleven roles whatever order they sit in), so this
+  // changes who stands where and nothing the model reads.
+  const bandOf = (p) => NATURAL_TYPE[p.id] || p.type;
   const take = (type) => {
-    let idx = pool.findIndex(p => p.type === type);
+    let idx = pool.findIndex(p => bandOf(p) === type);
     if (idx < 0) {
       let best = 0, bestD = 99;
       pool.forEach((p, i) => {
-        const d = Math.abs((rank[p.type] ?? 1) - (rank[type] ?? 1));
+        const d = Math.abs((rank[bandOf(p)] ?? 1) - (rank[type] ?? 1));
         if (d < bestD) { bestD = d; best = i; }
       });
       idx = best;
