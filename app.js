@@ -2215,6 +2215,14 @@ function showFinalResult() {
     if (pkBox) {
       pkBox.style.display = 'block';
       if (typeof initPenaltyShootoutUI === 'function') initPenaltyShootoutUI();
+      // The modal is still scrolled to the match canvas and the shootout box is
+      // created below it, so revealing it changed nothing the viewer could see:
+      // a draw looked like the app had stopped, and the whole penalty feature
+      // stayed hidden until someone thought to scroll. Wait a frame so the box
+      // has been laid out before asking for its position.
+      requestAnimationFrame(() => {
+        pkBox.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      });
       return;
     }
   }
@@ -2869,7 +2877,15 @@ function startPenaltyShootout() {
   btn.disabled = true;
   clearTimeout(pkRoundTimer);
   logEl.innerHTML = `<div style="color: var(--accent-cyan); font-weight: 800;">🔥 승부차기 1번 키커 준비 중...</div>`;
-  if (viewBox) viewBox.style.display = 'block';
+  if (viewBox) {
+    viewBox.style.display = 'block';
+    // Same problem one step later: the first-person view opens below the kicker
+    // cards the user was just clicking, so the first kick can be over before it
+    // scrolls into sight.
+    requestAnimationFrame(() => {
+      viewBox.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    });
+  }
 
   let korPk = 0; let oppPk = 0;
   let round = 0;
