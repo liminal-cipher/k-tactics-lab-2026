@@ -2212,6 +2212,23 @@ function markMatchFinished() {
   if (statusEl) statusEl.innerHTML = `<span>🏁 <strong style="color: var(--accent-emerald);">FULL-TIME (90')</strong> 정규시간 스코어 <strong>${state.finalScore.kor} : ${state.finalScore.opp}</strong> | [🔄 다시 처음부터]를 누르면 새 경기를 준비합니다</span>`;
 }
 
+// The result modal runs three stages back to back (match -> shootout ->
+// report). Each swap replaces most of the modal's contents, so the scroll
+// position left over from the previous stage lands the viewer in the middle of
+// the new one. Retitle and rewind together, every time.
+function setSimModalStage(title) {
+  const titleEl = document.getElementById('sim-modal-title');
+  if (titleEl && title) titleEl.textContent = title;
+  const pane = document.querySelector('#sim-modal .modal-content');
+  // Once now, once after the new stage has been laid out: the immediate write
+  // is what actually lands, the frame later is insurance against a stage that
+  // grows taller than the one it replaced.
+  if (pane) {
+    pane.scrollTop = 0;
+    requestAnimationFrame(() => { pane.scrollTop = 0; });
+  }
+}
+
 function showFinalResult() {
   const liveCast = document.getElementById('sim-live-cast');
   const resultCard = document.getElementById('manager-result-card');
@@ -2225,23 +2242,26 @@ function showFinalResult() {
   // Check if Draw -> Trigger PK Shootout!
   if (state.finalScore.kor === state.finalScore.opp) {
     if (pkBox) {
+      // The shootout is its own stage, not a footnote to the match. The 90
+      // minutes are over, so the 2D pitch comes down: leaving it up pushed the
+      // kicker cards, the first-person view and the log a full screen below the
+      // fold, and scrolling the box into view only ever showed one of the three.
+      const canvasBox = document.getElementById('sim-canvas-container');
+      if (canvasBox) canvasBox.style.display = 'none';
       pkBox.style.display = 'block';
       if (typeof initPenaltyShootoutUI === 'function') initPenaltyShootoutUI();
-      // The modal is still scrolled to the match canvas and the shootout box is
-      // created below it, so revealing it changed nothing the viewer could see:
-      // a draw looked like the app had stopped, and the whole penalty feature
-      // stayed hidden until someone thought to scroll. Wait a frame so the box
-      // has been laid out before asking for its position.
-      requestAnimationFrame(() => {
-        pkBox.scrollIntoView({ behavior: 'smooth', block: 'start' });
-      });
+      setSimModalStage('⚽ 승부차기 · 키커 5명을 지정하세요');
       return;
     }
   }
 
+  // Same handover for a decided match: the film is over, the report is the stage.
+  const canvasBox = document.getElementById('sim-canvas-container');
+  if (canvasBox) canvasBox.style.display = 'none';
   resultCard.style.display = 'block';
   actions.style.display = 'flex';
-  
+  setSimModalStage('🏆 2026 월드컵 대한민국 최종 리포트');
+
   let styleName = ""; let desc = ""; let stage = "";
   const kor = state.finalScore.kor; const opp = state.finalScore.opp;
   const sim = state.simResult || { winPct: 0, drawPct: 0, losePct: 0 };
@@ -2796,6 +2816,12 @@ function initPenaltyShootoutUI() {
   const viewBox = document.getElementById('pk-view-container');
   if (viewBox) viewBox.style.display = 'none';
 
+  // Back to stage 1: the cards return, the kicks and the verdict go away.
+  const selectStage = document.getElementById('pk-select-stage');
+  if (selectStage) selectStage.style.display = '';
+  const finalLine = document.getElementById('pk-final-line');
+  if (finalLine) { finalLine.style.display = 'none'; finalLine.innerHTML = ''; }
+
   // Restore the start button (a previous shootout hides it at the end)
   const startBtn = document.getElementById('btn-start-pk');
   if (startBtn) { startBtn.style.display = ''; startBtn.disabled = false; }
@@ -2889,15 +2915,22 @@ function startPenaltyShootout() {
   btn.disabled = true;
   clearTimeout(pkRoundTimer);
   logEl.innerHTML = `<div style="color: var(--accent-cyan); font-weight: 800;">🔥 승부차기 1번 키커 준비 중...</div>`;
-  if (viewBox) {
-    viewBox.style.display = 'block';
-    // Same problem one step later: the first-person view opens below the kicker
-    // cards the user was just clicking, so the first kick can be over before it
-    // scrolls into sight.
-    requestAnimationFrame(() => {
-      viewBox.scrollIntoView({ behavior: 'smooth', block: 'center' });
-    });
+
+  // Stage 2. The cards have done their job; taking them down is what makes the
+  // kick view and the round log fit the modal together, so the viewer never has
+  // to choose between watching the kick and reading whether it went in.
+  const selectStage = document.getElementById('pk-select-stage');
+  if (selectStage) selectStage.style.display = 'none';
+  const header = document.getElementById('pk-header-title');
+  if (header) header.textContent = '⚽ 승부차기 진행 중';
+  const hint = document.getElementById('pk-hint');
+  clearTimeout(pkHintTimer); // a pending "이미 5명입니다" reset would overwrite the order line
+  if (hint) {
+    hint.classList.remove('pk-hint-warn');
+    hint.textContent = `키커 순서 ${selectedPkKickers.map((k, i) => `${i + 1}. ${k.name}`).join(' · ')}`;
   }
+  if (viewBox) viewBox.style.display = 'block';
+  setSimModalStage(`⚽ 승부차기 · 대한민국 vs ${state.opponent}`);
 
   let korPk = 0; let oppPk = 0;
   let round = 0;
@@ -2908,12 +2941,18 @@ function startPenaltyShootout() {
 
     const korWin = korPk > oppPk;
     updateScorebug(null, null, `PK ${korPk}-${oppPk} 종료`);
-    logEl.innerHTML += `
-      <div style="margin-top: 0.6rem; padding: 0.6rem; background: ${korWin ? 'rgba(16,185,129,0.2)' : 'rgba(244,63,94,0.2)'}; border: 1px solid ${korWin ? 'var(--accent-emerald)' : 'var(--accent-rose)'}; border-radius: 6px; text-align: center; font-weight: 900; color: ${korWin ? 'var(--accent-emerald)' : 'var(--accent-rose)'};">
-        🏆 최종 PK 스코어 ${korPk} : ${oppPk} — ${korWin ? '대한민국 승부차기 승리!! 정규시간 무승부로 조별리그는 이미 통과했습니다.' : '아쉬운 PK 석패... 그래도 정규시간 무승부로 조별리그는 통과했습니다.'}
-      </div>
-    `;
     logEl.scrollTop = logEl.scrollHeight;
+    // Not appended to the log: the log is a capped scroller, and the one line
+    // everybody is waiting for must not be the one line you have to scroll for.
+    const finalLine = document.getElementById('pk-final-line');
+    if (finalLine) {
+      finalLine.style.display = 'block';
+      finalLine.innerHTML = `
+        <div style="padding: 0.6rem; background: ${korWin ? 'rgba(16,185,129,0.2)' : 'rgba(244,63,94,0.2)'}; border: 1px solid ${korWin ? 'var(--accent-emerald)' : 'var(--accent-rose)'}; border-radius: 6px; text-align: center; font-weight: 900; color: ${korWin ? 'var(--accent-emerald)' : 'var(--accent-rose)'};">
+          🏆 최종 PK 스코어 ${korPk} : ${oppPk} — ${korWin ? '대한민국 승부차기 승리!! 정규시간 무승부로 조별리그는 이미 통과했습니다.' : '아쉬운 PK 석패... 그래도 정규시간 무승부로 조별리그는 통과했습니다.'}
+        </div>
+      `;
+    }
 
     pkRoundTimer = setTimeout(() => {
       const pkBox = document.getElementById('pk-shootout-container');
@@ -2922,6 +2961,8 @@ function startPenaltyShootout() {
       if (pkBox) pkBox.style.display = 'none';
       if (resultCard) resultCard.style.display = 'block';
       if (actions) actions.style.display = 'flex';
+      // Stage 3. Give the report its own title back and start it from the top.
+      setSimModalStage('🏆 2026 월드컵 대한민국 최종 리포트');
 
       const pkTitle = korWin ? "🔥 'PK 혈투 끝의 강철 심장' 승부차기 명장" : "🎲 '아쉬운 PK 석패' 불굴의 지휘관";
       document.getElementById('res-style-name').textContent = publicVerdictTitle(korWin ? 'win' : 'loss') || pkTitle;
