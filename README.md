@@ -7,6 +7,13 @@
 > **2026 World Cup Korean National Team Tactics Solution & Interactive Manager Simulator**  
 > *2026 월드컵 대한민국 국가대표팀 전술 솔루션 및 대중 참여형 감독 시뮬레이터*
 
+### 🔗 바로가기
+
+| | |
+| :--- | :--- |
+| **🎮 라이브 데모** | **https://k-tactics-lab-2026.vercel.app** |
+| **🎬 시연 영상 (2분 28초)** | **https://youtu.be/bIjaPrhZ708** |
+
 ---
 
 ## 📌 1. Overview (서비스 개요)
@@ -144,6 +151,8 @@ Coach V의 실시간 LLM과 AI 상대감독은 서버리스 함수가 필요하�
 
 ### 🌐 Live Demo URL (온라인 배포)
 * **Live Demo (공식, AI 라이브):** [https://k-tactics-lab-2026.vercel.app](https://k-tactics-lab-2026.vercel.app)
+* **🎬 시연 영상 (2분 28초):** [https://youtu.be/bIjaPrhZ708](https://youtu.be/bIjaPrhZ708)
+  * 시작 화면 → 선수단 데이터 → 선수 배치 · 전술 설정 → Coach V · 팬 여론 → 90분 경기(2D 라이브 중계 · 하프타임 대응 · 교체) → 승부차기 → 결과 리포트 순으로 전 흐름을 담았다.
 * 정적 미러 (GitHub Pages, AI는 스크립트 폴백 동작): [https://liminal-cipher.github.io/k-tactics-lab-2026/](https://liminal-cipher.github.io/k-tactics-lab-2026/)
 
 ---
