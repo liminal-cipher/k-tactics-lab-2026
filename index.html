@@ -499,21 +499,30 @@
           <h4 id="pk-header-title" style="font-size: 1.2rem; font-weight: 900; color: var(--accent-amber); margin-bottom: 0.3rem;">⚽ 90분 정규시간 동점 종료! 승부차기(PK) 돌입!</h4>
           <p id="pk-hint" style="font-size: 0.82rem; color: var(--text-secondary);">카드를 클릭한 순서대로 키커가 정해집니다. 5명을 지정해 주세요.</p>
         </div>
-        <div id="pk-kicker-selectors" style="display: grid; grid-template-columns: repeat(5, 1fr); gap: 0.5rem; margin-bottom: 1rem;">
-          <!-- Populated by app.js -->
+        <!-- Stage 1: pick the five. Hidden the moment the shootout starts, so the
+             kicks and the round-by-round log fit one screen with no scrolling. -->
+        <div id="pk-select-stage">
+          <div id="pk-kicker-selectors" style="display: grid; grid-template-columns: repeat(5, 1fr); gap: 0.5rem; margin-bottom: 1rem;">
+            <!-- Populated by app.js -->
+          </div>
+          <div style="text-align: center;">
+            <button class="btn-simulate-compact" id="btn-start-pk" onclick="startPenaltyShootout()" style="padding: 0.6rem 1.5rem; background: var(--accent-amber); color: #000; font-weight: 900; font-size: 0.95rem;">
+              🔥 승부차기 시작!
+            </button>
+          </div>
         </div>
-        <div style="text-align: center;">
-          <button class="btn-simulate-compact" id="btn-start-pk" onclick="startPenaltyShootout()" style="padding: 0.6rem 1.5rem; background: var(--accent-amber); color: #000; font-weight: 900; font-size: 0.95rem;">
-            🔥 승부차기 시작!
-          </button>
-        </div>
-        <!-- First-person penalty view: replays each decided kick (app.js) -->
-        <div id="pk-view-container" style="display: none; margin-top: 1rem;">
+        <!-- Stage 2: first-person penalty view, replaying each decided kick (app.js) -->
+        <div id="pk-view-container" style="display: none;">
           <div style="font-size: 0.8rem; font-weight: 800; color: var(--accent-cyan); margin-bottom: 0.4rem;">🥅 키커 시점 · 골대 정면</div>
           <canvas id="pk-view-canvas" width="1160" height="560" style="width: 100%; height: auto; display: block; background: #0b1220; border: 2px solid var(--glass-border); border-radius: 8px; box-shadow: inset 0 0 20px rgba(0,0,0,0.5);"></canvas>
         </div>
 
-        <div id="pk-results-log" style="margin-top: 1rem; display: flex; flex-direction: column; gap: 0.4rem; font-size: 0.85rem;"></div>
+        <!-- The log is capped and scrolls itself: an unbounded list pushed the
+             newest kick off the bottom of the modal, which is exactly the round
+             the viewer is waiting on. app.js pins it to the last line. -->
+        <div id="pk-results-log" style="margin-top: 0.7rem; display: flex; flex-direction: column; gap: 0.4rem; font-size: 0.85rem; max-height: 168px; overflow-y: auto;"></div>
+        <!-- The headline score sits outside the scroller so it can never scroll away. -->
+        <div id="pk-final-line" style="display: none; margin-top: 0.6rem;"></div>
       </div>
 
       <!-- Final Manager Result Card (Viral Shareable Card) -->
