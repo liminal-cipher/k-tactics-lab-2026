@@ -1,178 +1,90 @@
-# ⚽ K-Tactics Lab 2026
+# K-Tactics Lab 2026
+
+> 2026 북중미 월드컵 대한민국 국가대표팀 전술 솔루션 및 브라우저 몬테카를로 매치 시뮬레이터
 
 ![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)
-![Tech: Vanilla Web](https://img.shields.io/badge/Tech-HTML5%20%7C%20CSS3%20%7C%20JS-06b6d4.svg)
-![Submission: Hackathon 2026](https://img.shields.io/badge/Hackathon-2026%20Submission-10b981.svg)
+![Tech: Vanilla JS](https://img.shields.io/badge/Tech-Vanilla%20JS%20%7C%20HTML5%20%7C%20CSS3-06b6d4.svg)
+![Deploy: Vercel](https://img.shields.io/badge/Deploy-Vercel-black.svg)
 
-> **2026 World Cup Korean National Team Tactics Solution & Interactive Manager Simulator**  
-> *2026 월드컵 대한민국 국가대표팀 전술 솔루션 및 대중 참여형 감독 시뮬레이터*
+2026 월간 해커톤 출품작 · 개인 프로젝트 · 2026.06  
+[라이브 데모](https://k-tactics-lab-2026.vercel.app) · [시연 영상 (YouTube)](https://youtu.be/bIjaPrhZ708) · [대회 기획서](PROPOSAL.md)
 
-### 🔗 바로가기
+## Motivation
 
-| | |
-| :--- | :--- |
-| **🎮 라이브 데모** | **https://k-tactics-lab-2026.vercel.app** |
-| **🎬 시연 영상 (2분 28초)** | **https://youtu.be/bIjaPrhZ708** |
+기존 축구 미디어는 일방적 비평에 치우쳐 있고, 전문 시뮬레이션 게임(FM 등)은 방대한 데이터와 무거운 사양으로 인해 일반 팬의 접근성이 낮다.
 
----
+K-Tactics Lab 2026은 이 간극을 메우기 위해 설계되었다. 복잡한 빌드나 설치 없이 브라우저에서 1초 만에 실행되며, 2026 북중미 월드컵 본선 실전의 3대 전술 쟁점(U자형 빌드업, 측면 수비 불안, 스타 의존)을 축구 팬이 직접 국가대표 수석 감독이 되어 5종 포메이션과 전술 다이얼로 검증하는 대중 참여형 인터랙티브 샌드박스를 제공한다.
 
-## 📌 1. Overview (서비스 개요)
-**K-Tactics Lab 2026** 은 대한민국 축구 국가대표팀이 2026 북중미 월드컵 본선 무대를 치르며 실전에서 직면한 핵심 전술적 쟁점들을 축구 팬(유저)이 직접 '국가대표 수석 감독'이 되어 해결해 보는 **대중 참여형 인터랙티브 한 경기 전술 지휘 시뮬레이터** 다. 
+## What It Does
 
-단순히 몇 가지 문제를 푸는 퀴즈(Quiz)가 아니다. 복잡한 설치나 회원가입 없이 브라우저에서 1초 만에 실행되며, 5종 포메이션 및 구장 11명·벤치 9명(총 20인 공식 명단) 교체 자유도를 갖춘 샌드박스 위에서 **3대 경기 국면 (① 공격 전개, ② 측면 수비, ③ 경기 운영)** 별 전술을 지휘하고, 실시간 대중 여론 지지도(Vibe Meter)와 팀 밸런스(FBref 기반)의 변화를 체감할 수 있다.
+- **스쿼드 및 5종 포메이션 샌드박스**: 공식 20인 명단(선발 11명, 벤치 9명)을 기반으로 3-4-3, 4-3-3, 3-5-2, 4-2-3-1, 4-4-2 대형을 드래그 앤 드롭 및 클릭 스왑(Click-to-Swap)으로 자유롭게 교체.
+- **3대 경기 국면 제어 및 실시간 팀 밸런스 HUD**: 공격 전개(하프스페이스 침투), 측면 수비(인버티드 풀백/스토퍼), 경기 운영(하프타임 체력 소모 및 교체) 다이얼에 따라 공격 파괴력·측면 수비·중원 장악력·체력 스탯 실시간 변동.
+- **1,000회 Poisson 몬테카를로 매치 시뮬레이션**: 공식 FBref 통계 기반 기대 득점($\lambda$)을 유도해 브라우저에서 승/무/패 확률분포를 연산하고 2D 캔버스 90분 경기 중계 및 승부차기 재생.
+- **멀티 프로바이더 LLM 체인 (Coach V & AI 상대 감독)**: Groq(`gpt-oss-120b`) → Gemini 3.1 Flash-Lite 체인을 통해 실시간 전술 그라운디드 조언 및 상대 감독의 카운터 전술 수립(장애 시 스크립트 폴백).
+- **매치 리포트 명함 캡처 및 공유**: html2canvas 기반 2배수 고화질 PNG 명함 생성, Web Share API 네이티브 공유 및 URL 인코딩 도전장 링크 지원.
 
-> **권장 환경:** 데스크톱 Chrome 브라우저, 가로 1280px 이상. 주요 브라우저에서 정상 실행되며, 768px 미만 화면에서는 전술 보드 대신 시나리오 소개와 PC 링크 복사를 제공하는 모바일 랜딩을 표시한다.
+## Architecture
 
----
-
-## 🚨 2. Problem (문제 정의 및 언론 출처 근거)
-**"기존 축구 콘텐츠는 일방적 비평만 있고, 전문 게임은 대중이 접근하기에 너무 무겁다."**
-
-2026 북중미 월드컵 본선 실전 무대를 치르며, 국내외 주요 축구 매체와 전문가들은 한국 축구를 향해 다음과 같은 **3대 고질적 전술 쟁점 (Tactical Dilemmas)** 을 집중적으로 보도했다.
-
-* **▲ U자형 빌드업 논란:** 2024년부터 언론이 지적해 온 백패스 위주 전개 ([Interfootball, 2024](https://sports.news.nate.com/view/20240905n41102)), 본선 9경기 연속 같은 전술 고수와 공격 전환 실패가 '남아공 졸전'으로 귀결 ([MBC, 2026a](https://imnews.imbc.com/replay/2026/nwdesk/article/6833724_37004.html); [Hankook Ilbo, 2026](https://www.hankookilbo.com/news/article/A2026062608010004313))
-* **▲ 풀백 수비 자동문:** 커뮤니티가 지적해 온 윙백 뒷공간 불안, 남아공전 슈팅 8대 13 열세 속 결승골 허용 ([MBC, 2026a](https://imnews.imbc.com/replay/2026/nwdesk/article/6833724_37004.html); [Financial News, 2026a](https://www.fnnews.com/news/202606251312188929))
-* **▲ 해줘 축구(스타 의존):** 체계적 플랜 B 없이 개인 역량에 의존한다는 비판 속에 남아공전 완패, 경기 후 무더위 언급 등 해명도 논란 ([MBC, 2026b](https://imnews.imbc.com/news/2026/sports/article/6832790_36946.html); [Kyeonggi Ilbo, 2026](https://www.kyeonggi.com/article/20260626580030))
-
-
-그러나 이를 소비하는 미디어 생태계에는 명확한 공백이 존재한다.
-* **기존 커뮤니티/댓글:** 언론이 지적한 문제를 일방적으로 성토할 뿐, 대중이 대안을 직접 설계하고 검증해 볼 맞춤형 도구가 없다.
-* **전문 전술 게임(FM 등):** 현실적인 시뮬레이션을 제공하지만, 방대한 데이터와 복잡한 UI, 유료 결제 및 높은 하드웨어 사양으로 인해 일반 팬들이 가볍게 즐기기에는 진입장벽이 너무 높다.
-
-**K-Tactics Lab 2026** 은 이 간극을 메우는 도구다. 언론 보도를 통해 검증된 3대 전술 쟁점을 **3대 경기 국면 (Game Phases)** 제어 시스템으로 구조화하여, 누구나 웹 브라우저 상에서 높은 자유도로 전술을 실험하고 대중 여론의 피드백을 즉각 체감할 수 있도록 설계했다.
-
----
-
-## 🛠️ 3. Tech Stack (기술 스택)
-
-| Component | Choice | Why (선택 이유) |
-| :--- | :--- | :--- |
-| **Core Framework** | `Vanilla HTML5 / CSS3 / JS (ES6+)` | 무거운 프레임워크나 빌드(`npm install`) 종속성 없이, 브라우저에서 **1초 즉각 로딩** 및 심사위원 접근성 극대화 |
-| **UI & Styling** | `Vanilla CSS 다크 시네마틱 브로드캐스트` | 기울인 스타디움 캠 피치(3D `rotateX`), FUT 스타일 선수 카드, 스코어버그 헤더 등 축구 중계 화면 문법을 순수 CSS 토큰 시스템으로 구현. 화면 진동(`Shake`), 테두리 발광(`Glow`) 등 동적 60fps 애니메이션 |
-| **Typography** | `Google Fonts API` | `Outfit`, `Plus Jakarta Sans`, `Noto Sans KR` 3종 폰트를 CDN으로 로딩하여, 영문·숫자 스탯의 가독성과 한글 렌더링 최적화 |
-| **Sound FX** | `Web Audio API (실시간 합성)` | 킥오프 휘슬·골 환호·UI 블립을 오디오 파일 없이 브라우저에서 실시간 합성. 에셋 0개라 `file://` 오프라인에서도 동작하며 헤더 🔊 토글로 음소거 가능 |
-| **State & Interaction** | `Native JS State & HTML5 Drag/Touch APIs` | 외부 상태 관리 라이브러리 없이 전역 반응형 State 객체와 HTML5 `dataTransfer` 드래그 앤 드롭 + 클릭 맞교환(Click-to-Swap) 이원화 구현 |
-| **Simulation Engine** | `로컬 Poisson 몬테카를로 (결과 생성에 LLM 미사용)` | 공식 20인 FBref 스탯(`data/squad_stats_2026.js`)에서 λ를 유도해 브라우저 단에서 **1,000회 Poisson 몬테카를로**로 승/무/패 확률분포를 연산. 승패를 만드는 수치는 전부 앱에 고정된 값이라 규칙 기반·검증가능·$0 |
-| **AI Layer** | `멀티 프로바이더 LLM 체인 (서버리스 프록시)` | Coach V 채팅·사전분석·AI 상대감독을 Vercel 서버리스 함수(`api/coach.js`)로 호출. `callLLM()` 체인이 Groq `gpt-oss-120b` → Gemini 3.1 Flash-Lite 순으로 시도하고 전부 실패 시 스크립트 폴백. API 키는 서버에 은닉되어 심사자는 키 없이 사용, 무료 티어라 비용 ≈ $0 |
-| **Image Export & Share** | `html2canvas v1.4.1 + Web Share API` | 최종 명함 카드를 2배수 고화질 PNG로 캡처하고, 네이티브 공유·클립보드·'도전 링크(URL 인코딩)'로 바이럴 유도 |
-| **Hosting & Deploy** | `Vercel (Static + Serverless Functions)` | 정적 자산은 CDN, AI만 서버리스 함수로. 별도 인프라 관리 없이 무료 티어로 **운영 비용 ≈ $0**. `file://` 오프라인 폴백 보장 |
-
----
-
-## ✨ 4. Key Features (핵심 기능)
-
-1. **👑 높은 자유도의 스쿼드 & 포메이션 샌드박스 (Squad Sandbox)**
-   * 실제 남아공전 대형인 3-4-3을 포함한 5종 포메이션(3-4-3 / 4-3-3 / 3-5-2 / 4-2-3-1 / 4-4-2) 실시간 전환 및 마우스 드래그 앤 드롭 / 클릭 맞교환(Click-to-Swap)으로 구장 11명·벤치 9명(총 20인)을 자유롭게 교체한다.
-2. **⚔️ 3대 경기 국면 (Game Phases) 전술 제어 센터 및 2-Phase 턴 루프**
-   * **① 공격 전개:** U자형 빌드업 타파를 위한 하프스페이스 침투 및 백패스 금지 토글
-   * **② 측면 수비:** 자동문 수비 해결을 위한 인버티드 풀백, 쓰리백 스토퍼 역할 지정
-   * **③ 경기 운영:** '해줘 축구' 의존도를 낮추기 위한 하프타임 교체. 지친 선수를 뺄지 에이스를 남길지는 감독이 정하고, 바뀐 XI의 지표와 체력이 후반 기대 득점에 그대로 들어간다
-   * **전·후반 이원화 루프:** 전반전 기본 스탯 및 체력 소모(Stamina Fatigue) 반영 후, 하프타임 전술 다이얼 조정이 후반전 1,000회 몬테카를로 확률 연산 및 PK 승부차기에 직접 개입한다.
-3. **📊 실시간 팀 밸런스 HUD (FBref 기반 Core Metrics)**
-   * 피치 바로 아래 슬림 HUD 스트립으로 **공격 파괴력(슈팅·득점 기여), 측면 수비 안정도, 중원 장악력, 체력**을 상시 노출하여, 포메이션·교체·다이얼을 만질 때마다 변하는 실질적 성적표를 즉시 확인한다. 체력은 킥오프 전에는 스쿼드 기본 체력, 경기 시작 후에는 현재 그라운드에 선 11인의 잔여 체력이라 하프타임 교체가 곧바로 반영된다.
-4. **🤖 실제 LLM 수석 코치 'Coach V' + AI 상대 감독 (멀티 프로바이더 LLM 연동)**
-   * Coach V는 현재 보드 상태(스탯·다이얼·라인업·상대 브리핑)를 주입받아 **실제 LLM** 이 그라운디드 조언을 하며, 자유 질문 채팅을 지원한다. 공격수를 골문에 두는 등 전술 기행에는 즉각 **[긴급 경보]**.
-   * **AI 상대 감독:** 킥오프 시 LLM이 우리 XI를 스카우팅해 카운터 포메이션·전술을 **구조화 JSON**으로 결정하고, 그 결과가 몬테카를로 시뮬에 실제 반영된다(적대적 에이전틱 루프). 경기 진행 상황은 피치 우상단 접이식 상대 감독 칩으로 중계되며, 네트워크·무료 한도 실패 시 전부 스크립트 폴백.
-   * 팬 지지율(`vibeScore`)은 경기 성패와 분리된 2차 스토리 지표이며, 실시간 여론 중계 탭은 **경기 상태로 조건 선택되는 오프라인 댓글 뱅크**(손흥민 벤치·고압박 체력 등)로 채워진다.
-5. **🚪 선수단 락커룸 & 심층 스카우팅 리포트**
-   * 2026 월드컵에 실제 출전한 20인 멤버를 포지션별로 조회하고, 선수 카드를 클릭해 FBref 기반 지표와 심층 데이터 리포트를 확인한다.
-6. **🏆 1,000회 몬테카를로 매치 시뮬레이션 & 바이럴 도전 공유**
-   * 실전 시뮬레이션은 **승/무/패 확률분포**와 '명장 지략가' 타이틀 명함을 제공하고, **Web Share(네이티브 공유)·클립보드·PNG 캡처**로 인증하거나 **"이 전술 이겨봐" 도전 링크(URL 인코딩)** 로 친구에게 도전장을 보낼 수 있다.
-   * **2D 라이브 중계:** 확정된 전반·후반 각 45분을 탑뷰 캔버스로 재생한다. 양 팀이 실제 포메이션 대형으로 움직이고, 골이 터지는 분에 중계 문구·헤더 스코어버그·골 연출이 동시에 반응한다. 동점이면 **키커 시점 승부차기 뷰**로 이어진다. 두 애니메이션 모두 이미 뽑힌 결과를 보여주는 표현 계층이라 확률에는 관여하지 않는다.
-7. **📺 매치데이 브로드캐스트 보드 (경기장이 주인공)**
-   * 스코어버그 헤더, 기울인 스타디움 캠 피치 위의 FBref 레이팅 FUT 카드, 우상단 AI 상대 감독 칩, 벤치·Coach V·팬 채팅 **3탭 레일**로 실제 축구 중계 화면처럼 지휘한다. 경기 종료 후 **[🔄 다시 처음부터]** 리셋으로 전술을 바꿔 즉시 재도전할 수 있다.
-
----
-
-## 🧠 5. Key Design Decisions (핵심 설계 결정)
-
-1. **프레임워크 확장: 단편적 3대 과제 → 종합 전술 샌드박스 & 국면별 제어**
-   * *이유:* 단편적인 과제 제시 방식은 서비스 규모를 축소시켜 보인다. 포메이션 변환, 선수 맞교환, 롤 지정이 가능한 자유도 높은 샌드박스 위에서 언론이 지적한 쟁점을 **3대 경기 국면 (공격/수비/운영)** 으로 구조화하여 전문성과 몰입감을 극대화했다.
-2. **인터랙션 구조: 단일 드래그 앤 드롭 → 디바이스 이원화(Hybrid) 설계**
-   * *이유:* 드래그 앤 드롭은 트랙패드 등 일부 입력 장치에서 조작이 번거롭고 중간에 끊기기도 한다. 같은 교체 로직 위에 클릭 기반 교체(Click-to-Swap)를 보조 경로로 이원화해, 어떤 입력으로도 교체가 막히지 않게 했다.
-3. **밸런스 엔진: 2축 독립 평가 구조 (전술 스탯 vs 여론 지지도 분리)**
-   * *이유:* 대중 지지율(`vibeScore`)이 높다고 경기를 이기는 인위적 왜곡을 방지하기 위해, **실제 승패는 FBref 기반 스탯과 상대팀 상성(Trade-off), 체력 소모, 1,000회 몬테카를로 시뮬레이션**으로만 연산하고, **여론 지지율은 감독의 대중적 흥행과 명함 타이틀을 결정하는 2차 지표**로 완전히 독립시켰다.
-4. **UX/UI 피벗: 정보 대시보드 → 매치데이 브로드캐스트 (경기장이 주인공)**
-   * *이유:* 초기 3단 대시보드는 정보량은 충분했지만 "경기를 지휘한다"는 몰입감이 부족했다. 축구 중계 화면 문법을 차용해 **피치를 화면의 주인공**으로 확장하고, 팀 밸런스는 피치 하단 슬림 HUD로, 벤치·Coach V·팬 채팅은 우측 3탭 레일로, AI 상대 감독은 우상단 접이식 칩으로 재배치했다. 지지율 미터는 스코어버그 헤더의 **초슬림 프로그레스 바**로 상시 노출되어 정보 위계와 몰입감을 동시에 확보했다.
-5. **바이럴 전략: 일방적 링크 공유 → 명함 이미지 추출 메커니즘**
-   * *이유:* 단순 URL 공유는 텍스트 위주라 클릭 유인 효과가 덜하다. 유저의 소셜 미디어 인증 욕구를 자극하기 위해, 최종 성적과 '명장 지략가' 타이틀이 적힌 커스텀 명함을 고화질 PNG 파일로 제공하는 바이럴 촉진 메커니즘을 설계했다.
-6. **AI 비용 아키텍처: "어디에 LLM을 쓰지 않는가"의 설계**
-   * *이유:* 경기 결과는 로컬 Poisson 몬테카를로(모델 없음), 여론 댓글은 오프라인 생성 뱅크(런타임 $0), 라이브 LLM은 사용자 액션 기반 Coach V·AI 상대감독에만 국한했다. 타이머로 도는 여론 스트림에 콜당 LLM을 쓰지 않는 것이 핵심 결정. 모델 선택 근거·프롬프트 설계·비용 티어는 [`docs/AI_ENGINEERING.md`](docs/AI_ENGINEERING.md)에 정리했다.
-
----
-
-## 📁 6. Project Structure (프로젝트 구조)
-```text
-k-tactics-lab-2026/
-├── index.html       # 메인 UI, 매치데이 보드(피치 히어로 + 3탭 레일), 락커룸/모달, 남아공전 히어로 온보딩
-├── index.css        # 다크 시네마틱 토큰 디자인 시스템, 데스크톱 레이아웃, Keyframe 애니메이션
-├── app.js           # 전술 엔진, 로컬 몬테카를로 시뮬, Coach V/AI 상대감독 클라이언트, Vibe, 락커룸
-├── favicon.svg      # 파비콘 (인라인 SVG 직접 제작)
-├── api/
-│   └── coach.js     # Vercel 서버리스 프록시 (LLM 체인 Groq→Gemini, 키 은닉, chat/analysis/opponent)
-├── data/
-│   ├── squad_stats_2026.js  # 2026 WC 출전 공식 20인 FBref 파생 스탯
-│   ├── fan_comments_2026.js # 상태 태깅 여론 댓글 뱅크 (오프라인 생성 자산, 런타임 $0)
-│   └── raw/                 # FBref 원본 CSV 4개국(kor/rsa/mex/cze) + 국가별 SOURCE.md (재현성 근거)
-├── scripts/
-│   ├── parse_stats.py        # FBref per-90 → 4대 능력치 변환 (오프라인)
-│   ├── parse_opponents.py    # 상대 3개국 원본 CSV → 팀 강도(att/def) 도출·대조 리포트 (오프라인)
-│   ├── verify_raw.py         # 원본 CSV ↔ 전사된 선수 스탯 전수 대조 (불일치 시 exit 1)
-│   ├── gen_fan_comments.py   # 여론 뱅크 생성기 (오프라인, 선택)
-│   └── validate_model.js     # 몬테카를로 엔진 검증 하니스 (보정·수렴, node로 재현)
-├── docs/
-│   ├── AI_ENGINEERING.md     # 모델 선택·프롬프트·비용 아키텍처 근거
-│   ├── DATA_PIPELINE.md      # FBref 수집→정제→변환→검증 전 과정 (공식·워크드 예제·재현성 검증)
-│   ├── MODEL_SELECTION.md    # 경기 모델 선택 근거 + 해석적 정답 대비 검증·수렴 분석
-│   ├── USER_GUIDE.md         # 플레이 방법 및 엔진 동작 원리 해설 (무엇이 실제 연산이고 무엇이 연출인지)
-│   └── img/                  # 기획서 다이어그램·OG 커버 이미지
-├── vercel.json      # 서버리스 함수 설정
-├── .env.example     # GEMINI_API_KEY / GROQ_API_KEY 예시 (실제 키는 커밋 금지)
-├── LICENSE          # MIT License
-├── PROPOSAL.md      # 월간 해커톤 공식 제출용 기획서
-└── README.md        # 프로젝트 아키텍처 및 실행 안내서 (본 문서)
+```mermaid
+graph TD
+    A[User Interface: Vanilla HTML/CSS/JS] -->|Squad & Tactical Dials| B(Tactical State Engine)
+    B -->|FBref per-90 Derived Stats| C[Local Poisson Monte Carlo Engine: 1000 Runs]
+    B -->|Board State & Query| D[Vercel Serverless Proxy: api/coach.js]
+    D -->|Chain 1: Groq| E[gpt-oss-120b]
+    D -->|Chain 2: Gemini| F[Gemini 3.1 Flash-Lite]
+    D -->|Offline Fallback| G[Rule-based Scripts]
+    C -->|Win/Draw/Loss Distribution| H[2D Canvas Match Replay & Report Card]
 ```
 
----
+## Tech Decisions
 
-## 🚀 7. Getting Started (실행 및 배포 안내)
+| 영역 | 선택 | 이유 |
+|---|---|---|
+| 코어 프레임워크 | `Vanilla HTML5 · CSS3 · JS (ES6+)` | 프레임워크 빌드 step(`npm install`) 종속성 없이 브라우저에서 1초 즉각 로딩 및 제로 셋업 접근성을 보장하기 위해 바닐라 웹 선택 |
+| 매치 엔진 | `로컬 Poisson 몬테카를로 (1,000회)` | 승패 연산에 LLM을 쓸 때의 환각과 API 비용을 배제하고, FBref 실측 데이터 기반 $\lambda$로 규칙 기반·결정론적·$0 연산 달성 |
+| AI 레이어 | `멀티 프로바이더 LLM 체인 (Groq → Gemini)` | 단일 프로바이더 장애에 대비해 Groq을 우선 호출하고 Gemini로 폴백하며, Vercel 서버리스 함수로 API 키를 은닉하여 클라이언트 무인증 접근 제공 |
+| 사운드 FX | `Web Audio API (실시간 합성)` | 외부 오디오 에셋 의존성을 제거하여 `file://` 오프라인 환경에서도 킥오프 휘슬 및 UI 효과음이 즉시 구동되도록 브라우저 내장 합성 적용 |
+| 상태 관리 | `Native JS State & 이원화 인터랙션` | 외부 상태 라이브러리 없이 순수 JS 객체로 전역 상태를 관리하고, 트랙패드 환경을 위해 드래그 앤 드롭과 클릭 스왑(Click-to-Swap)을 동시 지원 |
+| 배포 및 호스팅 | `Vercel (Static + Serverless Functions)` | 정적 자산은 글로벌 CDN, LLM 프록시만 서버리스 함수로 분리하여 상시 인프라 운영 비용 $0 유지 |
 
-앱 본체는 빌드가 전혀 필요 없다. AI(Coach V/상대감독)만 서버리스 함수를 쓰며, 없이도 전 기능이 스크립트 폴백으로 동작한다. (No build required!)
+## Results & Limitations
 
-### 💻 Local Run (로컬 실행)
-1. 본 저장소를 다운로드(ZIP) 혹은 `git clone` 한다.
+- **운영 성과**: 별도 빌드 없이 브라우저 로딩 1초 이내 완료, 1,000회 Poisson 몬테카를로 확률 연산 10ms 이내 처리, Vercel 무료 티어로 상시 운영 비용 $0 유지.
+- **데이터 파이프라인 검증**: 4개국 20인 선수단의 FBref per-90 원본 통계를 4대 능력치로 전사하고, 교차 검증 스크립트([`scripts/verify_raw.py`](scripts/verify_raw.py))로 정합성 검증 완료.
+
+한계점:
+
+- **모바일 뷰포트 조작 제약**: 가로 1280px 이상 데스크톱 브라우저 환경에 최적화되어 있으며, 768px 미만 모바일 화면에서는 전술 보드 조작 대신 시나리오 소개와 링크 복사 랜딩만 제공.
+- **여론 댓글 뱅크의 정적 구성**: 실시간 여론 중계는 런타임 비용 절감을 위해 오프라인 생성된 조건부 댓글 뱅크로 구동되며, 완전한 동적 대화는 Coach V 채팅으로 한정됨.
+
+상세 AI 프롬프트 설계 및 통계 엔진 검증 수렴 분석은 [`docs/AI_ENGINEERING.md`](docs/AI_ENGINEERING.md) 및 [`docs/DATA_PIPELINE.md`](docs/DATA_PIPELINE.md)에 기록되어 있다.
+
+## Getting Started
+
+앱 본체는 별도 빌드 없이 즉시 실행할 수 있다.
+
+### 1. 로컬 실행
 ```bash
 git clone https://github.com/liminal-cipher/k-tactics-lab-2026.git
 cd k-tactics-lab-2026
 ```
-2. 폴더 내의 **`index.html`** 파일을 더블 클릭하여 웹 브라우저(Chrome, Safari, Edge 등)로 열면 즉시 실행된다. (이때 AI는 스크립트 폴백으로 동작)
+폴더 내 `index.html` 파일을 브라우저로 열면 즉시 실행된다. (AI 기능은 오프라인 스크립트 폴백으로 동작)
 
-### 🤖 AI 활성화 — 선택 (Vercel 배포)
-Coach V의 실시간 LLM과 AI 상대감독은 서버리스 함수가 필요하다.
-1. 무료 API 키 발급: [Google AI Studio](https://aistudio.google.com/apikey)(Gemini) 또는 [Groq Console](https://console.groq.com/keys) 중 하나 이상
-2. Vercel에 저장소 연결(Import) 후 환경변수 **`GEMINI_API_KEY`** 및/또는 **`GROQ_API_KEY`** 설정 (키가 있는 프로바이더만 체인에서 활성화)
-3. 로컬 개발 시: `npx vercel dev` (localhost:3000에서 `/api/coach` 라이브)
-> 키는 서버에만 저장되어 노출되지 않으며, 심사자는 배포 URL 방문만으로 **키 없이** 사용한다.
+### 2. AI 실시간 기능 활성화 (Vercel 배포)
+Coach V의 실시간 LLM 및 AI 상대 감독 기능을 사용하려면 서버리스 프록시 환경변수를 설정한다.
+1. [Google AI Studio](https://aistudio.google.com/apikey) 또는 [Groq Console](https://console.groq.com/keys)에서 무료 API 키 발급
+2. Vercel 프로젝트 설정의 Environment Variables에 `GEMINI_API_KEY` 및/또는 `GROQ_API_KEY` 등록
+3. 로컬 테스트: `npx vercel dev`
 
-### 🌐 Live Demo URL (온라인 배포)
-* **Live Demo (공식, AI 라이브):** [https://k-tactics-lab-2026.vercel.app](https://k-tactics-lab-2026.vercel.app)
-* **🎬 시연 영상 (2분 28초):** [https://youtu.be/bIjaPrhZ708](https://youtu.be/bIjaPrhZ708)
-  * 시작 화면 → 선수단 데이터 → 선수 배치 · 전술 설정 → Coach V · 팬 여론 → 90분 경기(2D 라이브 중계 · 하프타임 대응 · 교체) → 승부차기 → 결과 리포트 순으로 전 흐름을 담았다.
-* 정적 미러 (GitHub Pages, AI는 스크립트 폴백 동작): [https://liminal-cipher.github.io/k-tactics-lab-2026/](https://liminal-cipher.github.io/k-tactics-lab-2026/)
+## Retrospective
 
----
+- **모바일 뷰포트 지원을 초기에 배제한 점**: 짧은 해커톤 일정상 데스크톱 중계 화면의 시각적 몰입도에 집중하느라 모바일 직접 조작을 제외했다. 다시 한다면 모바일 터치 제스처에 맞춘 단계별 슬라이딩 전술 뷰를 먼저 설계했을 것이다.
+- **체력 감쇠 계수의 실측치 기반 보정**: 전·후반 체력 소모와 하프타임 교체 효과를 도메인 지식 기반의 휴리스틱으로 설계했다. 다시 한다면 실제 경기 득실점 시간대 데이터에 기반한 베이지안 보정을 거쳐 엔진의 설득력을 더 높였을 것이다.
 
-### ⚖️ 제3자 라이선스 및 데이터 출처
+## Status
 
-| 항목 | 라이선스 / 출처 | 사용 방식 |
-| :--- | :--- | :--- |
-| [html2canvas](https://github.com/niklasvh/html2canvas) v1.4.1 | MIT License (© Niklas von Hertzen) | cdnjs CDN 링크 참조 (번들 재배포 없음) |
-| 선수 능력치 원자료 | [FBref](https://fbref.com) 공개 통계 | per-90 지표를 오프라인에서 4대 능력치로 변환. 전 과정은 [docs/DATA_PIPELINE.md](docs/DATA_PIPELINE.md)에 공개 |
-| 웹폰트 | [Google Fonts](https://fonts.google.com) `Outfit` · `Plus Jakarta Sans` · `Noto Sans KR` (SIL Open Font License 1.1) | CSS `@import` CDN 로딩 (번들 재배포 없음). 차단 시 시스템 폰트로 폴백 |
-| 아이콘 | 유니코드 이모지 | 별도 아이콘 패키지 미사용 |
-| 사운드 | 자체 제작 (Web Audio API 합성) | 외부 음원 파일 없음 |
+완료. 2026 월간 해커톤 출품작으로 2026.06 진행. Vercel 라이브 데모 배포 중. 마지막 갱신 2026-09-01.
 
-> 그 외 모든 코드, 데이터 구성, UI는 직접 작성했다. 국기는 인라인 SVG로 직접 그렸다.
+## License
 
----
-📄 **License:** Released under the [MIT License](LICENSE). Developed for 월간 해커톤: 내가 축구 감독이라면 - 월드컵 전술 웹서비스 챌린지 (2026).
+MIT. See [LICENSE](LICENSE).
