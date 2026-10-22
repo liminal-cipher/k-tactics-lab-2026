@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 // ==========================================================================
 // K-Tactics Lab 2026 — Match-Model Validation Harness
-// Extracts the REAL poissonSample / secondHalfLambdas from app.js (no copy,
+// Extracts the REAL poissonSample / secondHalfLambdas from app.js and js/match-engine.js (no copy,
 // no drift) and checks the Monte Carlo engine against analytic ground truth:
 //   (1) calibration: MC win/draw/lose vs exact Poisson PMF summation
 //   (2) sample-mean: E[2nd-half goals] vs lambda
@@ -11,12 +11,13 @@
 // ==========================================================================
 const fs = require('fs');
 const path = require('path');
-const src = fs.readFileSync(path.join(__dirname, '..', 'app.js'), 'utf8');
+const src = ['app.js', 'js/match-engine.js'].map(file =>
+  fs.readFileSync(path.join(__dirname, '..', file), 'utf8')).join('\n');
 
 function extract(name, kind) {
   const startTok = kind === 'const' ? `const ${name} = ` : `function ${name}(`;
   const i = src.indexOf(startTok);
-  if (i === -1) throw new Error(`not found in app.js: ${name}`);
+  if (i === -1) throw new Error(`not found in application scripts: ${name}`);
   let j = src.indexOf('{', i);
   let depth = 0, inStr = null, inCmt = null;
   for (; j < src.length; j++) {

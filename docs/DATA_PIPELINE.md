@@ -109,7 +109,7 @@ stamina  = 85 − max(0, 나이−27)×0.6 + min(3, max(0, 25−나이)×0.4) + 
 
 ## 7. 상대 전력 (두 번째 파이프라인)
 
-위 §1~§6은 **우리 20인**의 파이프라인이다. §6-2의 "상대 전력"은 별도 경로로 만들어진다: `scripts/parse_opponents.py`가 `data/raw/{cze,mex,rsa}/`의 FBref 표에서 팀당 `{att, def}` 두 숫자를 유도해 `app.js`의 `OPP_STRENGTH`로 들어간다 (2026-07-31 교체, 그전까지는 큐레이션 값).
+위 §1~§6은 **우리 20인**의 파이프라인이다. §6-2의 "상대 전력"은 별도 경로로 만들어진다: `scripts/parse_opponents.py`가 `data/raw/{cze,mex,rsa}/`의 FBref 표에서 팀당 `{att, def}` 두 숫자를 유도해 `js/match-engine.js`의 `OPP_STRENGTH`로 들어간다 (2026-07-31 교체, 그전까지는 큐레이션 값).
 
 선수 단위가 아니라 팀 단위라 스코프와 방법이 다르다.
 
@@ -119,4 +119,4 @@ stamina  = 85 − max(0, 나이−27)×0.6 + min(3, max(0, 25−나이)×0.4) + 
 - **검증**: 교체 전 큐레이션 값과 대조해 체코 공격 68 대 68, 남아공 수비 70 대 70, 공격·수비 서열 모두 일치. 즉 유도값이 기존 편집값을 재현했다.
 - **한계**: FBref 팀 페이지는 대회 전체라 팀마다 표본 구간이 다르다(멕시코 5경기, 남아공 4경기, 한국·체코 3경기). 조별로 자르면 멕시코 실점이 0이 되어 계산이 데이터가 아니라 하한 상수에서 나온다. 판단 근거는 [`../data/raw/README.md`](../data/raw/README.md), 정직한 경계선은 [`MODEL_SELECTION.md`](MODEL_SELECTION.md) §4.
 
-재현: `python scripts/parse_opponents.py`. 이 스크립트는 `app.js`를 쓰지 않는다. 비교표를 출력할 뿐이고 값을 옮기는 것은 사람이 게이트를 확인한 뒤 하는 일로 남겨 뒀으므로, 출력과 `OPP_STRENGTH`를 대조하면 드리프트를 알 수 있다.
+재현: `python scripts/parse_opponents.py`. 이 스크립트는 `js/match-engine.js`를 쓰지 않는다. 비교표를 출력할 뿐이고 값을 옮기는 것은 사람이 게이트를 확인한 뒤 하는 일로 남겨 뒀으므로, 출력과 `OPP_STRENGTH`를 대조하면 드리프트를 알 수 있다.
