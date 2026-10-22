@@ -31,10 +31,15 @@ function coachTextToHtml(text) {
 }
 
 // Returns the parsed JSON on success, or null → caller uses scripted fallback.
-async function callCoachAPI(mode, message) {
-  if (!COACH_API) return null; // file:// → no backend reachable
+async function callCoachAPI(mode, message, signal) {
+  if (!COACH_API || signal?.aborted) return null;
+  const controller = new AbortController();
+  const abort = () => controller.abort();
+  signal?.addEventListener('abort', abort, { once: true });
+  const timer = setTimeout(abort, 25_000);
   try {
     const res = await fetch(COACH_API, {
+      signal: controller.signal,
       method: 'POST',
       headers: { 'content-type': 'application/json' },
       body: JSON.stringify({ mode, message: message || '', state: buildCoachState() })
@@ -44,6 +49,9 @@ async function callCoachAPI(mode, message) {
     return data;
   } catch (e) {
     return null;
+  } finally {
+    clearTimeout(timer);
+    signal?.removeEventListener('abort', abort);
   }
 }
 
@@ -192,13 +200,29 @@ function renderOpponentPlanChip(plan) {
 }
 
 // Fetch the AI opponent's plan (LLM), falling back to the scripted heuristic.
+let opponentRequestId = 0;
+let opponentRequestController = null;
+
+function cancelOpponentRequest() {
+  opponentRequestId += 1;
+  opponentRequestController?.abort();
+  opponentRequestController = null;
+}
+
 async function fetchOpponentPlan() {
+  cancelOpponentRequest();
+  const requestId = opponentRequestId;
+  const opponent = state.opponent;
+  const controller = new AbortController();
+  opponentRequestController = controller;
   // Synchronous fallback first, so the sim always has a plan even if the call is slow.
   if (!state.opponentPlan) state.opponentPlan = scriptedCounterPlan();
   renderOpponentPlanChip(state.opponentPlan);
   setOppChip(true); // the scout is the moment this chip earns its screen space
 
-  const data = await callCoachAPI('opponent');
+  const data = await callCoachAPI('opponent', '', controller.signal);
+  if (requestId !== opponentRequestId || opponent !== state.opponent || !state.opponentPlan) return;
+  opponentRequestController = null;
   const plan = data && data.opponent ? data.opponent : null;
   if (isValidOpponentPlan(plan)) {
     plan.scripted = false;

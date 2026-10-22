@@ -1059,6 +1059,7 @@ function updateBrandFixture() {
 function selectOpponent(opp) {
   state.opponent = opp;
   updateBrandFixture();
+  cancelOpponentRequest();
   state.opponentPlan = null; // new opponent re-scouts on next kickoff
   if (typeof renderOpponentPlanChip === 'function') renderOpponentPlanChip(null);
 
@@ -1594,6 +1595,7 @@ function runSimulation() {
   } else {
     // Full-time -> fresh pre-match reset (keeps the user's current XI, dials, opponent)
     state.matchPhase = 0;
+    cancelOpponentRequest();
     state.opponentPlan = null; // re-scout next match
     renderOpponentPlanChip(null);
     state.staminaState = {}; // fresh legs: stamina bars back to base
@@ -1716,6 +1718,7 @@ function runFirstHalf() {
 }
 
 function runSecondHalf() {
+  cancelOpponentRequest(); // keep the plan used by this result stable
   const stepText = document.getElementById('sim-step-text');
   updateScorebug(null, null, "2H · LIVE");
 
