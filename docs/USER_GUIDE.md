@@ -1,7 +1,7 @@
 # K-Tactics Lab 2026 — 사용 가이드 & 작동 원리
 
 > 이 앱이 무엇이고, 어떻게 플레이하며, 각 기능이 왜 존재하는지 정리한 문서다.
-> 모든 설명은 실제 코드(`app.js`, `index.html`, `data/`, `api/coach.js`)에 근거한다.
+> 모든 설명은 실제 코드(`app.js`, `js/`, `index.html`, `data/`, `api/coach.js`)에 근거한다.
 
 ---
 

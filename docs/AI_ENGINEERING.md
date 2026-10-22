@@ -48,7 +48,7 @@
 
 > 모델 선택 근거(대안 비교), 해석적 정답 대비 보정 검증, N=1,000 수렴 분석은 [`MODEL_SELECTION.md`](MODEL_SELECTION.md)에 있다 (`node scripts/validate_model.js`로 재현 가능).
 
-`app.js`의 `secondHalfLambdas` / `poissonSample` / `runMonteCarlo`.
+`js/match-engine.js`의 `secondHalfLambdas` / `poissonSample` / `runMonteCarlo`.
 
 - 후반전 양팀 득점을 **Poisson(λ)**에서 1,000회 샘플링해 하프타임 스코어에 더하고, 승/무/패 분포와 최빈 스코어를 집계한다.
 - **λ 유도**: `λ_kor = 0.72 · (공격력 / 상대수비) · 중원계수`, `λ_opp = 0.72 · (상대공격 / 수비력) / 중원계수`. 여기에 전술 다이얼(압박/성향/루트), 후반 체력 감소, 실행된 교체(프레시 레그), 그리고 **AI 상대감독의 카운터 전술**(`opponentModifiers`)이 곱셈 보정으로 반영된다.
@@ -59,7 +59,7 @@
 
 ## 5. AI 상대 감독 (에이전틱, 적대적)
 
-`fetchOpponentPlan` / `scriptedCounterPlan` / `opponentModifiers`.
+`js/coach.js`의 `fetchOpponentPlan` / `scriptedCounterPlan`, `js/match-engine.js`의 `opponentModifiers`.
 
 - 킥오프 시 LLM이 우리 XI·스탯을 스카우팅하고 **카운터 전술을 구조화 JSON**(`counterFormation`, `counterDials`, `reasoning`)으로 반환한다. 허용 옵션(enum)은 Gemini에선 `responseSchema`로, Groq에선 JSON 모드 + 스키마 주입 프롬프트로 강제한다.
 - 반환된 카운터는 시뮬의 λ에 반영되어 실제로 결과를 바꾼다(적대적 루프). 예: 상대가 고압박을 고르면 우리 득점 기대가 낮아진다.

@@ -3,13 +3,13 @@
 # K-Tactics Lab 2026 — Opponent Team-Strength Derivation (B‴, 2026-07-31)
 # Source: FBref squad pages, 2026 World Cup (Standard, Shooting, Misc)
 # Scope: unlike parse_stats.py (20 individual player cards), this produces
-#        exactly one {att, def} pair per team — the two numbers app.js reads
+#        exactly one {att, def} pair per team — the two numbers js/match-engine.js reads
 #        as OPP_STRENGTH[country]. See data/raw/README.md.
 # Usage:  python scripts/parse_opponents.py
-# Output: prints a comparison table. Does NOT write app.js: the derived
+# Output: prints a comparison table. Does NOT write js/match-engine.js: the derived
 #         values shipped on 2026-07-31, but moving them stays a human step
 #         taken after checking the gate, so this script only ever reports.
-#         Re-run it and diff the output against OPP_STRENGTH in app.js.
+#         Re-run it and diff the output against OPP_STRENGTH in js/match-engine.js.
 # ==========================================================================
 
 import csv, io, math, os, sys
@@ -254,8 +254,8 @@ def main():
     print(f'  att  큐레이션: {order("att", seen)}   |  유도: {order("att", derived)}')
     print(f'  def  큐레이션: {order("def", seen)}   |  유도: {order("def", derived)}')
 
-    print('\n다음 단계 (B‴4 게이트): node scripts/validate_model.js + .local/probe_page_herocurve.js로')
-    print('[개막 0:1 유지] ∧ [개혁 리프트 ≥20%p] ∧ [자유 모드 곡선 정상] 확인 후 교체 여부 결정.')
+    print('\n현재 적용값은 js/match-engine.js의 OPP_STRENGTH와 비교하세요.')
+    print('변경 후 node scripts/validate_model.js 및 node --test tests/*.test.js를 실행하세요.')
 
 
 if __name__ == '__main__':
