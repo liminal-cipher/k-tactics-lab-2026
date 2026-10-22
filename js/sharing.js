@@ -29,6 +29,7 @@ function buildChallengePayload() {
     o: state.opponent,
     d: { ...state.dials },
     xi: currentLineupNames(),
+    roles: (squadData[state.currentFormation] || []).map(p => p.role),
     s: { k: state.finalScore.kor, o: state.finalScore.opp },
     vb: state.vibeScore
   };
@@ -46,22 +47,43 @@ function buildChallengeURL() {
 function applyChallengeFromURL() {
   try {
     const m = (location.hash || '').match(/[#&]t=([^&]+)/);
-    if (!m) return null;
+    if (!m || m[1].length > 8192) return null;
     const payload = JSON.parse(decodeURIComponent(escape(atob(m[1]))));
-    if (!payload || !payload.f || !squadData[payload.f]) return null;
+    if (!payload || payload.v !== 1 ||
+        typeof payload.f !== 'string' || !Object.hasOwn(squadData, payload.f) ||
+        !['CZE', 'MEX', 'RSA'].includes(payload.o) ||
+        !Number.isFinite(payload.vb) || payload.vb < 0 || payload.vb > 100 ||
+        !payload.s || ![payload.s.k, payload.s.o].every(n => Number.isSafeInteger(n) && n >= 0) ||
+        !payload.d || typeof payload.d !== 'object' || Array.isArray(payload.d)) return null;
 
+    const dials = {};
+    for (const key of ['tempo', 'route', 'press', 'mentality']) {
+      if (!OPPONENT_VOCAB[key].includes(payload.d[key])) return null;
+      dials[key] = payload.d[key];
+    }
+    for (const key of ['nopassback', 'kangin']) {
+      if (typeof payload.d[key] !== 'boolean') return null;
+      dials[key] = payload.d[key];
+    }
     const roster = buildMasterRoster();
     const template = squadData[payload.f];
-    if (Array.isArray(payload.xi) && payload.xi.length === template.length) {
-      squadData[payload.f] = template.map((slot, i) => {
-        const base = roster[payload.xi[i]];
-        if (!base) return { ...slot };
-        return { ...base, pos: slot.pos, role: base.role || slot.role };
-      });
-    }
+    if (!Array.isArray(payload.xi) || payload.xi.length !== template.length ||
+        new Set(payload.xi).size !== template.length ||
+        !payload.xi.every(name => typeof name === 'string' && Object.hasOwn(roster, name))) return null;
+
+    // Optional for backward compatibility with links created before roles were shared.
+    if (payload.roles !== undefined &&
+        (!Array.isArray(payload.roles) || payload.roles.length !== template.length ||
+         !payload.roles.every(role => typeof role === 'string' && Object.hasOwn(ROLE_EFFECTS, role)))) return null;
+
+    // Validate everything before mutating the board; invalid links are a no-op.
+    squadData[payload.f] = template.map((slot, i) => {
+      const base = roster[payload.xi[i]];
+      return { ...base, pos: slot.pos, role: payload.roles?.[i] ?? base.role ?? slot.role };
+    });
     state.currentFormation = payload.f;
-    if (payload.o) state.opponent = payload.o;
-    if (payload.d && typeof payload.d === 'object') state.dials = { ...state.dials, ...payload.d };
+    state.opponent = payload.o;
+    state.dials = dials;
     return { score: payload.s, vibe: payload.vb, opponent: payload.o };
   } catch (e) {
     return null;
@@ -81,7 +103,7 @@ function announceChallenge(challenge) {
   }
   const s = challenge.score || {};
   const target = (typeof s.k === 'number' && typeof s.o === 'number')
-    ? `상대 감독의 기록은 <strong>${s.k}:${s.o}</strong> (지지율 ${challenge.vibe ?? '?'}%)입니다. ` : '';
+    ? `상대 감독의 기록은 <strong>${s.k}:${s.o}</strong> (지지율 ${coachTextToHtml(challenge.vibe ?? '?')}%)입니다. ` : '';
   pushCoachMessage(`🎯 <strong>[도전장 접수!]</strong><br>누군가 자신의 전술을 공유하며 감독님께 도전했습니다. ${target}이 셋업을 그대로 이어받았습니다 — 더 나은 결과를 만들어 상대를 이겨보세요!`, true);
 }
 
@@ -104,9 +126,26 @@ function syncDialButtons() {
 // Korean (no spaces inside a run) and stacks the glyphs on top of each other.
 // Any explicit letter-spacing switches it to per-glyph positioning, so the clone
 // gets a hairline value that is invisible at 2x but lays the text out correctly.
-function captureResultCard() {
+async function withExportTimeout(operation) {
+  let timer;
+  try {
+    return await Promise.race([
+      Promise.resolve().then(operation),
+      new Promise((_, reject) => {
+        timer = setTimeout(() => reject(new Error('Image export timed out')), 15_000);
+      })
+    ]);
+  } finally {
+    clearTimeout(timer);
+  }
+}
+
+async function captureResultCard() {
   const card = document.getElementById('manager-result-card');
-  return html2canvas(card, {
+  if (!card || typeof html2canvas !== 'function') {
+    throw new Error('Image export is unavailable');
+  }
+  return withExportTimeout(() => html2canvas(card, {
     // Transparent, not the page colour. The canvas is a rectangle and the card
     // is rounded, so an opaque fill survives in the four corners outside the
     // radius: in the saved PNG that reads as dark wedges poking out behind the
@@ -121,10 +160,23 @@ function captureResultCard() {
       st.textContent = '#manager-result-card, #manager-result-card * { letter-spacing: 0.01px; } #manager-result-card .xai-info { display: none; }';
       doc.head.appendChild(st);
     }
-  });
+  }));
 }
 
+let shareInProgress = false;
 async function shareResult() {
+  if (shareInProgress) return;
+  shareInProgress = true;
+  try {
+    await performShareResult();
+  } catch {
+    alert('공유 준비 중 오류가 발생했습니다. 다시 시도해 주세요.');
+  } finally {
+    shareInProgress = false;
+  }
+}
+
+async function performShareResult() {
   const styleName = (document.getElementById('res-style-name')?.textContent || 'K-Tactics 감독 명함').trim();
   const url = buildChallengeURL();
   // Lead with the same transformation the card leads with: the score alone
@@ -137,23 +189,22 @@ async function shareResult() {
   const caption = `[K-Tactics Lab 2026] ${styleName}\n${oppKo}전 그날 ${real.kor}:${real.opp} → 내 지휘 ${mine} · 팬 지지율 ${state.vibeScore}%\n내 전술 이겨봐 👉 ${url}`;
 
   // 1) Native share sheet with the result-card image (mobile).
-  let sheetShown = false;
   try {
     const card = document.getElementById('manager-result-card');
-    if (card && typeof html2canvas === 'function' && navigator.canShare) {
+    if (card && typeof html2canvas === 'function' &&
+        typeof navigator.canShare === 'function' && typeof navigator.share === 'function') {
       const canvas = await captureResultCard();
-      const blob = await new Promise(r => canvas.toBlob(r, 'image/png'));
+      const blob = await withExportTimeout(() => new Promise(r => canvas.toBlob(r, 'image/png')));
       if (blob) {
         const file = new File([blob], 'k-tactics-card.png', { type: 'image/png' });
         if (navigator.canShare({ files: [file] })) {
-          sheetShown = true;
           await navigator.share({ files: [file], title: 'K-Tactics Lab 2026', text: caption, url });
           return;
         }
       }
     }
   } catch (e) {
-    if (sheetShown) return; // user opened then dismissed the share sheet
+    if (e?.name === 'AbortError') return; // Respect an explicitly dismissed share sheet.
   }
 
   // 2) Clipboard fallback (desktop).
@@ -168,12 +219,15 @@ async function shareResult() {
 }
 
 // --- Download Viral Shareable Card as PNG (html2canvas) ---
-function downloadCardPNG() {
+let downloadInProgress = false;
+async function downloadCardPNG() {
+  if (downloadInProgress) return;
   // Rendering the card takes a few seconds, so the button reports progress
   // instead of looking dead.
   const btn = document.querySelector('.btn-download');
   const label = btn ? btn.querySelector('span') : null;
   const original = label ? label.textContent : '';
+  downloadInProgress = true;
   if (btn) { btn.disabled = true; }
   if (label) { label.textContent = '🖼️ 명함 카드 생성 중...'; }
   const restore = () => {
@@ -181,14 +235,17 @@ function downloadCardPNG() {
     if (label) label.textContent = original;
   };
 
-  captureResultCard().then(canvas => {
+  try {
+    const canvas = await captureResultCard();
     const link = document.createElement('a');
     link.download = `K-Tactics_2026_내감독명함_${Date.now()}.png`;
     link.href = canvas.toDataURL('image/png');
+    if (!link.href.startsWith('data:image/png')) throw new Error('Empty image export');
     link.click();
-    restore();
-  }).catch(err => {
-    restore();
+  } catch {
     alert('이미지 생성 중 오류가 발생했습니다. 다시 시도해 주세요!');
-  });
+  } finally {
+    restore();
+    downloadInProgress = false;
+  }
 }
