@@ -122,6 +122,9 @@ function opponentModifiers() {
 }
 
 function runMonteCarlo(iterations = 1000) {
+  if (!Number.isSafeInteger(iterations) || iterations <= 0) {
+    throw new RangeError('iterations must be a positive safe integer');
+  }
   const { lamKor, lamOpp, base, factors } = secondHalfLambdas();
   const baseKor = state.halfTimeScore.kor;
   const baseOpp = state.halfTimeScore.opp;
@@ -140,11 +143,18 @@ function runMonteCarlo(iterations = 1000) {
     if (scoreCount[key] > best) { best = scoreCount[key]; modal = key; }
   }
   const [mk, mo] = modal.split(':').map(Number);
+  // Largest remainders preserve integer percentages whose sum is exactly 100.
+  const counts = [win, draw, lose];
+  const percentages = counts.map(count => Math.floor(count * 100 / iterations));
+  const order = counts.map((count, index) => ({ index, remainder: count * 100 % iterations }))
+    .sort((a, b) => b.remainder - a.remainder || a.index - b.index);
+  const remaining = 100 - percentages.reduce((a, b) => a + b, 0);
+  for (let i = 0; i < remaining; i++) percentages[order[i].index] += 1;
   return {
     iterations,
-    winPct: Math.round((win / iterations) * 100),
-    drawPct: Math.round((draw / iterations) * 100),
-    losePct: Math.round((lose / iterations) * 100),
+    winPct: percentages[0],
+    drawPct: percentages[1],
+    losePct: percentages[2],
     modalScore: { kor: mk, opp: mo },
     avgKor: sumKor / iterations,
     avgOpp: sumOpp / iterations,

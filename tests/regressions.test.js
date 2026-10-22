@@ -247,6 +247,21 @@ test('invalid roles and malformed encodings leave the board untouched', () => {
   }
 });
 
+test('percentages total 100 across sample sizes; invalid iterations are rejected', () => {
+  const c = client();
+  vm.runInContext('Math.random=(()=>{let n=12345;return()=>((n=(n*1664525+1013904223)>>>0)/4294967296);})();', c);
+  for (const size of [1, 2, 3, 7, 100, 1000]) {
+    for (let i = 0; i < 20; i++) {
+      const result = c.runMonteCarlo(size);
+      const values = [result.winPct, result.drawPct, result.losePct];
+      assert.equal(values.reduce((a, b) => a + b), 100);
+      assert.ok(values.every(n => Number.isInteger(n) && n >= 0 && n <= 100));
+    }
+  }
+  for (const value of [0, -1, 1.5, NaN, Infinity, '1000']) {
+    assert.throws(() => c.runMonteCarlo(value), { name: 'RangeError' });
+  }
+});
 
 function exportClient() {
   const c = client();
