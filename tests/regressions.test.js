@@ -52,7 +52,50 @@ test('normal shared links round-trip through actual scripts', () => {
   assert.ok(Number.isFinite(c.secondHalfLambdas().lamKor));
 });
 
+test('untrusted challenge fields are rejected atomically', () => {
+  const c = client();
+  const original = JSON.stringify(c.buildChallengePayload());
+  const mutations = [
+    p => p.vb = '<img src=x onerror="void(0)">',
+    p => p.vb = 101,
+    p => p.vb = -1,
+    p => p.o = '<img src=x>',
+    p => p.f = '__proto__',
+    p => p.v = 2,
+    p => p.s.k = -1,
+    p => p.s.o = 1.5,
+    p => p.xi[1] = p.xi[0],
+    p => p.xi[0] = '__proto__',
+    p => p.d.press = 'invalid',
+    p => p.d.kangin = 'false',
+    p => p.d = [],
+  ];
+  for (const mutate of mutations) {
+    const payload = JSON.parse(original);
+    mutate(payload);
+    encode(c, payload);
+    assert.equal(c.applyChallengeFromURL(), null);
+    assert.equal(JSON.stringify(c.buildChallengePayload()), original);
+  }
+  c.location.hash = '#t=' + 'a'.repeat(8193);
+  assert.equal(c.applyChallengeFromURL(), null);
+});
 
+test('extra dial keys are not imported and display escapes HTML defensively', () => {
+  const c = client();
+  const payload = JSON.parse(JSON.stringify(c.buildChallengePayload()));
+  payload.d.injected = true;
+  encode(c, payload);
+  assert.ok(c.applyChallengeFromURL());
+  assert.equal(c.board.dials.injected, undefined);
+  c.selectOpponent = () => {};
+  c.syncDialButtons = () => {};
+  let html;
+  c.pushCoachMessage = text => html = text;
+  c.announceChallenge({ score: { k: 1, o: 0 }, vibe: '<img src=x>' });
+  assert.ok(!html.includes('<img'));
+  assert.ok(html.includes('&lt;img'));
+});
 
 test('cancelled or superseded scouts cannot overwrite or announce stale plans', async () => {
   const c = client();
@@ -176,7 +219,33 @@ test('server timeout covers stalled response bodies and total request budget', a
   assert.equal((await c.callLLM({})).status, 'timeout');
 });
 
+test('custom roles survive sharing to a fresh board; legacy links still work', () => {
+  const sender = client();
+  vm.runInContext('squadData[state.currentFormation][0].role = roleOptions.att[2]', sender);
+  const payload = JSON.parse(JSON.stringify(sender.buildChallengePayload()));
+  const receiver = client();
+  encode(receiver, payload);
+  assert.ok(receiver.applyChallengeFromURL());
+  assert.equal(JSON.stringify(receiver.buildChallengePayload()), JSON.stringify(payload));
+  delete payload.roles;
+  encode(receiver, payload);
+  assert.ok(receiver.applyChallengeFromURL());
+});
 
+test('invalid roles and malformed encodings leave the board untouched', () => {
+  const c = client();
+  const original = JSON.stringify(c.buildChallengePayload());
+  for (const roles of [null, [], {}, ['fake'], Array(11).fill('__proto__'), Array(11).fill('<img src=x>')]) {
+    encode(c, { ...JSON.parse(original), roles });
+    assert.equal(c.applyChallengeFromURL(), null);
+    assert.equal(JSON.stringify(c.buildChallengePayload()), original);
+  }
+  for (const hash of ['#t=!!', '#t=ey', '#t=/w==']) {
+    c.location.hash = hash;
+    assert.equal(c.applyChallengeFromURL(), null);
+    assert.equal(JSON.stringify(c.buildChallengePayload()), original);
+  }
+});
 
 
 function exportClient() {
@@ -193,3 +262,85 @@ function exportClient() {
   c.File = class {};
   return { c, button, label, alerts, clicks, copied };
 }
+
+test('image saving restores controls for missing library/card and rendering/encoding failures', async () => {
+  for (const kind of ['missing-library', 'missing-card', 'throw', 'reject', 'encode', 'empty']) {
+    const { c, button, label, alerts, clicks } = exportClient();
+    if (kind !== 'missing-library') {
+      c.html2canvas = () => {
+        if (kind === 'throw') throw new Error('render');
+        if (kind === 'reject') return Promise.reject(new Error('render'));
+        return Promise.resolve({ toDataURL() {
+          if (kind === 'encode') throw new Error('tainted canvas');
+          return 'data:,';
+        } });
+      };
+    }
+    if (kind === 'missing-card') c.document.getElementById = () => null;
+    await c.downloadCardPNG();
+    assert.equal(button.disabled, false, kind);
+    assert.equal(label.textContent, 'Save', kind);
+    assert.equal(alerts.length, 1, kind);
+    assert.equal(clicks.length, 0, kind);
+    assert.equal(c.clock.pending.size, 0, kind);
+  }
+});
+
+test('hung image export times out, ignores duplicate clicks, then allows retry', async () => {
+  const { c, button, alerts, clicks } = exportClient();
+  let calls = 0;
+  c.html2canvas = () => { calls++; return new Promise(() => {}); };
+  const pending = c.downloadCardPNG();
+  await new Promise(resolve => setImmediate(resolve));
+  await c.downloadCardPNG();
+  assert.equal(calls, 1);
+  assert.equal(button.disabled, true);
+  assert.equal(c.clock.fire(), 15000);
+  await pending;
+  assert.equal(button.disabled, false);
+  assert.equal(alerts.length, 1);
+  c.html2canvas = async () => ({ toDataURL: () => 'data:image/png;base64,test' });
+  await c.downloadCardPNG();
+  assert.equal(clicks.length, 1);
+  assert.equal(c.clock.pending.size, 0);
+});
+
+test('native share errors fall back to clipboard; user cancellation does not', async () => {
+  for (const name of ['NotAllowedError', 'TypeError', 'AbortError']) {
+    const { c, copied } = exportClient();
+    c.html2canvas = async () => ({ toBlob: callback => callback({}) });
+    c.navigator.canShare = () => true;
+    c.navigator.share = async () => { throw Object.assign(new Error('share'), { name }); };
+    await c.shareResult();
+    assert.equal(copied.length, name === 'AbortError' ? 0 : 1, name);
+  }
+});
+
+test('missing share APIs, null blobs and denied clipboard reach safe fallbacks', async () => {
+  const { c, alerts, copied } = exportClient();
+  await c.shareResult();
+  assert.equal(copied.length, 1);
+  c.html2canvas = async () => ({ toBlob: callback => callback(null) });
+  c.navigator.canShare = () => true;
+  c.navigator.share = () => assert.fail('null blob must not be shared');
+  c.navigator.clipboard.writeText = async () => { throw new Error('denied'); };
+  await c.shareResult();
+  assert.equal(alerts.length, 1);
+  assert.ok(alerts[0].includes('#t='));
+  assert.equal(c.clock.pending.size, 0);
+});
+
+test('hung blob conversion and repeated share clicks recover to text sharing', async () => {
+  const { c, copied } = exportClient();
+  c.html2canvas = async () => ({ toBlob() {} });
+  c.navigator.canShare = () => true;
+  c.navigator.share = () => assert.fail('hung blob must not be shared');
+  const pending = c.shareResult();
+  await new Promise(resolve => setImmediate(resolve));
+  await c.shareResult();
+  assert.equal(c.clock.pending.size, 1);
+  assert.equal(c.clock.fire(), 15000);
+  await pending;
+  assert.equal(copied.length, 1);
+  assert.equal(c.clock.pending.size, 0);
+});
