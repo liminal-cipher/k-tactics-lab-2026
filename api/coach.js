@@ -185,8 +185,11 @@ function extractJson(text) {
 //                   truncates; 3-flash-preview also 429s on the free tier
 const GEMINI_MODEL = 'gemini-3.1-flash-lite';
 const GROQ_MODEL = 'openai/gpt-oss-120b';
+// Four attempts at most; leave headroom below Vercel's 30-second limit.
+const PROVIDER_TIMEOUT_MS = 5_000;
+const LLM_TIMEOUT_MS = 20_000;
 
-async function callGemini({ system, user, maxTokens, temperature, schema }) {
+async function callGemini({ system, user, maxTokens, temperature, schema, timeoutMs = PROVIDER_TIMEOUT_MS }) {
   const key = process.env.GEMINI_API_KEY;
   if (!key) return { ok: false, noKey: true };
 
@@ -208,11 +211,14 @@ async function callGemini({ system, user, maxTokens, temperature, schema }) {
     generationConfig,
   };
 
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), timeoutMs);
   try {
     const r = await fetch(url, {
       method: 'POST',
       headers: { 'content-type': 'application/json' },
       body: JSON.stringify(body),
+      signal: controller.signal,
     });
     if (!r.ok) {
       const detail = await r.text().catch(() => '');
@@ -227,7 +233,9 @@ async function callGemini({ system, user, maxTokens, temperature, schema }) {
     if (!text) return { ok: false, status: 'empty' };
     return { ok: true, text, model: GEMINI_MODEL };
   } catch (e) {
-    return { ok: false, status: 'exception' };
+    return { ok: false, status: controller.signal.aborted ? 'timeout' : 'exception' };
+  } finally {
+    clearTimeout(timer);
   }
 }
 
@@ -235,7 +243,7 @@ async function callGemini({ system, user, maxTokens, temperature, schema }) {
 // out of the reply (include_reasoning: false) but still consumes completion
 // tokens, hence the headroom on max_completion_tokens. JSON mode requires
 // non-raw reasoning output, which include_reasoning: false satisfies.
-async function callGroq({ system, user, maxTokens, temperature, schema }) {
+async function callGroq({ system, user, maxTokens, temperature, schema, timeoutMs = PROVIDER_TIMEOUT_MS }) {
   const key = process.env.GROQ_API_KEY;
   if (!key) return { ok: false, noKey: true };
 
@@ -256,6 +264,8 @@ async function callGroq({ system, user, maxTokens, temperature, schema }) {
   };
   if (schema) body.response_format = { type: 'json_object' };
 
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), timeoutMs);
   try {
     const r = await fetch('https://api.groq.com/openai/v1/chat/completions', {
       method: 'POST',
@@ -264,6 +274,7 @@ async function callGroq({ system, user, maxTokens, temperature, schema }) {
         authorization: `Bearer ${key}`,
       },
       body: JSON.stringify(body),
+      signal: controller.signal,
     });
     if (!r.ok) {
       const detail = await r.text().catch(() => '');
@@ -274,7 +285,9 @@ async function callGroq({ system, user, maxTokens, temperature, schema }) {
     if (!text) return { ok: false, status: 'empty' };
     return { ok: true, text, model: GROQ_MODEL };
   } catch (e) {
-    return { ok: false, status: 'exception' };
+    return { ok: false, status: controller.signal.aborted ? 'timeout' : 'exception' };
+  } finally {
+    clearTimeout(timer);
   }
 }
 
@@ -295,12 +308,18 @@ const hasForeignLetter = t => {
 const stripForeignLetters = t => String(t || '').replace(FOREIGN_LETTER, '');
 
 async function callLLM(req) {
+  const deadline = Date.now() + LLM_TIMEOUT_MS;
   let lastFail = { ok: false, noKey: true, status: 'no-key' };
   let tainted = null; // a usable reply that carries a stray glyph
   for (const provider of [callGroq, callGemini]) {
     // Sampling is stochastic, so one resample clears the artifact in practice.
     for (let attempt = 0; attempt < 2; attempt++) {
-      const out = await provider(req);
+      const remaining = deadline - Date.now();
+      if (remaining <= 0) {
+        return tainted ? { ...tainted, text: stripForeignLetters(tainted.text) }
+          : { ok: false, status: 'timeout' };
+      }
+      const out = await provider({ ...req, timeoutMs: Math.min(PROVIDER_TIMEOUT_MS, remaining) });
       if (!out.ok) {
         if (!out.noKey) lastFail = out; // keep the most informative failure
         break; // transport failure is the next provider's problem, not a resample

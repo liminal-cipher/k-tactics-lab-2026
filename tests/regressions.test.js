@@ -54,7 +54,59 @@ test('normal shared links round-trip through actual scripts', () => {
 
 
 
+test('cancelled or superseded scouts cannot overwrite or announce stale plans', async () => {
+  const c = client();
+  const requests = [];
+  c.callCoachAPI = (_, __, signal) => new Promise(resolve => requests.push({ resolve, signal }));
+  c.setOppChip = () => {};
+  const messages = [];
+  c.pushCoachMessage = html => messages.push(html);
+  const first = c.fetchOpponentPlan();
+  const second = c.fetchOpponentPlan();
+  assert.ok(requests[0].signal.aborted);
+  const oldPlan = c.scriptedCounterPlan();
+  requests[0].resolve({ opponent: oldPlan });
+  await first;
+  assert.equal(messages.length, 0);
+  requests[1].resolve({ opponent: c.scriptedCounterPlan() });
+  await second;
+  assert.equal(messages.length, 1);
+  for (const reply of [null, { opponent: oldPlan }]) {
+    const pending = c.fetchOpponentPlan();
+    c.cancelOpponentRequest();
+    c.board.opponentPlan = null;
+    requests.at(-1).resolve(reply);
+    await pending;
+    assert.equal(c.board.opponentPlan, null);
+    assert.equal(messages.length, 1);
+  }
+});
 
+test('opponent changes and second-half calculation cancel pending scouts', async () => {
+  const c = client();
+  let resolve, signal;
+  c.callCoachAPI = (_, __, s) => { signal = s; return new Promise(r => resolve = r); };
+  c.setOppChip = () => {};
+  c.pushCoachMessage = () => {};
+  c.updateBrandFixture = c.recalculateVibe = c.updateStats = () => {};
+  c.document.querySelectorAll = () => [];
+  const pending = c.fetchOpponentPlan();
+  c.selectOpponent('RSA');
+  assert.ok(signal.aborted);
+  resolve(null);
+  await pending;
+  const next = c.fetchOpponentPlan();
+  const saved = c.board.opponentPlan;
+  c.updateScorebug = c.renderPitch = () => {};
+  c.buildMatchFilm = () => ({});
+  c.buildCommentaryCues = () => [];
+  c.openMatchView = () => true;
+  c.runSecondHalf();
+  assert.ok(signal.aborted);
+  resolve({ opponent: c.scriptedCounterPlan() });
+  await next;
+  assert.equal(c.board.opponentPlan, saved);
+});
 
 function abortedFetch(_, { signal }) {
   return new Promise((resolve, reject) => {
@@ -63,6 +115,21 @@ function abortedFetch(_, { signal }) {
   });
 }
 
+test('client timeout and external cancellation release timers and return fallback', async () => {
+  const c = client();
+  c.fetch = abortedFetch;
+  const pending = c.callCoachAPI('chat', 'test');
+  assert.equal(c.clock.fire(), 25000);
+  assert.equal(await pending, null);
+  const controller = new AbortController();
+  const cancelled = c.callCoachAPI('opponent', '', controller.signal);
+  controller.abort();
+  assert.equal(await cancelled, null);
+  assert.equal(c.clock.pending.size, 0);
+  const offline = client('file:');
+  offline.fetch = () => assert.fail('offline must not fetch');
+  assert.equal(await offline.callCoachAPI('chat'), null);
+});
 
 function server(fetch) {
   const clock = timers();
@@ -76,7 +143,38 @@ function server(fetch) {
   return c;
 }
 
+test('server times out stalled Groq and falls back to Gemini', async () => {
+  const calls = [];
+  const c = server((url, options) => {
+    calls.push(url);
+    if (url.includes('groq.com')) return abortedFetch(url, options);
+    return Promise.resolve({ ok: true, json: async () => ({ candidates: [{ content: { parts: [{ text: '응답입니다.' }] } }] }) });
+  });
+  const pending = c.callLLM({ system: 'test', user: 'test', maxTokens: 10 });
+  assert.equal(c.clock.fire(), 5000);
+  const result = await pending;
+  assert.equal(result.ok, true);
+  assert.equal(calls.length, 2);
+  assert.equal(c.clock.pending.size, 0);
+});
 
+test('server timeout covers stalled response bodies and total request budget', async () => {
+  const c = server((url, options) => Promise.resolve({
+    ok: true, json: () => abortedFetch(url, options),
+  }));
+  const pending = c.callGroq({ system: 'test', user: 'test', maxTokens: 10 });
+  await new Promise(resolve => setImmediate(resolve));
+  c.clock.fire();
+  assert.equal((await pending).status, 'timeout');
+  assert.equal(c.clock.pending.size, 0);
+  vm.runInContext(`
+    let now = 0;
+    Date.now = () => now;
+    callGroq = async () => { now = 21000; return { ok: false, status: 'timeout' }; };
+    callGemini = async () => { throw new Error('must not exceed deadline'); };
+  `, c);
+  assert.equal((await c.callLLM({})).status, 'timeout');
+});
 
 
 
