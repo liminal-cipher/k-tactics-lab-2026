@@ -2,7 +2,7 @@
 
 > 2026 북중미 월드컵 대한민국 국가대표팀 전술 솔루션 및 브라우저 몬테카를로 매치 시뮬레이터
 
-![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)
+![Licence: MIT](https://img.shields.io/badge/Licence-MIT-blue.svg)
 ![Tech: Vanilla JS](https://img.shields.io/badge/Tech-Vanilla%20JS%20%7C%20HTML5%20%7C%20CSS3-06b6d4.svg)
 ![Deploy: Vercel](https://img.shields.io/badge/Deploy-Vercel-black.svg)
 
@@ -83,8 +83,8 @@ Coach V의 실시간 LLM 및 AI 상대 감독 기능을 사용하려면 서버�
 
 ## Status
 
-완료. 2026 월간 해커톤 출품작으로 2026.06 진행. Vercel 라이브 데모 배포 중. 마지막 갱신 2026-09-01.
+완료. 2026 월간 해커톤 출품작으로 2026.06 진행. Vercel 라이브 데모 배포 중. 마지막 갱신 2026-10-24.
 
-## License
+## Licence
 
 MIT. See [LICENSE](LICENSE).
