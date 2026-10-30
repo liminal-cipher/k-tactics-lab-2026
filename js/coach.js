@@ -1,4 +1,4 @@
-// Classic script; loaded before app.js. Shared board state is initialized by app.js.
+// Classic script; loaded before app.js. Shared board state is initialised by app.js.
 // ==========================================================================
 // Coach V — real AI via serverless proxy (/api/coach) with scripted fallback.
 // On file:// (offline judging) or any network error, we silently fall back to

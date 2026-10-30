@@ -1,4 +1,4 @@
-// Classic script; loaded before app.js. Shared board state is initialized by app.js.
+// Classic script; loaded before app.js. Shared board state is initialised by app.js.
 // The half-time score, as a calculation the view can ask for before kickoff.
 // Deterministic on purpose: the premise is re-taking one specific match, so
 // the situation you inherit must not reroll.

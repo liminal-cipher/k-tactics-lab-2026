@@ -5,7 +5,7 @@
 @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700&family=Noto+Sans+KR:wght@300;400;500;700&display=swap');
 
 :root {
-  /* Color Palette - Cinematic Match-day (dark hybrid: broadcast + FUT) */
+  /* Colour Palette - Cinematic Match-day (dark hybrid: broadcast + FUT) */
   --bg-primary: #05070f;
   --bg-secondary: #0e1626;
   --bg-tertiary: #16223a;
@@ -40,7 +40,7 @@
   --surface-sunken: rgba(255, 255, 255, 0.045);
   --surface-sunken-2: rgba(255, 255, 255, 0.08);
 
-  /* Pitch Colors (floodlit broadcast grass) */
+  /* Pitch Colours (floodlit broadcast grass) */
   --pitch-bg: #1a6f43;
   --pitch-stripe: #22824f;
   --pitch-line: rgba(255, 255, 255, 0.55);
@@ -250,7 +250,7 @@ body.glow-success {
 }
 
 /* ==========================================================================
-   Unified Standardized Widget Header (All Widgets Uniform!)
+   Unified Standardised Widget Header (All Widgets Uniform!)
    ========================================================================== */
 .widget-header-box {
   display: flex;
@@ -595,7 +595,7 @@ body.glow-success {
 }
 
 /* ==========================================================================
-   Section 2: Center Pitch & Drag and Drop Squad
+   Section 2: Centre Pitch & Drag and Drop Squad
    ========================================================================== */
 .center-panel {
   height: 100%;
@@ -754,7 +754,7 @@ body.glow-success {
   animation: pulse 1s infinite;
 }
 
-/* Position-specific color coding for Player Cards */
+/* Position-specific colour coding for Player Cards */
 .player-card.card-att { --pc: var(--accent-rose); }
 .player-card.card-mid { --pc: var(--accent-emerald); }
 .player-card.card-def { --pc: var(--accent-cyan); }
@@ -1989,12 +1989,12 @@ body.glow-success {
 #panel-left #section-live-chat { flex: 1 1 auto; min-height: 120px; }
 
 /* ==========================================================================
-   Stage 3 redesign: pitch-hero center + tabbed right rail + opponent chip.
+   Stage 3 redesign: pitch-hero centre + tabbed right rail + opponent chip.
    Removes the left rail; overrides the Stage 2 two-row grid. Minimalist pass.
    (These rules load last, so they win over the Stage 2 block above.)
    ========================================================================== */
 
-/* --- Grid: 2 columns, single row. Center = pitch stage, right = tabbed rail. --- */
+/* --- Grid: 2 columns, single row. Centre = pitch stage, right = tabbed rail. --- */
 #view-tactics.main-container {
   grid-template-columns: minmax(0, 1fr) 344px;
   grid-template-rows: minmax(0, 1fr);
@@ -2012,7 +2012,7 @@ body.glow-success {
   }
 }
 
-/* --- Center stage: header, pitch (hero), team HUD, tactics deck stacked --- */
+/* --- Centre stage: header, pitch (hero), team HUD, tactics deck stacked --- */
 #panel-center {
   display: flex; flex-direction: column; gap: 0.55rem;
   min-height: 0; overflow: hidden;
@@ -2250,7 +2250,7 @@ html { scrollbar-width: thin; scrollbar-color: rgba(148, 163, 184, 0.45) transpa
   .app-header .scorebug .sb-phase { display: none; }
 }
 
-/* Slim the formation/opponent control strip + tighten the center stack gap */
+/* Slim the formation/opponent control strip + tighten the centre stack gap */
 #panel-center { gap: 0.45rem; }
 #panel-center .mch-row-top { padding: 0.32rem 0.72rem; }
 #panel-center .mch-label { font-size: 0.72rem; }

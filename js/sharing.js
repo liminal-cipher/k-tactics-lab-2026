@@ -1,4 +1,4 @@
-// Classic script; loaded before app.js. Shared board state is initialized by app.js.
+// Classic script; loaded before app.js. Shared board state is initialised by app.js.
 // ==========================================================================
 // Real viral share + "challenge a friend" URL-encoded tactic state.
 // ==========================================================================

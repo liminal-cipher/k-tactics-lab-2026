@@ -134,7 +134,7 @@ const FAN_COMMENTS_2026 = [
   { text: '이 정도 공격력이면 상대 골키퍼 바쁘겠다 ㅋㅋ', type: 'normal', tags: ['strongAttack'] },
   { text: '화력 하나는 역대급이다 이제 마무리만 잘하면', type: 'normal', tags: ['strongAttack'] },
 
-  // ---- weak defense ----
+  // ---- weak defence ----
   { text: '수비 밸런스 이거 괜찮음? 측면 자동문 또 열린다', type: 'hater', tags: ['weakDefense'] },
   { text: '뒷문 부실한데 실점 각 보인다 감독님 조심!', type: 'hater', tags: ['weakDefense'] },
   { text: '풀백 뒷공간 저거 남아공한테 또 털린 그 장면인데', type: 'hater', tags: ['weakDefense'] },

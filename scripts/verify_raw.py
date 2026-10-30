@@ -139,7 +139,7 @@ else:
     print('  불일치 0건. 손으로 옮긴 값이 원본과 전부 일치한다.')
 
 # --- shots recovered from per-90 ------------------------------------------
-print('\n[교차 검증] Sh/90 × 90s 로 복원한 슈팅 개수가 CSV의 실제 Sh 와 같은가')
+print('\n[교차 검증] Sh/90 × 90s로 복원한 슈팅 개수가 CSV의 실제 Sh와 같은가')
 sbad = 0
 for p in ps.PLAYERS:
     rec = sho.get(rom[p['n']])
@@ -181,7 +181,7 @@ for n, c, l in age_diff:
 # FBref renders age as "years-days" relative to the day the page was served.
 # If the literals were transcribed from one real page, every player's age must
 # resolve to the SAME snapshot date. Fabricated ages would scatter.
-print('\n[나이 출처 추적] 리터럴의 YY-DDD 를 생년월일로 되돌리면 어느 날짜가 나오는가')
+print('\n[나이 출처 추적] 리터럴의 YY-DDD를 생년월일로 되돌리면 어느 날짜가 나오는가')
 
 
 def as_of(birth, yy, dd):
@@ -268,7 +268,7 @@ if nonum:
 
 # --- playing time: independent copy of the same minutes --------------------
 pt = load('fbref_playing_time.csv')
-print('\n[교차 검증] playing_time 표의 MP·Min·Starts·90s 가 standard 표와 일치하는가')
+print('\n[교차 검증] playing_time 표의 MP·Min·Starts·90s가 standard 표와 일치하는가')
 ptbad = 0
 for p in ps.PLAYERS:
     a, b = std.get(rom[p['n']]), pt.get(rom[p['n']])

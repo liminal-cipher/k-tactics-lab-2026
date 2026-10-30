@@ -75,7 +75,7 @@ stamina  = 85 − max(0, 나이−27)×0.6 + min(3, max(0, 25−나이)×0.4) + 
 
 ## 4. 검증 (Validation)
 
-**(1) 재현성**: `python scripts/parse_stats.py` 재실행 후 `git diff data/squad_stats_2026.js` 가 **무변경(diff-zero)**. 커밋된 데이터가 스크립트만으로 완전 재생성됨을 확인했다 (2026-07-22 검증).
+**(1) 재현성**: `python scripts/parse_stats.py` 재실행 후 `git diff data/squad_stats_2026.js`가 **무변경(diff-zero)**. 커밋된 데이터가 스크립트만으로 완전 재생성됨을 확인했다 (2026-07-22 검증).
 
 **(2) 분포 sanity (20인, 계산 능력치)**:
 

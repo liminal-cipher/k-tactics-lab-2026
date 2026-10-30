@@ -291,7 +291,7 @@ async function callGroq({ system, user, maxTokens, temperature, schema, timeoutM
   }
 }
 
-// A tokenizer artifact no prompt rule can reach: a letter from an unrelated
+// A tokeniser artefact no prompt rule can reach: a letter from an unrelated
 // script lands mid-word, e.g. "하프ス페이스" for 하프스페이스. Measured at 2 of 10
 // replies on gemini-3.5-flash-lite and 0 of 10 on the pinned 3.1-flash-lite,
 // so this is a net, not a workaround. Scope it to LETTERS outside the three
@@ -312,7 +312,7 @@ async function callLLM(req) {
   let lastFail = { ok: false, noKey: true, status: 'no-key' };
   let tainted = null; // a usable reply that carries a stray glyph
   for (const provider of [callGroq, callGemini]) {
-    // Sampling is stochastic, so one resample clears the artifact in practice.
+    // Sampling is stochastic, so one resample clears the artefact in practice.
     for (let attempt = 0; attempt < 2; attempt++) {
       const remaining = deadline - Date.now();
       if (remaining <= 0) {
@@ -385,7 +385,7 @@ module.exports = async function handler(req, res) {
     return;
   }
 
-  // Deterministic cleanup the prompt rules can only encourage: normalize
+  // Deterministic cleanup the prompt rules can only encourage: normalise
   // exotic hyphens/minus (U+2010..U+2015, U+2212) the model still emits.
   const hyphens = new RegExp('[\\u2010-\\u2015\\u2212]', 'g');
   const text = out.text.replace(hyphens, '-');

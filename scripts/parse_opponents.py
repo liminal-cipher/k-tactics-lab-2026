@@ -33,7 +33,7 @@ CURATED = {
     'RSA': {'att': 66, 'def': 70},
 }
 
-# The opening board sits at attack 70 / defense 70 (PROPOSAL §5.3), and
+# The opening board sits at attack 70 / defence 70 (PROPOSAL §5.3), and
 # secondHalfLambdas() consumes OPP_STRENGTH as a ratio against those HUD
 # stats. So KOR's own raw data is pinned to 70 and every opponent is placed
 # relative to it — that keeps the derived numbers on the scale the engine

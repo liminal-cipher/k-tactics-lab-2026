@@ -313,7 +313,7 @@ const fanComments = [
   { user: '빛현우팬클럽', text: '조현우만 믿는다 ㅠㅠ 수비수들 정신 좀 차려라', type: 'normal' }
 ];
 
-// --- Synthesized match-day sound FX (Web Audio API; no assets, file:// safe) ---
+// --- Synthesised match-day sound FX (Web Audio API; no assets, file:// safe) ---
 const SFX = {
   ctx: null, muted: false,
   _ac() {
@@ -367,7 +367,7 @@ function toggleSfx() {
   if (!SFX.muted) SFX.ui();
 }
 
-// --- Initialize App ---
+// --- Initialise App ---
 document.addEventListener('DOMContentLoaded', () => {
   const challenge = applyChallengeFromURL(); // decode a shared "beat my tactic" link, if any
   renderPitch(state.currentFormation);
@@ -1531,7 +1531,7 @@ function startLiveChatStream() {
   }, 4500);
 }
 
-// Fan-chat handles. Flavors: supporters, tactics nerds, matchday culture,
+// Fan-chat handles. Flavours: supporters, tactics nerds, matchday culture,
 // regional fans. House rules: cheer or nerd out, never demean a player or
 // coach, and no fan-slang terms the docs only quote with attribution.
 const FAN_NICKNAMES = [
@@ -2591,7 +2591,7 @@ function buildFirstHalfCues(film) {
   return cues.sort((a, b) => a.minute - b.minute);
 }
 
-// Formation rows -> normalized pitch spots. FORMATION_ROWS runs attack line
+// Formation rows -> normalised pitch spots. FORMATION_ROWS runs attack line
 // first and keeper last (the order the board renders), so the film shows the
 // same shape the manager actually built.
 function teamShape(formation, attackingRight) {
@@ -2673,7 +2673,7 @@ function drawPitchSurface(ctx, W, H) {
   });
 }
 
-// Pitch coords are normalized (0..1 along the length, Korea attacking right)
+// Pitch coords are normalised (0..1 along the length, Korea attacking right)
 // so every drawing call is resolution-independent.
 function pitchPoint(W, H, nx, ny) {
   const px = W * 0.022, py = H * 0.05;
